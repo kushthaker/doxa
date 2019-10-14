@@ -1,7 +1,10 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, flash, redirect
+from forms import RegistrationForm, LoginForm
 
 application = Flask(__name__)
 app = application
+app.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
+
 
 posts = [
 	{
@@ -25,14 +28,32 @@ posts = [
 ]
 
 @app.route("/")
-@app.route("/cheese")
-@app.route("/fromage")
-def hello():         
+def home():         
     return render_template('home.html', posts=posts)
 
 @app.route("/about")
 def about():
-	return render_template('about.html', title="about")
+	return render_template('about.html', title="About")
+
+
+@app.route("/register", methods=['GET','POST'])
+def register():
+	form = RegistrationForm()
+	if form.validate_on_submit():
+		flash(f'Account created for {form.username.data}!', 'success')
+		return redirect(url_for('home'))
+	return render_template('register.html', title='Register', form=form)
+
+@app.route("/login", methods=['GET','POST'])
+def login():
+	form = LoginForm()
+	if form.email.data == 'abc@eee.com' and form.password.data == 'password':
+		flash(f'Login successful for {form.email.data}', 'success')
+		return redirect(url_for('home'))
+	else:
+		flash(f'Login unsuccessful. Please check user and pass', 'danger')
+	return render_template('login.html', title='Login', form=form)
+
 
 if __name__ == "__main__":
     app.debug = True         
