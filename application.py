@@ -31,7 +31,6 @@ class Post(db.Model):
 	def __repr__(self):
 		return "Post('%s', '%s')" % (self.title, self.date_posted)
 
-
 @app.route('/slack-challenge', methods=['POST'])
 def slack_challenge():
 	print(request)
