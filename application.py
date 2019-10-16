@@ -19,7 +19,7 @@ class User(db.Model):
 	posts = db.relationship('Post', backref='author', lazy=True)
 
 	def __repr__(self):
-		return f"User('{self.username}','{self.email}','{self.image_file}')"
+		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
 
 class Post(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -29,7 +29,7 @@ class Post(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 	def __repr__(self):
-		return f"Post('{self.title}','{self.date_posted}')"
+		return "Post('%s', '%s')" % (self.title, self.date_posted)
 
 
 
@@ -67,7 +67,7 @@ def about():
 def register():
 	form = RegistrationForm()
 	if form.validate_on_submit():
-		flash(f'Account created for {form.username.data}!', 'success')
+		flash('Account created for %s!' % form.username.data, 'success')
 		return redirect(url_for('home'))
 	return render_template('register.html', title='Register', form=form)
 
@@ -76,10 +76,10 @@ def login():
 	form = LoginForm()
 	if form.validate_on_submit():
 		if form.email.data == 'abc@eee.com' and form.password.data == 'password':
-			flash(f'Login successful for {form.email.data}', 'success')
+			flash('Login successful for %s' % form.email.data, 'success')
 			return redirect(url_for('home'))
 		else:
-			flash(f'Login unsuccessful. Please check user and pass', 'danger')
+			flash('Login unsuccessful. Please check username and pass', 'danger')
 	return render_template('login.html', title='Login', form=form)
 
 
