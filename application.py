@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, flash, redirect
+from flask import Flask, render_template, url_for, flash, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from forms import RegistrationForm, LoginForm
 from datetime import datetime
@@ -32,6 +32,12 @@ class Post(db.Model):
 		return "Post('%s', '%s')" % (self.title, self.date_posted)
 
 
+@app.route('/slack-challenge', methods=['POST'])
+def slack_challenge():
+	print(request)
+	print(request.json)
+	challenge_parameter = request.json['challenge']
+	return challenge_parameter
 
 posts = [
 	{
@@ -62,7 +68,6 @@ def home():
 def about():
 	return render_template('about.html', title="About")
 
-
 @app.route("/register", methods=['GET','POST'])
 def register():
 	form = RegistrationForm()
@@ -79,12 +84,12 @@ def login():
 			flash('Login successful for %s' % form.email.data, 'success')
 			return redirect(url_for('home'))
 		else:
-			flash('Login unsuccessful. Please check username and pass', 'danger')
+			flash('Login unsuccessful. Please check user and pass', 'danger')
 	return render_template('login.html', title='Login', form=form)
 
 
 if __name__ == "__main__":
-    app.debug = True         
+    app.debug = True
     app.run()
 
 
