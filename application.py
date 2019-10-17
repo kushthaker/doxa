@@ -31,12 +31,23 @@ class Post(db.Model):
 	def __repr__(self):
 		return "Post('%s', '%s')" % (self.title, self.date_posted)
 
-@app.route('/slack-challenge', methods=['POST'])
-def slack_challenge():
+@app.route('/slack-event', methods=['POST'])
+def slack_event():
 	print(request)
-	print(request.json)
-	challenge_parameter = request.json['challenge']
-	return challenge_parameter
+	
+	try:
+		if request.json.get('type') != 'url_verification':
+			print(request.json) # this is where we log / store things
+			return '200'
+		else:
+			print(request.json)
+			return request.json.get('challenge')
+	except:
+		print('excepted:')
+		print(request.json)
+		return '200'
+	return '200'
+
 
 posts = [
 	{
