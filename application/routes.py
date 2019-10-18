@@ -1,9 +1,9 @@
 from flask import render_template, url_for, flash, redirect, request
-from application import app
+from application import application
 from application.forms import RegistrationForm, LoginForm
 from application.models import User, Post
 
-@app.route('/slack-event', methods=['POST'])
+@application.route('/slack-event', methods=['POST'])
 def slack_event():
 	print(request)
 	
@@ -42,15 +42,15 @@ posts = [
 	}
 ]
 
-@app.route("/")
+@application.route("/")
 def home():         
     return render_template('home.html', posts=posts)
 
-@app.route("/about")
+@application.route("/about")
 def about():
 	return render_template('about.html', title="About")
 
-@app.route("/register", methods=['GET','POST'])
+@application.route("/register", methods=['GET','POST'])
 def register():
 	form = RegistrationForm()
 	if form.validate_on_submit():
@@ -58,7 +58,7 @@ def register():
 		return redirect(url_for('home'))
 	return render_template('register.html', title='Register', form=form)
 
-@app.route("/login", methods=['GET','POST'])
+@application.route("/login", methods=['GET','POST'])
 def login():
 	form = LoginForm()
 	if form.validate_on_submit():
