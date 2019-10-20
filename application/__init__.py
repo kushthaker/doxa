@@ -5,6 +5,7 @@ application = Flask(__name__) # aws eb requires 'application' name for Flask ins
 
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pgmaster:postgres@doxa-database-staging.c8pjbrdeia2z.us-east-1.rds.amazonaws.com'
 db = SQLAlchemy(application)
 
 from application import routes
