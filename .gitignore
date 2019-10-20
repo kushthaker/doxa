@@ -6,3 +6,4 @@
 virt/*
 ngrok
 *.pyc
+*.cpython-36.pyc

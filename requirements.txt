@@ -14,6 +14,7 @@ entrypoints==0.2.3
 enum34==1.1.6
 Flask==1.0.2
 Flask-Migrate==2.5.2
+Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.2
 html5lib==0.9999999
@@ -46,6 +47,7 @@ pexpect==4.2.1
 pickleshare==0.7.4
 prompt-toolkit==1.0.15
 protobuf==3.4.0
+psycopg2==2.8.3
 ptyprocess==0.5.2
 pyasn1==0.4.7
 Pygments==2.2.0

@@ -20,6 +20,10 @@ def slack_event():
 		return '200'
 	return '200'
 
+@application.route('/test-db-route', methods=['GET'])
+def test_db_route():
+	return str(Post.query.all()) # test method to see if application can hit DB in production
+
 
 posts = [
 	{
