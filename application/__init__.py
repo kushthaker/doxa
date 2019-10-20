@@ -5,23 +5,15 @@ import os
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 
-PG_URL = application.config.get('AWS_RDS_URL')
-if PG_URL is None:
-  PG_URL = os.environ.get('AWS_RDS_URL')
-  if PG_URL is not None:
-    print('USING VARIABLE FROM os.environ')
-else:
-  print('USING VARIABLE FROM application.config ')
-if PG_URL is None:
-  print("USING VARIABLE could_not_find")
-# should be pgmaster:postgres@doxa-database-staging.c8pjbrdeia2z.us-east-1.rds.amazonaws.com
-
-if PG_URL is None:
+PG_URL = os.environ.get('AWS_RDS_URL')
+if PG_URL != None:
+  print('USING VARIABLE %s' % PG_URL)
   application.config['SQLALCHEMY_DATABASE_URI'] = PG_URL
+  # to set AWS database URL for EB environment: `eb use _environment-name_` (e.g. doxa-staging) then `eb set-env _database-url_`
+  # e.g. eb setenv AWS_RDS_URL=postgresql://pgmaster:postgres@database-url.rds.amazon.com:5432/doxa_db_staging
 else:
+  print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
-
-application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://pgmaster:postgres@doxa-database-staging.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/doxa_db_staging'
 
 db = SQLAlchemy(application)
 from application import routes
