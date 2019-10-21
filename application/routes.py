@@ -1,15 +1,16 @@
 from flask import render_template, url_for, flash, redirect, request
 from application import application
 from application.forms import RegistrationForm, LoginForm
-from application.models import User, Post
+from application.models import User, Post, RawSlackEvent
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
 	print(request)
-	
 	try:
 		if request.json.get('type') != 'url_verification':
 			print(request.json) # this is where we log / store things
+			raw_slack_event = RawSlackEvent(json_data = request.json)
+			raw_slack_event.save()
 			return '200'
 		else:
 			print(request.json)
