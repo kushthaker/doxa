@@ -27,7 +27,7 @@ Install PostgreSQL 11.5
 start PostgreSQL -> brew services start postgresql
 Then:
 createdb doxa-db-dev
-pip install
+pip install -r requirements.txt
 python manage.py db init
 python manage.py db migrate (if you have new database changes)
 Then inspect the new migration! Does it look okay?
