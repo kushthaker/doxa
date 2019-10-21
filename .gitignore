@@ -5,3 +5,7 @@
 !.elasticbeanstalk/*.global.yml
 virt/*
 ngrok
+*.pyc
+*.cpython-36.pyc
+__pycache__
+
