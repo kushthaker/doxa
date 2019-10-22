@@ -3,6 +3,7 @@ from application import application, db, bcrypt
 from application.forms import RegistrationForm, LoginForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
+from application import slack_auth
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -25,7 +26,6 @@ def slack_event():
 @application.route('/test-db-route', methods=['GET'])
 def test_db_route():
 	return str(Post.query.all()) # test method to see if application can hit DB in production
-
 
 posts = [
 	{
@@ -95,3 +95,57 @@ def logout():
 @login_required
 def account():
 	return render_template('account.html', title='Account')
+
+
+# import functools
+
+# SLACK_INSTALL_ROUTE = '/slack-install'
+# SLACK_AUTH_ROUTE = '/slack-authorize'
+# NGROK = 'https://2f72c0ee.ngrok.io'
+# # SLACK_AUTH_URL = NGROK + SLACK_AUTH_ROUTE
+# TEST_SLACK_CLIENT_ID = '557358026116.693643634144'
+
+# SLACK_SCOPES = [
+#   'channels:history',
+#   'channels:read',
+#   'dnd:read',
+#   'groups:history',
+#   'groups:read',
+#   'dnd:write:user',
+#   'dnd:read',
+#   'groups:history',
+#   'groups:read',
+#   # 'identity',
+#   # 'identity.email:read:user',
+#   # 'identity:read:user',
+#   'im:history',
+#   'im:read',
+#   'links:read',
+#   'mpim:read',
+#   'mpim:history',
+#   'reactions:read',
+#   'reminders:read:user',
+#   'team:read',
+#   'usergroups:read',
+#   'users.profile:read',
+#   'users:read',
+#   'users:read.email'
+# ]
+
+# @application.route(SLACK_AUTH_ROUTE)
+# def slack_auth_route():
+#   print('HIT SLACK AUTHORIZE ROUTE')
+#   return '200'
+#   # It should then redirect back to our app IDEALLY
+
+# @application.route(SLACK_INSTALL_ROUTE)
+# def slack_install_route():
+#   print('HIT SLACK INSTALL ROUTE')
+#   slack_url = _build_slack_access_request()
+#   redirect(slack_url)
+
+# def _build_slack_access_request():
+#   scope = '{%s}' % functools.reduce(lambda one, two: one + ',' + two, SLACK_SCOPES)
+#   client_id = '{%s}' % TEST_SLACK_CLIENT_ID
+#   redirect_uri = NGROK + SLACK_AUTH_ROUTE
+#   return 'https://slack.com/oauth/authorize?scope=%s&client_id=%s' % (scope, client_id)
