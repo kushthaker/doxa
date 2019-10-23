@@ -7,6 +7,9 @@ from flask_login import LoginManager
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 
+application.config['SLACK_CLIENT_ID'] = os.environ.get('SLACK_CLIENT_ID') # stored in EB config
+application.config['SLACK_CLIENT_SECRET'] = os.environ.get('SLACK_CLIENT_SECRET') # stored in EB config
+
 PG_URL = os.environ.get('AWS_RDS_URL')
 if PG_URL != None:
   print('USING VARIABLE %s' % PG_URL)
