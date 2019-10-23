@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
@@ -15,7 +17,11 @@ else:
   print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
 
+ 
 db = SQLAlchemy(application)
+bcrypt = Bcrypt(application)
+login_manager = LoginManager(application)
+
 from application import routes
 from application import db
 
