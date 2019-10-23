@@ -17,7 +17,6 @@ class User(db.Model, UserMixin):
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	posts = db.relationship('Post', backref='author', lazy=True)
 
-
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
 
@@ -34,7 +33,43 @@ class Post(db.Model):
 	def __repr__(self):
 		return "Post('%s', '%s', '%s')" % (self.title, self.date_posted, self.sub_content)
 
-class RawSlackEvent(db.Model):
+class EnhancedDBModel():
+	def save(self):
+		if self.id == None:
+			db.session.add(self)
+		return db.session.commit()
+
+class SlackTeam(db.Model, EnhancedDBModel):
+	__tablename__ = 'slack_teams'
+	id = db.Column(db.Integer, primary_key=True)
+	api_scope = db.Column(db.String(1000), nullable=True)
+	install_slack_user_id = db.Column(db.String(100), nullable=True)
+	slack_team_id = db.Column(db.String(100), nullable=False, unique=True)
+	slack_team_name = db.Column(db.String(100), nullable=False)
+	api_access_token = db.Column(db.String(100), nullable=True)
+	datetime_authenticated = db.Column(db.DateTime, nullable=True)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+	def update_registration(self, new_slack_team):
+		if new_slack_team.slack_team_id != self.slack_team_id:
+			raise ValueError("Old slack team ID is not the same as new Slack team ID")
+		self.api_scope = new_slack_team.api_scope
+		self.install_slack_user_id = new_slack_team.install_slack_user_id
+		self.slack_team_name = new_slack_team.slack_team_name
+		self.api_access_token = new_slack_team.api_access_token
+		self.datetime_authenticated = datetime.utcnow()
+	def __repr__(self):
+		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_id)
+
+	def __init__(self, oauth_response_json):
+		self.api_scope = oauth_response_json.get('scope')
+		self.install_slack_user_id = oauth_response_json.get('user_id')
+		self.slack_team_id = oauth_response_json.get('team_id')
+		self.slack_team_name = oauth_response_json.get('team_name')
+		self.api_access_token = oauth_response_json.get('access_token')
+		self.datetime_authenticated = datetime.utcnow()
+
+class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
 	id = db.Column(db.Integer, primary_key=True)
 	json_data = db.Column(db.JSON(none_as_null=True), nullable=False)
@@ -46,7 +81,3 @@ class RawSlackEvent(db.Model):
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
 
-	def save(self):
-		if self.id == None:
-			db.session.add(self)
-		return db.session.commit()

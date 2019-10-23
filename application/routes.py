@@ -3,6 +3,7 @@ from application import application, db, bcrypt
 from application.forms import RegistrationForm, LoginForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
+from application import slack_auth
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -25,7 +26,6 @@ def slack_event():
 @application.route('/test-db-route', methods=['GET'])
 def test_db_route():
 	return str(Post.query.all()) # test method to see if application can hit DB in production
-
 
 posts = [
 	{
