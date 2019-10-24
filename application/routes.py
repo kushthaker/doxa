@@ -1,6 +1,9 @@
+import os
+import secrets
+from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from application import application, db, bcrypt
-from application.forms import RegistrationForm, LoginForm
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
@@ -90,8 +93,39 @@ def logout():
 	logout_user()
 	return redirect(url_for('home'))
 
+def save_image(form_picture):
+	random_hex = secrets.token_hex(8)
+	_, f_ext = os.path.splitext(form_picture.filename)
+	picture_fn = random_hex + f_ext
+	picture_path = os.path.join(application.root_path, 'static/profile_pics', picture_fn)
+	output_size = (125,125)
+	i = Image.open(form_picture)
+	i.thumbnail(output_size)
+	i.save(picture_path)
+	return picture_fn
 
-@application.route("/account")
+@application.route("/account", methods=['GET','POST'])
 @login_required
 def account():
-	return render_template('account.html', title='Account')
+	form = UpdateAccountForm()
+	if form.validate_on_submit():
+		if form.picture.data:
+			picture_file = save_image(form.picture.data)
+			current_user.image_file = picture_file
+		current_user.username = form.username.data
+		current_user.email = form.email.data
+		db.session.commit()
+		flash('Account Updated!', 'success')
+		return redirect(url_for('account'))
+	elif request.method == 'GET':
+		form.username.data = current_user.username
+		form.email.data = current_user.email
+
+	if current_user.image_file == 'default.jpg':
+		image_path = 'https://raw.githubusercontent.com/CoreyMSchafer/code_snippets/master/Python/Flask_Blog/07-User-Account-Profile-Pic/flaskblog/static/profile_pics/default.jpg'
+	else:
+		image_path = '../static/profile_pics/' + current_user.image_file
+
+	return render_template('account.html', title='Account', image_path=image_path, form=form)
+
+
