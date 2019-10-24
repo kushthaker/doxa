@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request
 from application import application, db, bcrypt
-from application.forms import RegistrationForm, LoginForm
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
@@ -91,7 +91,20 @@ def logout():
 	return redirect(url_for('home'))
 
 
-@application.route("/account")
+@application.route("/account", methods=['GET','POST'])
 @login_required
 def account():
-	return render_template('account.html', title='Account')
+	form = UpdateAccountForm()
+	if form.validate_on_submit():
+		current_user.username = form.username.data
+		current_user.email = form.email.data
+		db.session.commit()
+		flash('Account Updated!', 'success')
+		return redirect(url_for('account'))
+	elif request.method == 'GET':
+		form.username.data = current_user.username
+		form.email.data = current_user.email
+	image_file_url = 'https://raw.githubusercontent.com/CoreyMSchafer/code_snippets/master/Python/Flask_Blog/07-User-Account-Profile-Pic/flaskblog/static/profile_pics/default.jpg'
+	return render_template('account.html', title='Account', image_file_url=image_file_url, form=form)
+
+
