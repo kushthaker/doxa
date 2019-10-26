@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request
 from application import application, db, bcrypt
-from application.forms import RegistrationForm, LoginForm, UpdateAccountForm
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
@@ -127,5 +127,15 @@ def account():
 		image_path = '../static/profile_pics/' + current_user.image_file
 
 	return render_template('account.html', title='Account', image_path=image_path, form=form)
+
+@application.route("/post/new", methods=['GET','POST'])
+@login_required
+def new_post():
+	form = PostForm()
+	if form.validate_on_submit():
+		flash('You post was created', 'success')
+		return(redirect(url_for('home')))
+	return render_template('create_post.html', title='New Post', form=form)
+
 
 
