@@ -33,7 +33,8 @@ def test_db_route():
 @application.route("/")
 def home():
 	image_path = 'https://raw.githubusercontent.com/CoreyMSchafer/code_snippets/master/Python/Flask_Blog/07-User-Account-Profile-Pic/flaskblog/static/profile_pics/default.jpg'
-	posts = Post.query.all()
+	page = request.args.get('page', 1, type=int)
+	posts = Post.query.paginate(page=page, per_page=3)
 	return render_template('home.html', posts=posts, image_path=image_path)
 
 @application.route("/about")
