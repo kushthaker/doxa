@@ -34,7 +34,7 @@ def test_db_route():
 def home():
 	image_path = 'https://raw.githubusercontent.com/CoreyMSchafer/code_snippets/master/Python/Flask_Blog/07-User-Account-Profile-Pic/flaskblog/static/profile_pics/default.jpg'
 	page = request.args.get('page', 1, type=int)
-	posts = Post.query.paginate(page=page, per_page=3)
+	posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=3)
 	return render_template('home.html', posts=posts, image_path=image_path)
 
 @application.route("/about")
@@ -155,6 +155,15 @@ def delete_post(post_id):
 	db.session.commit()
 	flash('Post deleted!', 'success')
 	return redirect(url_for('home'))
+
+@application.route("/user/<string:username>")
+def user_posts(username):
+	page = request.args.get('page', 1, type=int)
+	user = User.query.filter_by(username=username).first_or_404()
+	posts = Post.query.filter_by(author=user)\
+		.order_by(Post.date_posted.desc())\
+		.paginate(page=page, per_page=3)
+	return render_template('home.html', posts=posts, user=user)
 
 
 
