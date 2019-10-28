@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-
 <div class="content-section">
 	<form method="POST", action="">
+		{{ form.hidden_tag() }}
 		<fieldset class="form-group">
-			<legend class="border-bottom mb-4">Create Post</legend>
+			<legend class="border-bottom mb-4">{{legend}}</legend>
 			<div class=form-group>
 				{{form.title.label(class="form-control-label")}}
 				{% if form.title.errors %}
@@ -32,11 +32,9 @@
 				{% endif %}
 			</div>
 		</fieldset>
-		<div>
-			<div class="form-group">
-				{{ form.submit(class="btn btn-outline-info") }}
-			</div>
+		<div class="form-group">
+			{{ form.submit(class="btn btn-outline-info") }}
 		</div>
 	</form>
 </div>
-{% endblock %}
+{% endblock content %}
