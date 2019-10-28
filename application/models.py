@@ -83,14 +83,11 @@ class SlackUser(db.Model, EnhancedDBModel):
 	is_deleted_on_slack = db.Column(db.Boolean, nullable=False, default=False)
 	created_date = db.Column(db.DateTime, nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	slack_timestamp_label = db.Column(db.String(100))
+	slack_timestamp_offset = db.Column(db.Integer)
 
 	def __repr__(self):
 			return 'SlackUser(%s, %s, %s)' % (first_name + last_name, id, slack_user_id)
-
-	def update_user_info(self, user_info):
-		user_details = user_info.get('user')
-		if user_details != None:
-			self.slack_user_api_id = user_info.get('')
 
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'

@@ -3,6 +3,7 @@ from application import application
 from application.models import SlackTeam, SlackUser
 import slack
 import functools
+from datetime import datetime
 
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
@@ -62,17 +63,29 @@ def slack_auth_route():
   
   user_id = res_data.get('user_id')
   existing_user = SlackUser.query.filter_by(slack_user_id=user_id).one_or_none()
+  
   if existing_user:
     existing_user.is_authenticated = True
     existing_user.save()
   else:
-    web_client = build_slack_web_client(slack_team.slack_team_id)
+    web_client = build_slack_web_client(slack_team=slack_team)
     user_info_data = web_client.users_info(user_id).data
-    # THEN create Slack user
-    new_slack_user = SlackUser()
-
-      
-
+    # THEN create Slack user from who is authenticating
+    user_profile_data = user_info_data.get('profile')
+    new_slack_user = SlackUser(
+                               slack_user_api_id = user_info_data.get('id'), \
+                               slack_team_id = slack_team.id, \
+                               slack_email_address = user_profile_data.get('email'), \
+                               first_name = user_profile_data.get('first_name'), \
+                               last_name = user_profile_data.get('last_name'), \
+                               slack_username = user_info_data.get('name'), \
+                               is_authenticated = True, \
+                               is_deleted_on_slack = user_info_data.get('deleted'), \
+                               created_date = datetime.utcnow(), \
+                               slack_timestamp_label = user_info_data.get('tz_label'), \
+                               slack_timestamp_offset = user_info_data.get('tz_offset') \
+                              )
+    new_slack_user.save() # will want to then send them an email to get them onboarded or something
   return _redirect_back_to_slack(slack_team.slack_team_id)
 
 '''
@@ -108,13 +121,13 @@ def _build_slack_access_request():
 def _redirect_back_to_slack(team_id):
   return redirect('slack://open?team=%s' % team_id)
 
-def build_slack_web_client(slack_api_team=None, slack_api_team_id=None, connection_test=False):
-  if slack_api_team is None:
+def build_slack_web_client(slack_team=None, slack_api_team_id=None, connection_test=False):
+  if slack_team is None:
     if slack_api_team_id is not None:
-      slack_api_team = SlackTeam.query.filter_by(slack_team_id=slack_api_team_id).one()
+      slack_team = SlackTeam.query.filter_by(slack_team_id=slack_api_team_id).one()
     else:
       raise ValueError('Must provide a team or team_id')
-  slack_api_token = slack_api_team.api_access_token
+  slack_api_token = slack_team.api_access_token
   client = slack.WebClient(slack_api_token)
   if connection_test:
     try:
