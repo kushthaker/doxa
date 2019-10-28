@@ -45,18 +45,16 @@ class SlackTeam(db.Model, EnhancedDBModel):
 	__tablename__ = 'slack_teams'
 	id = db.Column(db.Integer, primary_key=True)
 	api_scope = db.Column(db.String(1000), nullable=True)
-	install_slack_user_id = db.Column(db.String(100), nullable=True)
-	slack_team_id = db.Column(db.String(100), nullable=False, unique=True)
+	slack_team_api_id = db.Column(db.String(100), nullable=False, unique=True)
 	slack_team_name = db.Column(db.String(100), nullable=False)
 	api_access_token = db.Column(db.String(100), nullable=True)
-	datetime_authenticated = db.Column(db.DateTime, nullable=True)
+	authenticated_at = db.Column(db.DateTime, nullable=True)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
 	def update_registration(self, new_slack_team):
 		if new_slack_team.slack_team_id != self.slack_team_id:
 			raise ValueError("Old slack team ID is not the same as new Slack team ID")
 		self.api_scope = new_slack_team.api_scope
-		self.install_slack_user_id = new_slack_team.install_slack_user_id
 		self.slack_team_name = new_slack_team.slack_team_name
 		self.api_access_token = new_slack_team.api_access_token
 		self.datetime_authenticated = datetime.utcnow()
@@ -66,21 +64,61 @@ class SlackTeam(db.Model, EnhancedDBModel):
 
 	def __init__(self, oauth_response_json):
 		self.api_scope = oauth_response_json.get('scope')
-		self.install_slack_user_id = oauth_response_json.get('user_id')
 		self.slack_team_id = oauth_response_json.get('team_id')
+		self.slack_team_api_id = oauth_response_json.get('team_id')
 		self.slack_team_name = oauth_response_json.get('team_name')
 		self.api_access_token = oauth_response_json.get('access_token')
 		self.datetime_authenticated = datetime.utcnow()
+
+class SlackUser(db.Model, EnhancedDBModel):
+	__tablename__ = 'slack_users'
+	id = db.Column(db.Integer, primary_key=True)
+	slack_user_api_id = db.Column(db.String(100), nullable=False)
+	slack_team_id = db.Column(db.Integer, db.ForeignKey('slack_teams.id'), nullable=False)
+	slack_email_address = db.Column(db.String(300))
+	first_name = db.Column(db.String(100), nullable=False)
+	last_name = db.Column(db.String(100), nullable=False)
+	slack_username = db.Column(db.String(100), nullable=False)
+	is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+	is_deleted_on_slack = db.Column(db.Boolean, nullable=False, default=False)
+	created_date = db.Column(db.DateTime, nullable=False)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+
+	def __repr__(self):
+			return 'SlackUser(%s, %s, %s)' % (first_name + last_name, id, slack_user_id)
+
+	def update_user_info(self, user_info):
+		user_details = user_info.get('user')
+		if user_details != None:
+			self.slack_user_api_id = user_info.get('')
 
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
 	id = db.Column(db.Integer, primary_key=True)
 	json_data = db.Column(db.JSON(none_as_null=True), nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
-	
+	# slack_team_id = db.Column(db.String(100), nullable=False)
+	# need a team ID in here, so we can query 
+
 	def __init__(self, json_data={}):
 		self.json_data = json_data
 
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
 
+# class SlackEvent(db.Model, StructuredSlackEvent):
+# 	id = db.Column(db.String(100), nullable=False, unique=True)
+# 	slack_team_id = db.Column(db.String(100), nullable=False)
+# 	slack_user_id = db.Column(db.String(100), nullable=False)
+# 	slack_event_id = db.Column(db.String(100), nullable=False)
+# 	slack_event_type = db.Column(db.String(100), nullable=False)
+# 	slack_event_subtype = db.Column(db.String(100), nullable=False)
+	
+
+
+# 	def __init__(self, raw_slack_event):
+# 		if 
+
+# 	class StructuredSlackEvent(EnhancedDBModel):
+# 	def __init__(self, raw_slack_event):
+# 		raise NotImplementedError('This method needs to be implemented for a specific type of Slack event')

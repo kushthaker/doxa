@@ -1,6 +1,6 @@
 from flask import redirect, request
 from application import application
-from application.models import SlackTeam
+from application.models import SlackTeam, SlackUser
 import slack
 import functools
 
@@ -51,13 +51,29 @@ def slack_auth_route():
   existing_slack_team = SlackTeam.query.filter_by(slack_team_id=new_slack_team.slack_team_id).first()
 
   # this should eventually redirect to our homepage with some details on what we will do with Slack data
+  slack_team = None
   if existing_slack_team:
     existing_slack_team.update_registration(new_slack_team)
     existing_slack_team.save()
-    return _redirect_back_to_slack(existing_slack_team.slack_team_id)
+    slack_team = existing_slack_team
   else:
     new_slack_team.save()
-    return _redirect_back_to_slack(new_slack_team.slack_team_id)
+    slack_team = new_slack_team
+  
+  user_id = res_data.get('user_id')
+  existing_user = SlackUser.query.filter_by(slack_user_id=user_id).one_or_none()
+  if existing_user:
+    existing_user.is_authenticated = True
+    existing_user.save()
+  else:
+    web_client = build_slack_web_client(slack_team.slack_team_id)
+    user_info_data = web_client.users_info(user_id).data
+    # THEN create Slack user
+    new_slack_user = SlackUser()
+
+      
+
+  return _redirect_back_to_slack(slack_team.slack_team_id)
 
 '''
 Sample `res_data` response:
@@ -92,3 +108,17 @@ def _build_slack_access_request():
 def _redirect_back_to_slack(team_id):
   return redirect('slack://open?team=%s' % team_id)
 
+def build_slack_web_client(slack_api_team=None, slack_api_team_id=None, connection_test=False):
+  if slack_api_team is None:
+    if slack_api_team_id is not None:
+      slack_api_team = SlackTeam.query.filter_by(slack_team_id=slack_api_team_id).one()
+    else:
+      raise ValueError('Must provide a team or team_id')
+  slack_api_token = slack_api_team.api_access_token
+  client = slack.WebClient(slack_api_token)
+  if connection_test:
+    try:
+      client.api_test()
+    except SlackApiError:
+      print('Error: Slack Client API Key for team ID %s, Slack team ID not working' % (slack_api_team.id, slack_api_team.slack_team_id))
+  return client
