@@ -27,11 +27,13 @@ class Post(db.Model):
 	date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	content = db.Column(db.Text, nullable=False)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-	sub_content = db.Column(db.String(100), nullable=True)
-	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, default=datetime.utcnow)
 
 	def __repr__(self):
-		return "Post('%s', '%s', '%s')" % (self.title, self.date_posted, self.sub_content)
+		return "Post('%s', '%s')" % (self.title, self.date_posted)
+
+	def date_to_string(self):
+		return self.date_posted.strftime("%a %b %d %Y %l:%M%p")
 
 class EnhancedDBModel():
 	def save(self):
@@ -58,6 +60,7 @@ class SlackTeam(db.Model, EnhancedDBModel):
 		self.slack_team_name = new_slack_team.slack_team_name
 		self.api_access_token = new_slack_team.api_access_token
 		self.datetime_authenticated = datetime.utcnow()
+	
 	def __repr__(self):
 		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_id)
 
