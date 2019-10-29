@@ -102,20 +102,3 @@ class RawSlackEvent(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
-
-# class SlackEvent(db.Model, StructuredSlackEvent):
-# 	id = db.Column(db.String(100), nullable=False, unique=True)
-# 	slack_team_id = db.Column(db.String(100), nullable=False)
-# 	slack_user_id = db.Column(db.String(100), nullable=False)
-# 	slack_event_id = db.Column(db.String(100), nullable=False)
-# 	slack_event_type = db.Column(db.String(100), nullable=False)
-# 	slack_event_subtype = db.Column(db.String(100), nullable=False)
-	
-
-
-# 	def __init__(self, raw_slack_event):
-# 		if 
-
-# 	class StructuredSlackEvent(EnhancedDBModel):
-# 	def __init__(self, raw_slack_event):
-# 		raise NotImplementedError('This method needs to be implemented for a specific type of Slack event')
