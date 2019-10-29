@@ -8,10 +8,8 @@ from datetime import datetime
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
 
-# TEMP:
 SLACK_CLIENT_ID = application.config['SLACK_CLIENT_ID']
 SLACK_CLIENT_SECRET = application.config['SLACK_CLIENT_SECRET']
-
 
 SLACK_SCOPES = [
   'channels:history',
@@ -40,8 +38,6 @@ SLACK_SCOPES = [
 
 @application.route(SLACK_AUTH_ROUTE)
 def slack_auth_route():
-  print('HIT SLACK AUTHORIZE ROUTE')
-  print(request.json)
   code = request.values.get('code')
 
   web_client = slack.WebClient()
@@ -49,9 +45,8 @@ def slack_auth_route():
   res_data = response.data
 
   new_slack_team = SlackTeam(res_data)
-  existing_slack_team = SlackTeam.query.filter_by(slack_team_id=new_slack_team.slack_team_id).first()
+  existing_slack_team = SlackTeam.query.filter_by(slack_team_api_id=new_slack_team.slack_team_api_id).first()
 
-  # this should eventually redirect to our homepage with some details on what we will do with Slack data
   slack_team = None
   if existing_slack_team:
     existing_slack_team.update_registration(new_slack_team)
@@ -62,14 +57,15 @@ def slack_auth_route():
     slack_team = new_slack_team
   
   user_id = res_data.get('user_id')
-  existing_user = SlackUser.query.filter_by(slack_user_id=user_id).one_or_none()
-  
+  existing_user = SlackUser.query.filter_by(slack_user_api_id=user_id).one_or_none()
+
   if existing_user:
     existing_user.is_authenticated = True
     existing_user.save()
   else:
     web_client = build_slack_web_client(slack_team=slack_team)
-    user_info_data = web_client.users_info(user_id).data
+    response = web_client.users_info(user=user_id).data
+    user_info_data = response.get('user')
     # THEN create Slack user from who is authenticating
     user_profile_data = user_info_data.get('profile')
     new_slack_user = SlackUser(
@@ -82,33 +78,17 @@ def slack_auth_route():
                                is_authenticated = True, \
                                is_deleted_on_slack = user_info_data.get('deleted'), \
                                created_date = datetime.utcnow(), \
-                               slack_timestamp_label = user_info_data.get('tz_label'), \
-                               slack_timestamp_offset = user_info_data.get('tz_offset') \
+                               slack_timezone_label = user_info_data.get('tz_label'), \
+                               slack_timezone_offset = user_info_data.get('tz_offset'), \
+                               last_updated = datetime.utcnow() \
                               )
     new_slack_user.save() # will want to then send them an email to get them onboarded or something
-  return _redirect_back_to_slack(slack_team.slack_team_id)
 
-'''
-Sample `res_data` response:
-{
-  'ok': True,
-  'access_token': 'xoxp-557358026116-556664070576-804627092836-2b6251834f1ae1412a5a9ea8baa29efc',
-  'scope': 'identify,channels:history,groups:history,im:history,mpim:history,channels:read,groups:read,im:read,mpim:read,reactions:read,reminders:read,team:read,users:read,users:read.email,usergroups:read,dnd:read,users.profile:read,reminders:write,dnd:write,links:read,calls:read',
-  'user_id': 'UGCKJ22GY',
-  'team_id': 'TGDAJ0S3E',
-  'enterprise_id': None,
-  'team_name': 'doxa',
-  'warning': 'superfluous_charset',
-  'response_metadata': {'warnings': ['superfluous_charset']}
-}
-'''
-
-  
-# It should then redirect back to our app IDEALLY
+  # this should eventually redirect to our homepage with some details on what we will do with Slack data
+  return _redirect_back_to_slack(slack_team.slack_team_api_id)
 
 @application.route(SLACK_INSTALL_ROUTE)
 def slack_install_route():
-  print('HIT SLACK INSTALL ROUTE')
   slack_url = _build_slack_access_request()
   return redirect(slack_url)
 

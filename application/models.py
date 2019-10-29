@@ -52,7 +52,7 @@ class SlackTeam(db.Model, EnhancedDBModel):
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
 	def update_registration(self, new_slack_team):
-		if new_slack_team.slack_team_id != self.slack_team_id:
+		if new_slack_team.slack_team_api_id != self.slack_team_api_id:
 			raise ValueError("Old slack team ID is not the same as new Slack team ID")
 		self.api_scope = new_slack_team.api_scope
 		self.slack_team_name = new_slack_team.slack_team_name
@@ -83,11 +83,11 @@ class SlackUser(db.Model, EnhancedDBModel):
 	is_deleted_on_slack = db.Column(db.Boolean, nullable=False, default=False)
 	created_date = db.Column(db.DateTime, nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
-	slack_timestamp_label = db.Column(db.String(100))
-	slack_timestamp_offset = db.Column(db.Integer)
+	slack_timezone_label = db.Column(db.String(100))
+	slack_timezone_offset = db.Column(db.Integer)
 
 	def __repr__(self):
-			return 'SlackUser(%s, %s, %s)' % (first_name + last_name, id, slack_user_id)
+			return 'SlackUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
 
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
