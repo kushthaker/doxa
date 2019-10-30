@@ -60,7 +60,7 @@ class SlackTeam(db.Model, EnhancedDBModel):
 		self.datetime_authenticated = datetime.utcnow()
 	
 	def __repr__(self):
-		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_id)
+		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_api_id)
 
 	def __init__(self, oauth_response_json):
 		self.api_scope = oauth_response_json.get('scope')
@@ -80,6 +80,7 @@ class SlackUser(db.Model, EnhancedDBModel):
 	last_name = db.Column(db.String(100), nullable=False)
 	slack_username = db.Column(db.String(100), nullable=False)
 	is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+	authentication_oauth_access_token = db.Column(db.String(200))
 	is_deleted_on_slack = db.Column(db.Boolean, nullable=False, default=False)
 	created_date = db.Column(db.DateTime, nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
