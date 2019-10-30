@@ -44,6 +44,7 @@ def slack_auth_route():
   response = web_client.oauth_access(code=code, client_id=SLACK_CLIENT_ID, client_secret=SLACK_CLIENT_SECRET)
   res_data = response.data
 
+  authentication_oauth_access_token = res_data.get('access_token') # this is user specific
   new_slack_team = SlackTeam(res_data)
   existing_slack_team = SlackTeam.query.filter_by(slack_team_api_id=new_slack_team.slack_team_api_id).first()
 
@@ -55,12 +56,13 @@ def slack_auth_route():
   else:
     new_slack_team.save()
     slack_team = new_slack_team
-  
+
   user_id = res_data.get('user_id')
   existing_user = SlackUser.query.filter_by(slack_user_api_id=user_id).one_or_none()
 
   if existing_user:
     existing_user.is_authenticated = True
+    existing_user.authentication_oauth_access_token = authentication_oauth_access_token
     existing_user.save()
   else:
     web_client = build_slack_web_client(slack_team=slack_team)
@@ -76,6 +78,7 @@ def slack_auth_route():
                                last_name = user_profile_data.get('last_name'), \
                                slack_username = user_info_data.get('name'), \
                                is_authenticated = True, \
+                               authentication_oauth_access_token = authentication_oauth_access_token, \
                                is_deleted_on_slack = user_info_data.get('deleted'), \
                                created_date = datetime.utcnow(), \
                                slack_timezone_label = user_info_data.get('tz_label'), \
