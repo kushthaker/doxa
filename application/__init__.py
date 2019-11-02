@@ -3,12 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from flask_mail import Mail
 
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 
 application.config['SLACK_CLIENT_ID'] = os.environ.get('SLACK_CLIENT_ID') # stored in EB config
 application.config['SLACK_CLIENT_SECRET'] = os.environ.get('SLACK_CLIENT_SECRET') # stored in EB config
+application.config['MAIL_SERVER'] = 'smtp.gmail.com'
+application.config['MAIL_PORT'] = 587
+application.config['MAIL_USE_TLS'] = True
+application.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
+application.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
+
 
 PG_URL = os.environ.get('AWS_RDS_URL')
 if PG_URL != None:
@@ -20,7 +27,7 @@ else:
   print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
 
- 
+mail = Mail(application)
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 login_manager = LoginManager(application)
