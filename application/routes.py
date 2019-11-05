@@ -6,7 +6,7 @@ from application import application, db, bcrypt
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
-from application import slack_auth
+from application import slack_auth, github_auth
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
