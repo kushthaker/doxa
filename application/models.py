@@ -33,7 +33,7 @@ class Post(db.Model):
 		return "Post('%s', '%s')" % (self.title, self.date_posted)
 
 	def date_to_string(self):
-		return self.date_posted.strftime("%a %b %d %Y %l:%M%p")
+		return self.date_posted.strftime("%a %b %d %Y %I:%M%p")
 
 class EnhancedDBModel():
 	def save(self):
