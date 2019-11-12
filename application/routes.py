@@ -7,6 +7,7 @@ from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, Po
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
+from application import calendar_auth
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -164,6 +165,11 @@ def user_posts(username):
 		.order_by(Post.date_posted.desc())\
 		.paginate(page=page, per_page=3)
 	return render_template('home.html', posts=posts, user=user)
+
+
+
+
+
 
 
 

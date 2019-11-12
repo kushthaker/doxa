@@ -19,13 +19,15 @@ if PG_URL != None:
 else:
   print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
-
  
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 login_manager = LoginManager(application)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
+
+# TEMP
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 from application import routes
 from application import db
