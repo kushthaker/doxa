@@ -1,17 +1,19 @@
+#Simple example which prints the names of all my git repos
+from application import application
+from application.models import GithubUser
+
 from github import Github
 
-# using username and password
-#g = Github("Callum-Mitchell", "puffball456")
+#List all the repos for a given user (currently first authenticated one in the database)
+def listRepos():
+  # using an access token (TODO: grab by user or something)
+  user = GithubUser.query.filter(GithubUser.github_oauth_access_token.isnot(None)).first()
+  g = Github(user.github_oauth_access_token)
 
-# or using an access token
-g = Github("ae3c966eeb6b92f7c0033eb339da164f66b55358")
-# Token is for user Callum-Mitchell to access repos and user information
+  # Github Enterprise with custom hostname
+  #g = Github(base_url="https://{hostname}/api/v3", login_or_token="access_token")
 
-# Github Enterprise with custom hostname
-#g = Github(base_url="https://{hostname}/api/v3", login_or_token="access_token")
-
-for repo in g.get_user().get_repos():
+  for repo in g.get_user().get_repos():
     print(repo.name)
-    #repo.edit(has_wiki=False)
     # to see all the available attributes and methods
     #print(dir(repo))

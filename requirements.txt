@@ -12,6 +12,7 @@ Flask-Migrate==2.5.2
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.1
 Flask-WTF==0.14.2
+GitHub-Flask==3.2.0
 ipykernel==4.6.1
 ipython==6.2.1
 ipython-genutils==0.2.0
@@ -24,8 +25,10 @@ Mako==1.1.0
 Pillow==4.1.1
 psycopg2==2.8.3
 pyasn1==0.4.7
+PyGithub==1.44.1
 python-dateutil==2.8.0
 PyYAML==5.1.2
+requests==2.22.0
 rsa==3.4.2
 s3transfer==0.2.1
 six==1.12.0

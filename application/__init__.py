@@ -10,6 +10,9 @@ application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 application.config['SLACK_CLIENT_ID'] = os.environ.get('SLACK_CLIENT_ID') # stored in EB config
 application.config['SLACK_CLIENT_SECRET'] = os.environ.get('SLACK_CLIENT_SECRET') # stored in EB config
 
+application.config['GITHUB_CLIENT_ID'] = os.environ.get('GITHUB_CLIENT_ID')
+application.config['GITHUB_CLIENT_SECRET'] = os.environ.get('GITHUB_CLIENT_SECRET')
+
 PG_URL = os.environ.get('AWS_RDS_URL')
 if PG_URL != None:
   print('USING VARIABLE %s' % PG_URL)
@@ -19,8 +22,7 @@ if PG_URL != None:
 else:
   print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
-
- 
+  
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 login_manager = LoginManager(application)
