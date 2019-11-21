@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>Free Time</h3>
+{% for event in events %}
+<article class="media content-section">
+	<div class="media-body">
+		<h2><a class="article-title" href="">{{ event.get('summary') }}</a></h2>
+		<p class="article-content"><b>START:</b> {{ event.get('start').get('dateTime') }}</p>
+		<p class="article-content"><b>END:</b> {{ event.get('end').get('dateTime') }}</p>
+	</div>
+</article>
+{% endfor %}
+{% endblock content %}

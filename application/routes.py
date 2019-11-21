@@ -169,7 +169,3 @@ def user_posts(username):
 
 
 
-
-
-
-

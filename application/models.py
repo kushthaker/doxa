@@ -47,7 +47,7 @@ class SlackTeam(db.Model, EnhancedDBModel):
 	api_scope = db.Column(db.String(1000), nullable=True)
 	slack_team_api_id = db.Column(db.String(100), nullable=False, unique=True)
 	slack_team_name = db.Column(db.String(100), nullable=False)
-	api_access_token = db.Column(db.String(100), nullable=True)
+	api_access_token = db.Column(db.String(100), nullable=True) # not used
 	authenticated_at = db.Column(db.DateTime, nullable=True)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
