@@ -2,6 +2,8 @@ from datetime import datetime
 from application import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
+import slack
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -70,6 +72,9 @@ class SlackTeam(db.Model, EnhancedDBModel):
 		self.api_access_token = oauth_response_json.get('access_token')
 		self.datetime_authenticated = datetime.utcnow()
 
+	def get_slack_users(self):
+		return SlackUser.query.filter(slack_team_id == self.id).all()
+
 class SlackUser(db.Model, EnhancedDBModel):
 	__tablename__ = 'slack_users'
 	id = db.Column(db.Integer, primary_key=True)
@@ -86,9 +91,35 @@ class SlackUser(db.Model, EnhancedDBModel):
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	slack_timezone_label = db.Column(db.String(100))
 	slack_timezone_offset = db.Column(db.Integer)
+	is_bot = db.Column(db.Boolean, default=False)
 
 	def __repr__(self):
 			return 'SlackUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
+
+	def slack_client(self):
+		if (self.is_authenticated == False) | (self.authentication_oauth_access_token is None):
+			return None
+		return slack.WebClient(self.authentication_oauth_access_token)
+
+	def update_from_slack_api_user(self, slack_user):
+		if (self.slack_user_api_id != slack_user['id']):
+			return None
+		if self.last_updated > datetime.fromtimestamp(slack_user['updated']):
+			return None
+		self.is_bot = slack_user['is_bot']
+		if not self.is_bot:
+			self.slack_email_address = slack_user['profile']['email']
+			self.self.first_name = slack_user['profile']['first_name']
+			self.self.last_name = slack_user['profile']['last_name']
+		self.slack_username = slack_user['name']
+		if self.is_authenticated:
+			if not test_api_client(slack.WebClient(str(self.authentication_oauth_access_token))):
+				self.is_authenticated = False
+				self.authentication_oauth_access_token = None
+		self.is_deleted_on_slack = slack_user['deleted']
+		self.slack_timezone_label = slack_user['tz_label']
+		self.slack_timezone_label = slack_user['tz_offset']
+
 
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
