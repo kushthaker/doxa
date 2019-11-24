@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
@@ -20,7 +22,16 @@ else:
   print('USING VARIABLE LOCAL')
   application.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://localhost/doxa-db-dev'
 
- 
+jobstore = SQLAlchemyJobStore(url=application.config['SQLALCHEMY_DATABASE_URI'])
+application.config['SCHEDULER_JOBSTORES'] = {
+  'default': jobstore
+}
+
+# application.config['SCHEDULER_API_ENABLED'] = True
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore(application.config.get('SCHEDULER_JOBSTORES').get('default'))
+scheduler.start()
+
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 login_manager = LoginManager(application)
@@ -29,6 +40,9 @@ login_manager.login_message_category = 'info'
 
 from application import routes
 from application import db
+
+from application import apscheduler_util
+apscheduler_util.create_three_test_tasks(scheduler)
 
 '''
 dev setup commands:

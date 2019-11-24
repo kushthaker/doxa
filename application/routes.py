@@ -7,6 +7,8 @@ from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, Po
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
+from application import apscheduler_util
+from application import scheduler as apscheduler
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -29,6 +31,13 @@ def slack_event():
 @application.route('/test-db-route', methods=['GET'])
 def test_db_route():
 	return str(Post.query.all()) # test method to see if application can hit DB in production
+
+@application.route('/test-scheduling-route', methods=['GET'])
+def test_scheduling_route():
+	trigger = apscheduler_util.build_minute_trigger(3)
+	function = apscheduler_util.test_running_task
+	job_schedule_result = apscheduler_util.add_or_update_job_from_function(apscheduler, func=function, trigger=trigger)
+	return str(job_schedule_result) # test method to see if scheduled job is working in production
 
 @application.route("/")
 def home():
