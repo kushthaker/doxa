@@ -1,4 +1,3 @@
-# from application import scheduler as apscheduler
 from application.scheduled_data_tasks import apscheduler_util, slack_activities
 
 JOB_SCHEDULE = [
