@@ -103,9 +103,3 @@ class RawSlackEvent(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
-
-class APSchedulerJob(db.Model):
-	__tablename__ = 'apscheduler_jobs'
-	id = db.Column(db.Integer, primary_key=True)
-	next_run_time = db.Column(db.Float)
-	job_state = db.Column(db.LargeBinary)
