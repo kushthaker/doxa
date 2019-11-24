@@ -38,11 +38,11 @@ login_manager = LoginManager(application)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-from application import routes
-from application import db
-
 from application import apscheduler_util
 apscheduler_util.create_three_test_tasks(scheduler)
+
+from application import routes
+from application import db
 
 '''
 dev setup commands:
