@@ -6,8 +6,6 @@ from flask_login import LoginManager
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
-
-
 application = Flask(__name__) # aws eb requires 'application' name for Flask instance
 application.config['SECRET_KEY'] = '7a273729d601733097ead8f655a410eb'
 
