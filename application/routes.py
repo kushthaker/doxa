@@ -34,10 +34,10 @@ def test_db_route():
 
 @application.route('/test-scheduling-route', methods=['GET'])
 def test_scheduling_route():
-	trigger = apscheduler_util.build_minute_trigger(15)
+	trigger = apscheduler_util.build_minute_trigger(3)
 	function = apscheduler_util.test_running_task
 	job_schedule_result = apscheduler_util.add_or_update_job_from_function(apscheduler, func=function, trigger=trigger)
-	return str(job_schedule_result)
+	return str(job_schedule_result) # test method to see if scheduled job is working in production
 
 @application.route("/")
 def home():
