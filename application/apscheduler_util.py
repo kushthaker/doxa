@@ -49,5 +49,3 @@ def create_three_test_tasks(scheduler):
 def build_minute_trigger(minutes):
   trigger = CronTrigger(minute='*/%s' % minutes)
   return trigger
-
-
