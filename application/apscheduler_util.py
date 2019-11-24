@@ -23,7 +23,7 @@ def add_or_update_job_from_function(scheduler, **kwargs):
   if job_exists:
     job = scheduler.modify_job(job_id=existing_job.id, **kwargs)
     if job.trigger:
-      scheduler.reschedule_job(job_id=job.id, trigger=job.trigger)
+      job = scheduler.reschedule_job(job_id=job.id, trigger=job.trigger)
     return job
   else:
     max_job_id = str(max(job_ids) + 1)
@@ -34,17 +34,17 @@ def test_running_task():
   time_string = strftime("%Y-%m-%d %H:%M:%S", gmtime())
   print("Scheduled task run successfully at %s" % time_string)
 
-def test_sum_two_numbers(one, two):
+def test_sum_two_numbers(one=1, two=2):
   print("sum: % s" % (one + two))
 
 def test_hitting_db():
   print(SlackUser.query.all())
 
 def create_three_test_tasks(scheduler):
-  trigger = build_minute_trigger(15)
-  print(add_or_update_job_from_function(scheduler, func=test_running_task, trigger=trigger))
-  print(add_or_update_job_from_function(scheduler, func=test_hitting_db, trigger=trigger))
-  print(add_or_update_job_from_function(scheduler, func=test_sum_two_numbers, trigger=trigger, args={'one': 1, 'two': 2}))
+  print(add_or_update_job_from_function(scheduler, func=test_running_task, trigger=build_minute_trigger(5)))
+  print(add_or_update_job_from_function(scheduler, func=test_hitting_db, trigger=build_minute_trigger(10)))
+  print(add_or_update_job_from_function(scheduler, \
+                                        func=test_sum_two_numbers, trigger=build_minute_trigger(15), args=(2, 3)))
 
 def build_minute_trigger(minutes):
   trigger = CronTrigger(minute='*/%s' % minutes)
