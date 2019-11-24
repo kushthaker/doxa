@@ -1,6 +1,8 @@
 from flask import url_for, flash, redirect, request
 from flask_github import GitHub
 
+from github import Github
+
 from application import application, PyGithub_test
 from application.models import GithubUser
 
@@ -34,7 +36,6 @@ def authorized(oauth_token):
 		flash("Authorization failed.")
 		return redirect(next_url)
 
-  #TODO: set up GithubUser model in models.py
 	gitUser = GithubUser.query.filter_by(github_oauth_access_token=oauth_token).first()
 
 	if gitUser is None:
@@ -47,7 +48,19 @@ def authorized(oauth_token):
 
   #Update the user's access token in the database
 	gitUser.github_oauth_access_token = oauth_token
+	gitUserData = Github(oauth_token).get_user()
+	gitUser.id = gitUserData.id
+	#gitUser.github_org_id = github.Organization.Organization.id in gitUserData.getOrgs().id
+	gitUser.github_username = gitUserData.name
+	gitUser.github_email_address = gitUserData.email
+	gitUser.created_date = gitUserData.created_at
+	gitUser.last_updated = gitUserData.updated_at
 	gitUser.save()
-	PyGithub_test.listRepos()
 
 	return redirect(next_url)
+
+@application.route('/github-test')
+def listCommitDatesTest():
+	commitList = PyGithub_test.getCommitsInRepoByUser("Callum", "Minotaur")
+	PyGithub_test.printCommitDates(commitList)
+	return redirect('/')

@@ -104,25 +104,20 @@ class RawSlackEvent(db.Model, EnhancedDBModel):
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
 
-#TODO: adjust this model based on what GitHub user information you want to store in the database
-#This includes changing which entries are nullable (currently set to "true" for dev/testing)
+#GitHub db models
 class GithubUser(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_users'
 	id = db.Column(db.Integer, primary_key=True)
 	github_user_api_id = db.Column(db.String(100), nullable=True)
-	#TODO: define github team model and add this in (may want a list of teams)
-	#github_team_id = db.Column(db.Integer, db.ForeignKey('github_teams.id'), nullable=True)
+	#TODO: define github organization model and add this in (may want a list of teams)
+	#github_org_id = db.Column(db.ARRAY(db.String(100)), db.ForeignKey('github_orgs.id'), nullable=True)
 	github_email_address = db.Column(db.String(300))
-	first_name = db.Column(db.String(100), nullable=True)
-	last_name = db.Column(db.String(100), nullable=True)
 	github_username = db.Column(db.String(100), nullable=True)
 	is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
 	github_oauth_access_token = db.Column(db.String(200))
 	is_deleted_on_github = db.Column(db.Boolean, nullable=False, default=False)
 	created_date = db.Column(db.DateTime, nullable=True)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
-	github_timezone_label = db.Column(db.String(100))
-	github_timezone_offset = db.Column(db.Integer)
 
 	def __repr__(self):
-			return 'SlackUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
+			return 'GithubUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)

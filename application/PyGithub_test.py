@@ -4,16 +4,24 @@ from application.models import GithubUser
 
 from github import Github
 
-#List all the repos for a given user (currently first authenticated one in the database)
-def listRepos():
-  # using an access token (TODO: grab by user or something)
-  user = GithubUser.query.filter(GithubUser.github_oauth_access_token.isnot(None)).first()
-  g = Github(user.github_oauth_access_token)
+from datetime import datetime
 
+#Retrieves all commits made by a user within a specific GitHub repository
+def getCommitsInRepoByUser(username, reponame):
+  # using an access token (TODO: grab by user or something)
+  user = GithubUser.query.filter_by(github_username=username).first()
+  print(user.github_username)
+  g = Github(user.github_oauth_access_token)
   # Github Enterprise with custom hostname
   #g = Github(base_url="https://{hostname}/api/v3", login_or_token="access_token")
+  gitUser = g.get_user()
+  for repo in gitUser.get_repos():
+  	print(repo.name)
+  	if(repo.name == reponame):
+  		return repo.get_commits(author=gitUser)
 
-  for repo in g.get_user().get_repos():
-    print(repo.name)
-    # to see all the available attributes and methods
-    #print(dir(repo))
+def printCommitDates(commits):
+  	for commit in commits:
+  		print(commit.commit.author.date)
+  	return
+
