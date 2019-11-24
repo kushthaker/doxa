@@ -27,19 +27,18 @@ application.config['SCHEDULER_JOBSTORES'] = {
   'default': jobstore
 }
 
-# application.config['SCHEDULER_API_ENABLED'] = True
-scheduler = BackgroundScheduler()
-scheduler.add_jobstore(application.config.get('SCHEDULER_JOBSTORES').get('default'))
-scheduler.start()
-
 db = SQLAlchemy(application)
 bcrypt = Bcrypt(application)
 login_manager = LoginManager(application)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-from application import apscheduler_util
-apscheduler_util.create_three_test_tasks(scheduler)
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore(application.config.get('SCHEDULER_JOBSTORES').get('default'))
+scheduler.start()
+
+from application.scheduled_data_tasks import job_scheduler
+job_scheduler.schedule_jobs(scheduler)
 
 from application import routes
 from application import db
