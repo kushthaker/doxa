@@ -7,7 +7,7 @@ from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, Po
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
-from application import apscheduler_util
+from application.scheduled_data_tasks import apscheduler_util
 from application import scheduler as apscheduler
 
 @application.route('/slack-event', methods=['POST'])

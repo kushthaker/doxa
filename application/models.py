@@ -90,6 +90,21 @@ class SlackUser(db.Model, EnhancedDBModel):
 	def __repr__(self):
 			return 'SlackUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
 
+class SlackUserEvent(db.Model, EnhancedDBModel):
+	__tablename__ = 'slack_user_events'
+	id = db.Column(db.Integer, primary_key=True)
+	slack_user_id = db.Column(db.Integer, db.ForeignKey('slack_users.id'), nullable=False)
+	raw_slack_event_id = db.Column(db.Integer, db.ForeignKey('raw_slack_events.id')) # may be null if polled from Slack API
+	slack_event_api_id = db.Column(db.String(100), nullable=False)
+	event_datetime = db.Column(db.DateTime, nullable=False)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	slack_event_type = db.Column(db.String(100), nullable=False)
+	slack_event_subtype = db.Column(db.String(100))
+
+	def __repr__(self):
+		return "SlackUserEvent(id: %s, slack_user_id: %s, slack_event_api_id: %s, slack_event_type: %s, slack_event_subtype: %s)" % \
+			(self.id, self.slack_user_id, self.slack_event_api_id, self.slack_event_type, self.slack_event_subtype or '')
+
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
 	id = db.Column(db.Integer, primary_key=True)
@@ -103,3 +118,10 @@ class RawSlackEvent(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return "RawSlackEvent(%s)" % self.json_data
+
+class APSchedulerJob(db.Model):
+	__tablename__ = 'apscheduler_jobs'
+	id = db.Column(db.Integer, primary_key=True)
+	next_run_time = db.Column(db.Float, nullable=True, index=True)
+	job_state = db.Column(db.LargeBinary, nullable=False)
+	# created this after I realized that a migration will be made to delete it
