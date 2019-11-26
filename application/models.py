@@ -120,4 +120,4 @@ class GithubUser(db.Model, EnhancedDBModel):
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
 
 	def __repr__(self):
-			return 'GithubUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
+			return 'GithubUser(%s, %s, %s)' % (self.id, self.github_user_api_id, self.github_username)
