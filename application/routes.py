@@ -2,13 +2,16 @@ import os
 import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
-from application import application, db, bcrypt
+from application.initialize.bcrypt_init import bcrypt
+from application.initialize.db_init import db
+from application.initialize.scheduler_jobstore_init import scheduler as apscheduler
+from application.app_setup import application
 from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application.scheduled_data_tasks import apscheduler_util
-from application import scheduler as apscheduler
+
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():

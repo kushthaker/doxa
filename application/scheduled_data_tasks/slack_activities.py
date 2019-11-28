@@ -1,5 +1,5 @@
 from application.models import SlackUser, RawSlackEvent, SlackUserEvent
-from application import db
+from application.initialize.db_init import db
 from datetime import datetime
 
 def capture_slack_activites_from_stored_raw_json():

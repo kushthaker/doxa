@@ -1,5 +1,6 @@
 from flask import redirect, request
-from application import application
+from application.initialize.config import Config
+from application.app_setup import application
 from application.models import SlackTeam, SlackUser
 import slack
 import functools
@@ -8,8 +9,8 @@ from datetime import datetime
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
 
-SLACK_CLIENT_ID = application.config['SLACK_CLIENT_ID']
-SLACK_CLIENT_SECRET = application.config['SLACK_CLIENT_SECRET']
+SLACK_CLIENT_ID = Config.SLACK_CLIENT_ID
+SLACK_CLIENT_SECRET = Config.SLACK_CLIENT_SECRET
 
 SLACK_SCOPES = [
   'channels:history',
@@ -94,7 +95,6 @@ def slack_auth_route():
 def slack_install_route():
   slack_url = _build_slack_access_request()
   return redirect(slack_url)
-
 
 def _build_slack_access_request():
   scope = '%s' % functools.reduce(lambda one, two: one + ',' + two, SLACK_SCOPES)
