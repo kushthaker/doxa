@@ -12,6 +12,10 @@ JOB_SCHEDULE = [
   {
     'func': slack_activities.capture_slack_conversation_queries,
     'trigger': apscheduler_util.build_minute_trigger(5)
+  },
+  {
+    'func': slack_activities.capture_slack_conversation_reads,
+    'trigger': apscheduler_util.build_minute_trigger(30)
   }
 ]
 
