@@ -74,6 +74,9 @@ class SlackTeam(db.Model, EnhancedDBModel):
 	def slack_users(self):
 		return SlackUser.query.filter(SlackUser.slack_team_id == self.id).all()	
 
+	def slack_conversations(self):
+		return SlackConversation.query.filter(SlackConversation.slack_team_id == self.id).all()
+
 	def __repr__(self):
 		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_api_id)
 
@@ -124,6 +127,23 @@ class SlackConversation(db.Model, EnhancedDBModel):
 	is_deleted = db.Column(db.Boolean, nullable=False, default=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 
+class SlackConversationQueryRun(db.Model, EnhancedDBModel):
+	__tablename__ = 'slack_conversation_query_runs'
+	id = db.Column(db.Integer, primary_key=True)
+	query_start_time = db.Column(db.DateTime, nullable=False)
+	query_end_time = db.Column(db.DateTime)
+	slack_user_id = db.Column(db.Integer, db.ForeignKey('slack_users.id'), nullable=False)
+
+class SlackConversationQuery(db.Model):
+  __tablename__ = 'slack_conversation_queries'
+  id = db.Column(db.Integer, primary_key=True)
+  slack_user_id = db.Column(db.Integer, db.ForeignKey('slack_users.id'), nullable=False)
+  slack_conversation_id = db.Column(db.Integer, db.ForeignKey('slack_conversations.id'), nullable=False)
+  query_datetime = db.Column(db.DateTime, nullable=False)
+  last_read_datetime = db.Column(db.DateTime, nullable=False)
+  last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+  slack_conversation_query_run_id = db.Column(db.Integer, db.ForeignKey('slack_conversation_query_runs.id'), nullable=False)
+
 class SlackUserEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'slack_user_events'
 	id = db.Column(db.Integer, primary_key=True)
@@ -144,8 +164,6 @@ class RawSlackEvent(db.Model, EnhancedDBModel):
 	id = db.Column(db.Integer, primary_key=True)
 	json_data = db.Column(db.JSON(none_as_null=True), nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
-	# slack_team_id = db.Column(db.String(100), nullable=False)
-	# need a team ID in here, so we can query 
 
 	def __init__(self, json_data={}):
 		self.json_data = json_data

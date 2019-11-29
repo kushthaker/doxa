@@ -1,6 +1,8 @@
-from application.models import SlackUser, RawSlackEvent, SlackUserEvent, SlackTeam, SlackConversation
+from application.models import SlackUser, RawSlackEvent, \
+  SlackUserEvent, SlackTeam, SlackConversation, SlackConversationQuery, SlackConversationQueryRun
 from application.initialize.db_init import db
 from datetime import datetime
+from slack.errors import SlackApiError
 
 def capture_slack_activites_from_stored_raw_json():
   raw_slack_events = RawSlackEvent.query.all()
@@ -22,7 +24,7 @@ def capture_slack_activites_from_stored_raw_json():
         raw_slack_event_id = event.id
         slack_event_type = raw_event_json.get('event').get('type')
         slack_event_subtype = raw_event_json.get('event').get('subtype')
-        event_datetime = datetime.fromtimestamp(raw_event_json.get('event_time'))
+        event_datetime = datetime.utcfromtimestamp(raw_event_json.get('event_time'))
         last_updated = datetime.utcnow()
         new_slack_event = SlackUserEvent( \
           slack_user_id=slack_user_id,
@@ -48,7 +50,10 @@ def capture_slack_conversations():
         slack_user_client = slack_user.slack_client()
         slack_user_conversations = _capture_raw_slack_user_conversations(slack_user_client)
         conversation_slack_api_ids = [convo['id'] for convo in slack_user_conversations]
-        existing_conversations = SlackConversation.query.filter(SlackConversation.slack_conversation_api_id.in_(conversation_slack_api_ids)).all()
+        existing_conversations = SlackConversation.query.filter(
+          (SlackConversation.slack_conversation_api_id.in_(conversation_slack_api_ids)) & \
+          (SlackConversation.slack_team_id == slack_team.id)
+        ).all()
         existing_conversation_ids = [convo.slack_conversation_api_id for convo in existing_conversations]
         for slack_conversation in slack_user_conversations:
           conversation_type = _get_conversation_type_from_raw_slack_conversation(slack_conversation)
@@ -74,6 +79,39 @@ def capture_slack_conversations():
         db.session.commit()
       print('Added %s new slack_conversations to DB and updated %s slack_conversations for the SlackUser with ID: %s' % (new_conversation_count, updated_conversation_count, slack_user.id))
         # print something about running job
+
+def capture_slack_conversation_queries():
+  slack_teams = SlackTeam.query.all()
+  for slack_team in slack_teams:
+    slack_conversations = slack_team.slack_conversations()
+    slack_users = slack_team.slack_users()
+    for slack_user in slack_users:
+      new_conversation_query_count = 0
+      slack_conversation_query_run = SlackConversationQueryRun(query_start_time=datetime.utcnow(), slack_user_id=slack_user.id)
+      slack_conversation_query_run.save()
+      slack_client = slack_user.slack_client()
+      for slack_conversation in slack_conversations:
+        try:
+          conversation_info = slack_client.conversations_info(channel=slack_conversation.slack_conversation_api_id).data.get('channel')
+          if conversation_info.get('is_member') or conversation_info.get('last_read'):
+            last_read_string = conversation_info.get('last_read')
+            last_read = datetime.utcfromtimestamp(int(float(last_read_string))) if last_read_string else None
+
+            new_conversation_query = SlackConversationQuery(
+              slack_user_id=slack_user.id,
+              slack_conversation_id=slack_conversation.id,
+              query_datetime=datetime.utcnow(),
+              last_read_datetime=last_read,
+              last_updated=datetime.utcnow(),
+              slack_conversation_query_run_id=slack_conversation_query_run.id
+            )
+            db.session.add(new_conversation_query)
+            new_conversation_query_count += 1
+        except SlackApiError as e:
+          continue
+      slack_conversation_query_run.query_end_time=datetime.utcnow()
+      db.session.commit()
+      print('For user w/ ID: %s, %s new SlackConversationQuery rows were created' % (slack_user.id, new_conversation_query_count))
 
 # Tested using a limit to check the loop, it works
 def _capture_raw_slack_user_conversations(slack_user_client):
