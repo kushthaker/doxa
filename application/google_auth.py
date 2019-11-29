@@ -43,17 +43,29 @@ def request_api():
 	calendarList = service.calendarList().list().execute() 
 	primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
 
-	new_user = GoogleCalendarUser()
-	new_user.google_email = primaryCal.get('id')
-	new_user.auth_token = credentials.token
-	new_user.refresh_token = credentials.token
-	new_user.scopes = str(credentials.token)
-	new_user.primary_timeZone = primaryCal.get('timeZone')
-	new_user.primary_etag = primaryCal.get('etag')
-	new_user.primary_color_id = primaryCal.get('colorId')
+	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.google_email == primaryCal.get('id')).one_or_none()
 
-	db.session.add(new_user)
-	db.session.commit()
+	if existing_user:
+		existing_user.auth_token = credentials.token
+		existing_user.refresh_token = credentials.refresh_token
+		existing_user.scopes = str(credentials.scopes)
+		existing_user.primary_timeZone = primaryCal.get('timeZone')
+		existing_user.primary_etag = primaryCal.get('etag')
+		existing_user.primary_color_id = primaryCal.get('colorId')
+		existing_user.save()
+	else:
+
+		new_user = GoogleCalendarUser()
+		new_user.google_email = primaryCal.get('id')
+		new_user.auth_token = credentials.token
+		new_user.refresh_token = credentials.refresh_token
+		new_user.scopes = str(credentials.scopes)
+		new_user.primary_timeZone = primaryCal.get('timeZone')
+		new_user.primary_etag = primaryCal.get('etag')
+		new_user.primary_color_id = primaryCal.get('colorId')
+
+		db.session.add(new_user)
+		db.session.commit()
 
 	#Get 10 upcoming events
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
