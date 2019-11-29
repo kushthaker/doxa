@@ -12,8 +12,6 @@ import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 
-import ipdb
-
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
 
