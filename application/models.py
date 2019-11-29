@@ -3,6 +3,7 @@ from application.initialize.login_manager_init import login_manager
 from application.initialize.db_init import db
 from flask_login import UserMixin
 from datetime import datetime
+import slack
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -42,6 +43,16 @@ class EnhancedDBModel():
 			db.session.add(self)
 		return db.session.commit()
 
+	# does not commit session; you have to call db.session.commit() later on
+	def update(self, update_dict):
+	  model_type = type(self)
+	  model_type.query.filter(model_type.id == self.id).update(update_dict)
+
+	# does not commit session
+	def delete(self):
+		model_type = type(self)
+		model_type.query.filter(model_type.id == self.id).delete()
+
 class SlackTeam(db.Model, EnhancedDBModel):
 	__tablename__ = 'slack_teams'
 	id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +70,10 @@ class SlackTeam(db.Model, EnhancedDBModel):
 		self.slack_team_name = new_slack_team.slack_team_name
 		self.api_access_token = new_slack_team.api_access_token
 		self.datetime_authenticated = datetime.utcnow()
-	
+
+	def slack_users(self):
+		return SlackUser.query.filter(SlackUser.slack_team_id == self.id).all()	
+
 	def __repr__(self):
 		return "SlackTeam('%s', '%s')" % (self.slack_team_name, self.slack_team_api_id)
 
@@ -88,8 +102,27 @@ class SlackUser(db.Model, EnhancedDBModel):
 	slack_timezone_label = db.Column(db.String(100))
 	slack_timezone_offset = db.Column(db.Integer)
 
+	def slack_team(self):
+		return SlackTeam.query.filter(SlackTeam.id == self.slack_team_id).one()
+
 	def __repr__(self):
 			return 'SlackUser(%s, %s, %s)' % (self.first_name + self.last_name, self.id, self.slack_user_api_id)
+
+	def slack_client(self):
+		if self.is_authenticated:
+			return slack.WebClient(self.authentication_oauth_access_token)
+		else:
+			return None
+
+class SlackConversation(db.Model, EnhancedDBModel):
+	__tablename__ = 'slack_conversations'
+	id = db.Column(db.Integer, primary_key=True)
+	slack_conversation_api_id = db.Column(db.String(100), nullable=False)
+	slack_team_id = db.Column(db.Integer, db.ForeignKey('slack_teams.id'), nullable=False)
+	conversation_type = db.Column(db.String(100), nullable=False) # 'im', 'mpim', 'channel', 'private_channel'
+	conversation_name = db.Column(db.String(100)) # can be null for IM conversation
+	is_deleted = db.Column(db.Boolean, nullable=False, default=False)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 
 class SlackUserEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'slack_user_events'

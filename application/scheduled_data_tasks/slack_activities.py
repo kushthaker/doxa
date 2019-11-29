@@ -1,4 +1,4 @@
-from application.models import SlackUser, RawSlackEvent, SlackUserEvent
+from application.models import SlackUser, RawSlackEvent, SlackUserEvent, SlackTeam, SlackConversation
 from application.initialize.db_init import db
 from datetime import datetime
 
@@ -36,3 +36,70 @@ def capture_slack_activites_from_stored_raw_json():
         total_new_slack_events += 1
   db.session.commit()
   print('Created %s new SlackUserEvents in DB out of %s total raw Slack events' % (total_new_slack_events, raw_slack_event_count))
+
+def capture_slack_conversations():
+  slack_teams = SlackTeam.query.all()
+  for slack_team in slack_teams:
+    slack_users = slack_team.slack_users()
+    for slack_user in slack_users:
+      new_conversation_count = 0
+      updated_conversation_count = 0
+      if slack_user.is_authenticated:
+        slack_user_client = slack_user.slack_client()
+        slack_user_conversations = _capture_raw_slack_user_conversations(slack_user_client)
+        conversation_slack_api_ids = [convo['id'] for convo in slack_user_conversations]
+        existing_conversations = SlackConversation.query.filter(SlackConversation.slack_conversation_api_id.in_(conversation_slack_api_ids)).all()
+        existing_conversation_ids = [convo.slack_conversation_api_id for convo in existing_conversations]
+        for slack_conversation in slack_user_conversations:
+          conversation_type = _get_conversation_type_from_raw_slack_conversation(slack_conversation)
+          conversation_slack_api_id = slack_conversation['id']
+          conversation_name = slack_conversation.get('name')
+          is_deleted = slack_conversation.get('is_archived')
+          if slack_conversation['id'] not in existing_conversation_ids:
+            new_conversation = SlackConversation(
+              slack_conversation_api_id=conversation_slack_api_id, \
+              conversation_type=conversation_type, \
+              conversation_name=conversation_name, \
+              is_deleted=is_deleted,
+              slack_team_id=slack_team.id,
+              last_updated=datetime.utcnow()
+            )
+            db.session.add(new_conversation)
+            new_conversation_count += 1
+          else:
+            existing_conversation = list(filter(lambda convo: convo.slack_conversation_api_id == slack_conversation['id'], existing_conversations))[0]
+            update_dict = dict(conversation_type=conversation_type, conversation_name=conversation_name, is_deleted=is_deleted)
+            existing_conversation.update(update_dict)
+            updated_conversation_count += 1
+        db.session.commit()
+      print('Added %s new slack_conversations to DB and updated %s slack_conversations for the SlackUser with ID: %s' % (new_conversation_count, updated_conversation_count, slack_user.id))
+        # print something about running job
+
+# Tested using a limit to check the loop, it works
+def _capture_raw_slack_user_conversations(slack_user_client):
+  channel_types_str = str.join(', ', ['public_channel', 'private_channel', 'im', 'mpim'])
+  next_cursor = ''
+  result = slack_user_client.conversations_list(types=channel_types_str).data
+  raw_user_conversations = result.get('channels')
+  next_cursor = result.get('response_metadata').get('next_cursor')
+  while next_cursor != '':
+    result = slack_user_client.conversations_list(types=channel_types_str, cursor=next_cursor).data
+    raw_user_conversations = raw_user_conversations + result.get('channels')
+    next_cursor = result.get('response_metadata').get('next_cursor')
+  return raw_user_conversations
+
+def _get_conversation_type_from_raw_slack_conversation(raw_slack_conversation):
+  is_private = raw_slack_conversation.get('is_private')
+  is_im = raw_slack_conversation.get('is_im')
+  is_mpim = raw_slack_conversation.get('is_mpim')
+  is_channel = raw_slack_conversation.get('is_channel')
+  is_group = raw_slack_conversation.get('is_group')
+
+  if is_mpim: return 'mpim'
+  if is_im: return 'im'
+  if is_channel: return 'public_channel'
+  if (is_group and is_private): return 'private_channel'
+  
+  print('Not sure what conversation type this is: %s' % raw_slack_conversation.get('id'))
+  return None
+
