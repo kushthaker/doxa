@@ -3,11 +3,11 @@ from application.scheduled_data_tasks import apscheduler_util, slack_activities
 JOB_SCHEDULE = [
   {
     'func': slack_activities.capture_slack_activites_from_stored_raw_json,
-    'trigger': apscheduler_util.build_hour_trigger(2)
+    'trigger': apscheduler_util.build_hour_trigger(1)
   },
   {
-    'func': apscheduler_util.test_running_task,
-    'trigger': apscheduler_util.build_minute_trigger(5)
+    'func': slack_activities.capture_slack_conversations,
+    'trigger': apscheduler_util.build_hour_trigger(1)
   }
 ]
 
