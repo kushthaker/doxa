@@ -159,6 +159,16 @@ class SlackUserEvent(db.Model, EnhancedDBModel):
 		return "SlackUserEvent(id: %s, slack_user_id: %s, slack_event_api_id: %s, slack_event_type: %s, slack_event_subtype: %s)" % \
 			(self.id, self.slack_user_id, self.slack_event_api_id, self.slack_event_type, self.slack_event_subtype or '')
 
+class SlackConversationRead(db.Model):
+	__tablename__ = 'slack_conversation_reads'
+	id = db.Column(db.Integer, primary_key=True)
+	slack_conversation_query_id = db.Column(db.Integer, db.ForeignKey('slack_conversation_queries.id'), nullable=False, unique=True)
+	slack_user_id = db.Column(db.Integer, db.ForeignKey('slack_users.id'), nullable=False)
+	slack_conversation_id = db.Column(db.Integer, db.ForeignKey('slack_conversations.id'), nullable=False)
+	period_start_datetime = db.Column(db.DateTime, nullable=False)
+	period_end_datetime = db.Column(db.DateTime, nullable=False)
+	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+
 class RawSlackEvent(db.Model, EnhancedDBModel):
 	__tablename__ = 'raw_slack_events'
 	id = db.Column(db.Integer, primary_key=True)

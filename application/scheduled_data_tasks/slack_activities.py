@@ -1,7 +1,8 @@
 from application.models import SlackUser, RawSlackEvent, \
-  SlackUserEvent, SlackTeam, SlackConversation, SlackConversationQuery, SlackConversationQueryRun
+  SlackUserEvent, SlackTeam, SlackConversation, SlackConversationQuery, \
+  SlackConversationQueryRun, SlackConversationRead
 from application.initialize.db_init import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from slack.errors import SlackApiError
 
 def capture_slack_activites_from_stored_raw_json():
@@ -78,7 +79,6 @@ def capture_slack_conversations():
             updated_conversation_count += 1
         db.session.commit()
       print('Added %s new slack_conversations to DB and updated %s slack_conversations for the SlackUser with ID: %s' % (new_conversation_count, updated_conversation_count, slack_user.id))
-        # print something about running job
 
 def capture_slack_conversation_queries():
   slack_teams = SlackTeam.query.all()
@@ -113,6 +113,41 @@ def capture_slack_conversation_queries():
       db.session.commit()
       print('For user w/ ID: %s, %s new SlackConversationQuery rows were created' % (slack_user.id, new_conversation_query_count))
 
+def capture_slack_conversation_reads():
+  slack_teams = SlackTeam.query.all()
+  for slack_team in slack_teams:
+    slack_conversations = slack_team.slack_conversations()
+    slack_users = slack_team.slack_users()
+    for slack_user in slack_users:
+      back_query_datetime = datetime.utcnow() - timedelta(hours=12)
+      slack_conversation_read_count = 0
+      for slack_conversation in slack_conversations:
+        slack_user_conversation_queries = SlackConversationQuery.query.filter(
+          (SlackConversationQuery.slack_user_id == slack_user.id) &
+          (SlackConversationQuery.query_datetime > back_query_datetime) &
+          (SlackConversationQuery.slack_conversation_id == slack_conversation.id)
+        ).order_by(SlackConversationQuery.query_datetime).all()
+        prev = None
+        for query in slack_user_conversation_queries:
+          if prev:
+            if prev.last_read_datetime < query.last_read_datetime:
+              if not SlackConversationRead.query \
+                .filter(SlackConversationRead.slack_conversation_query_id == query.id) \
+                .one_or_none():
+                slack_conversation_read = SlackConversationRead(
+                  slack_conversation_id=query.slack_conversation_id,
+                  slack_conversation_query_id=query.id,
+                  slack_user_id=query.slack_user_id,
+                  period_start_datetime=prev.query_datetime,
+                  period_end_datetime=query.query_datetime,
+                  last_updated=datetime.utcnow()
+                )
+                db.session.add(slack_conversation_read)
+                slack_conversation_read_count += 1
+          prev = query
+        db.session.commit()
+      print('%s total new SlackConversationRead rows for SlackUser w/ ID %s' % (slack_conversation_read_count, slack_user.id))  
+
 # Tested using a limit to check the loop, it works
 def _capture_raw_slack_user_conversations(slack_user_client):
   channel_types_str = str.join(', ', ['public_channel', 'private_channel', 'im', 'mpim'])
@@ -140,4 +175,3 @@ def _get_conversation_type_from_raw_slack_conversation(raw_slack_conversation):
   
   print('Not sure what conversation type this is: %s' % raw_slack_conversation.get('id'))
   return None
-
