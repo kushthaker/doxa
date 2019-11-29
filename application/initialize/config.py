@@ -11,6 +11,7 @@ class Config:
   GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
   GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
 
+  # Google OAuth2 throws insecure transport error without https, this is temp workaround.
   os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   
   # database stuff

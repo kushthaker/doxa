@@ -2,13 +2,17 @@ import os
 import flask
 from application.initialize.config import Config
 from application.app_setup import application
+from application.initialize.db_init import db
+from application.models import GoogleCalendarUser
 import datetime
 import pytz
 from dateutil import parser
 import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
-import googleapiclient.discovery 
+import googleapiclient.discovery
+
+import ipdb
 
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
@@ -27,7 +31,7 @@ SCOPES = [
 'https://www.googleapis.com/auth/calendar.settings.readonly'
 ]
 
-@application.route('/google_auth')
+@application.route('/google-auth')
 def request_api():
 	if 'credentials' not in flask.session:
 		return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
@@ -36,9 +40,23 @@ def request_api():
 	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
 	service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+	calendarList = service.calendarList().list().execute() 
+	primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
+
+	new_user = GoogleCalendarUser()
+	new_user.google_email = primaryCal.get('id')
+	new_user.auth_token = credentials.token
+	new_user.refresh_token = credentials.token
+	new_user.scopes = str(credentials.token)
+	new_user.primary_timeZone = primaryCal.get('timeZone')
+	new_user.primary_etag = primaryCal.get('etag')
+	new_user.primary_color_id = primaryCal.get('colorId')
+
+	db.session.add(new_user)
+	db.session.commit()
 
 	#Get 10 upcoming events
+	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
 
 	events = events_result.get('items', [])
@@ -76,11 +94,12 @@ def google_calendar_oauth2callback():
 			authorization_response = flask.request.url
 			flow.fetch_token(authorization_response=authorization_response)
 			credentials = flow.credentials
+
 			flask.session['credentials'] = credentials_to_dict(credentials)
 
 			return flask.redirect(flask.url_for('request_api'))
 
-@application.route('/revoke')
+@application.route('/revoke-google-auth')
 def revoke():
   if 'credentials' not in flask.session:
     return ('You need to <a href="/authorize">authorize</a> before ' +
@@ -99,7 +118,7 @@ def revoke():
   else:
     return('An error occurred.' + print_index_table())
 
-@application.route('/clear')
+@application.route('/clear-google-auth')
 def clear_credentials():
 	if 'credentials' in flask.session:
 		del flask.session['credentials']
