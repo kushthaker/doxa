@@ -7,6 +7,11 @@ class Config:
   # Slack API keys
   SLACK_CLIENT_ID = os.environ.get('SLACK_CLIENT_ID') # stored in EB config
   SLACK_CLIENT_SECRET = os.environ.get('SLACK_CLIENT_SECRET') # stored in EB config
+
+  GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
+  GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
+
+  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   
   # database stuff
   LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
