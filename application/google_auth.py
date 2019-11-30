@@ -29,6 +29,18 @@ SCOPES = [
 'https://www.googleapis.com/auth/calendar.settings.readonly'
 ]
 
+def get_upcoming_events(service):
+	#Get 10 upcoming events
+	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
+
+	events = events_result.get('items', [])
+	
+	if not events:
+		print('No upcoming events found.')
+
+	return events
+
 @application.route('/google-auth')
 def request_api():
 	if 'credentials' not in flask.session:
@@ -50,9 +62,9 @@ def request_api():
 		existing_user.primary_timeZone = primaryCal.get('timeZone')
 		existing_user.primary_etag = primaryCal.get('etag')
 		existing_user.primary_color_id = primaryCal.get('colorId')
+		existing_user.updated_at
 		existing_user.save()
 	else:
-
 		new_user = GoogleCalendarUser()
 		new_user.google_email = primaryCal.get('id')
 		new_user.auth_token = credentials.token
@@ -65,13 +77,7 @@ def request_api():
 		db.session.add(new_user)
 		db.session.commit()
 
-	#Get 10 upcoming events
-	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
-
-	events = events_result.get('items', [])
-	if not events:
-		print('No upcoming events found.')
+		events = get_upcoming_events(service)
 
 	# Save credentials back to session in case access token was refreshed.
 	# ACTION ITEM: In a production app, you likely want to save these

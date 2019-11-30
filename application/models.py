@@ -198,3 +198,13 @@ class GoogleCalendarUser(db.Model, EnhancedDBModel):
 	primary_timeZone = db.Column(db.String(300), nullable=False)
 	primary_etag = db.Column(db.String(300), nullable=False)
 	primary_color_id = db.Column(db.Integer, nullable=False)
+	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+	def __repr__(self):
+		return "GoogleCalendarUser('%s','%s','%s')" % (self.google_email, self.primary_timeZone, self.created_at)
+
+
+
+
+
