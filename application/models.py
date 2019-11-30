@@ -187,3 +187,14 @@ class APSchedulerJob(db.Model):
 	next_run_time = db.Column(db.Float, nullable=True, index=True)
 	job_state = db.Column(db.LargeBinary, nullable=False)
 	# created this after I realized that a migration will be made to delete it
+
+class GoogleCalendarUser(db.Model, EnhancedDBModel):
+	__tablename__ = 'google_calendar_users'
+	id = db.Column(db.Integer, primary_key=True)
+	google_email = db.Column(db.String(300), nullable=False)
+	auth_token = db.Column(db.String(300), nullable=False)
+	refresh_token = db.Column(db.String(300), nullable=False)
+	scopes = db.Column(db.String(300), nullable=False)
+	primary_timeZone = db.Column(db.String(300), nullable=False)
+	primary_etag = db.Column(db.String(300), nullable=False)
+	primary_color_id = db.Column(db.Integer, nullable=False)
