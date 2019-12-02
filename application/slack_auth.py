@@ -66,7 +66,7 @@ def slack_auth_route():
     existing_user.authentication_oauth_access_token = authentication_oauth_access_token
     existing_user.save()
   else:
-    web_client = build_slack_web_client(slack_team=slack_team)
+    web_client = slack.WebClient(authentication_oauth_access_token)
     response = web_client.users_info(user=user_id).data
     user_info_data = response.get('user')
     # THEN create Slack user from who is authenticating
