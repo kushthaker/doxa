@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify
 from application.initialize.bcrypt_init import bcrypt
 from application.initialize.db_init import db
 from application.initialize.scheduler_jobstore_init import scheduler as apscheduler
@@ -12,7 +12,6 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
-
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -42,6 +41,12 @@ def test_scheduling_route():
 	function = apscheduler_util.test_running_task
 	job_schedule_result = apscheduler_util.add_or_update_job_from_function(apscheduler, func=function, trigger=trigger)
 	return str(job_schedule_result) # test method to see if scheduled job is working in production
+
+@application.route('/test-jsonify-module', methods=['GET'])
+def test_jsonify_module():
+	users = User.query.all()
+	response = jsonify({ 'users': [user.to_dict() for user in users] })
+	return response
 
 @application.route("/")
 def home():
