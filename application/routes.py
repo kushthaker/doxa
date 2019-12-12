@@ -12,6 +12,25 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
+from flask import send_from_directory
+
+# this should eventually be replaced by a CDN
+@application.route('/test-vue', methods=['GET'])
+def test_vue():
+	print('in test-vue')
+	return send_from_directory('doxa-frontend/dist/', 'index.html')
+
+@application.route('/static/js/<path:filename>', methods=['GET'])
+def send_static_js(filename):
+	print('in static-js route')
+	root_dir = os.getcwd()
+	return send_from_directory(os.path.join(root_dir, 'application', 'doxa-frontend', 'dist', 'static', 'js'), filename)
+
+@application.route('/static/css/<path:filename>', methods=['GET'])
+def send_static_css(filename):
+	print('in static-css route')
+	root_dir = os.getcwd()
+	return send_from_directory(os.path.join(root_dir, 'application', 'doxa-frontend', 'dist', 'static', 'css'), filename)
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():

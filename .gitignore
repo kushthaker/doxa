@@ -9,3 +9,4 @@ ngrok
 *.cpython-36.pyc
 __pycache__
 play_scripts/*
+application/doxa-frontend/node_modules/*
