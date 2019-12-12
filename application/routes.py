@@ -16,20 +16,14 @@ from application.scheduled_data_tasks import apscheduler_util
 # this should eventually be replaced by a CDN
 @application.route('/test-vue', methods=['GET'])
 def test_vue():
-	print('in test-vue')
-	print(os.getcwd())
 	return send_from_directory('doxa-frontend/dist/', 'index.html')
 
 @application.route('/static_files/js/<path:filename>', methods=['GET'])
 def send_static_js(filename):
-	print('in static-js route')
-	root_dir = os.getcwd()
 	return send_from_directory('doxa-frontend/dist/static_files/js', filename)
 
 @application.route('/static_files/css/<path:filename>', methods=['GET'])
 def send_static_css(filename):
-	print('in static-css route')
-	root_dir = os.getcwd()
 	return send_from_directory('doxa-frontend/dist/static_files/css', filename)
 
 @application.route('/slack-event', methods=['POST'])
