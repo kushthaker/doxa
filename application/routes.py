@@ -12,6 +12,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
+from flask_cors import cross_origin
 
 # this should eventually be replaced by a CDN
 @application.route('/test-vue', methods=['GET'])
@@ -44,21 +45,12 @@ def slack_event():
 		return '200'
 	return '200'
 
-@application.route('/test-db-route', methods=['GET'])
-def test_db_route():
-	return str(Post.query.all()) # test method to see if application can hit DB in production
-
-@application.route('/test-scheduling-route', methods=['GET'])
-def test_scheduling_route():
-	trigger = apscheduler_util.build_minute_trigger(3)
-	function = apscheduler_util.test_running_task
-	job_schedule_result = apscheduler_util.add_or_update_job_from_function(apscheduler, func=function, trigger=trigger)
-	return str(job_schedule_result) # test method to see if scheduled job is working in production
-
-@application.route('/test-jsonify-module', methods=['GET'])
+@application.route('/api/test-jsonify-module', methods=['GET'])
+# @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def test_jsonify_module():
+	print('in test_jsonify_module')
 	users = User.query.all()
-	response = jsonify({ 'users': [user.to_dict() for user in users] })
+	response = jsonify([user.to_dict() for user in users])
 	return response
 
 @application.route("/")

@@ -13,7 +13,7 @@ class Config:
 
   # Google OAuth2 throws insecure transport error without https, this is temp workaround.
   os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-  
+  CORS_HEADERS = 'Content-Type'
   # database stuff
   LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
   postgres_url = os.environ.get('AWS_RDS_URL')

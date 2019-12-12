@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers } from '@/api'
-
+var something = null
 Vue.use(Vuex)
 
 const state = {
@@ -13,7 +13,7 @@ const actions = {
   // asynchronous operations
   loadUsers(context) {
     return fetchUsers()
-      .then((response) => context.commit('setUsers', { users: response }))
+      .then((response) => context.commit('setUsers', { users: response.data }))
   },
   loadUser(context, id) {
     return fetchUser(id)

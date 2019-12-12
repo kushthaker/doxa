@@ -1,10 +1,4 @@
-export function fetchUsers() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(users)
-    }, 300)
-  })
-}
+import axios from 'axios'
 
 const users = [{
   id: 1,
@@ -26,3 +20,7 @@ export function fetchUser(userId) {
   })
 }
 
+
+export function fetchUsers() {
+  return axios.get(`/api/test-jsonify-module`)
+}

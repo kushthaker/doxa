@@ -5,5 +5,6 @@ from application.initialize.bcrypt_init import bcrypt
 from application.initialize.scheduler_jobstore_init import scheduler
 from application.scheduled_data_tasks import job_scheduler
 from application import routes
+from application.initialize.cors_init import cors
 
 job_scheduler.schedule_jobs(scheduler)

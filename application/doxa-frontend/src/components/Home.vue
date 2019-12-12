@@ -12,7 +12,7 @@
         <div class="card" v-for="user in users" v-bind:key="user.id">
           <div class="card-content">
             <div v-if="user">
-              <p class="title">Name: {{ user.name}}; Email: {{user.email}}</p>
+              <p class="title">Name: {{ user.username}}; Email: {{user.email}}</p>
               <p class="detail">See this <router-link :to="`maestro/${user.id}`">maestro</router-link> </p>
             </div>
           </div>
