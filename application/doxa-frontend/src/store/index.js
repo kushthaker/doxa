@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers } from '@/api'
-var something = null
+
 Vue.use(Vuex)
 
 const state = {

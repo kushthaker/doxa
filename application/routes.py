@@ -12,7 +12,6 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
-from flask_cors import cross_origin
 
 # this should eventually be replaced by a CDN
 @application.route('/test-vue', methods=['GET'])
@@ -46,7 +45,6 @@ def slack_event():
 	return '200'
 
 @application.route('/api/test-jsonify-module', methods=['GET'])
-# @cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def test_jsonify_module():
 	print('in test_jsonify_module')
 	users = User.query.all()
