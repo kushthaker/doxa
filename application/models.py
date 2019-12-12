@@ -22,6 +22,9 @@ class User(db.Model, UserMixin):
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
 
+	def to_dict(self):
+		return dict(id=self.id, username=self.username, email=self.email)
+
 class Post(db.Model):
 	__tablename__ = 'posts' # follows general table name paradigm in database (plural)
 	id = db.Column(db.Integer, primary_key=True)

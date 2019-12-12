@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_from_directory
 from application.initialize.bcrypt_init import bcrypt
 from application.initialize.db_init import db
 from application.initialize.scheduler_jobstore_init import scheduler as apscheduler
@@ -13,6 +13,18 @@ from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
 
+# this should eventually be replaced by a CDN
+@application.route('/test-vue', methods=['GET'])
+def test_vue():
+	return send_from_directory('doxa-frontend/dist/', 'index.html')
+
+@application.route('/static_files/js/<path:filename>', methods=['GET'])
+def send_static_js(filename):
+	return send_from_directory('doxa-frontend/dist/static_files/js', filename)
+
+@application.route('/static_files/css/<path:filename>', methods=['GET'])
+def send_static_css(filename):
+	return send_from_directory('doxa-frontend/dist/static_files/css', filename)
 
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
@@ -42,6 +54,12 @@ def test_scheduling_route():
 	function = apscheduler_util.test_running_task
 	job_schedule_result = apscheduler_util.add_or_update_job_from_function(apscheduler, func=function, trigger=trigger)
 	return str(job_schedule_result) # test method to see if scheduled job is working in production
+
+@application.route('/test-jsonify-module', methods=['GET'])
+def test_jsonify_module():
+	users = User.query.all()
+	response = jsonify({ 'users': [user.to_dict() for user in users] })
+	return response
 
 @application.route("/")
 def home():
