@@ -203,7 +203,7 @@ class GoogleCalendarUser(db.Model, EnhancedDBModel):
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-	# events = db.relationship('GoogleCalendarEvent', backref='author', lazy=True)
+	events = db.relationship('GoogleCalendarEvent', backref='google_user', lazy=True)
 
 	def __repr__(self):
 		return "GoogleCalendarUser('%s','%s','%s')" % (self.google_email, self.primary_timeZone, self.created_at)
@@ -218,13 +218,16 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 	summary = db.Column(db.Text, nullable=False)
 	description = db.Column(db.Text)
 	organizer_email = db.Column(db.String(200), nullable=False)
-	organizer_self = db.Column(db.Boolean, nullable=False, default=False)
+	organizer_self = db.Column(db.Boolean, default=False)
 	attendees = db.Column(db.Text)
 	conference_data = db.Column(db.Text)
+	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+	google_user_id = db.Column(db.Integer, db.ForeignKey('google_calendar_users.id'))
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 	def __repr__(self):
-		return "GoogleCalendarUser('%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.user_id)
+		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.user_id)
 
 
 

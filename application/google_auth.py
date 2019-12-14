@@ -45,29 +45,61 @@ def get_upcoming_events(service):
 	return events
 
 def save_upcoming_events(events):
+
 	for event in events:
-		new_event = GoogleCalendarEvent()
-		new_event.google_id = event.get('id')
-		new_event.ical_uid = event.get('iCalUID')
 
-		if event.get('start').get('dateTime'):
-			s_dt = parser.parse(event.get('start').get('dateTime'))
-			e_dt = parser.parse(event.get('end').get('dateTime'))
-		elif event.get('start').get('date'):
-			s_dt = parser.parse(event.get('start').get('date'))
-			e_dt = parser.parse(event.get('end').get('date'))
+		existing_event = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == event.get('id')).one_or_none()
 
-		new_event.start_time = s_dt.astimezone(pytz.UTC)
-		new_event.end_time = e_dt.astimezone(pytz.UTC)
+		if existing_event:
+			if event.get('start').get('dateTime'):
+				s_dt = parser.parse(event.get('start').get('dateTime'))
+				e_dt = parser.parse(event.get('end').get('dateTime'))
+			elif event.get('start').get('date'):
+				s_dt = parser.parse(event.get('start').get('date'))
+				e_dt = parser.parse(event.get('end').get('date'))
+			
+			existing_event.start_time = s_dt.astimezone(pytz.UTC)
+			existing_event.end_time = e_dt.astimezone(pytz.UTC)
 
-		new_event.summary = event.get('summary')
-		new_event.description = event.get('description')
+			existing_event.summary = event.get('summary')
+			existing_event.description = event.get('description')
+			existing_event.organizer_email = event.get('organizer').get('email')
+			existing_event.organizer_self = event.get('organizer').get('self')
+			existing_event.attendees = str(event.get('attendees'))
+			existing_event.conference_data = str(event.get('conferenceData'))
+			
+			existing_event.updated_at = datetime.datetime.utcnow()
 
-		new_event.organizer_email = event.get('organizer').get('email')
-		new_event.organizer_self = event.get('organizer').get('self')
-		new_event.attendees = event.get('attendees') 
-		new_event.conference_data = event.get('conferenceData')
-		new_event.user_id = current_user.id
+			existing_event.user_id = current_user.id
+			existing_event.google_user_id = current_user.google_calendar_users.id
+
+			existing_event.save()
+		else:
+			new_event = GoogleCalendarEvent()
+			new_event.google_id = event.get('id')
+			new_event.ical_uid = event.get('iCalUID')
+
+			if event.get('start').get('dateTime'):
+				s_dt = parser.parse(event.get('start').get('dateTime'))
+				e_dt = parser.parse(event.get('end').get('dateTime'))
+			elif event.get('start').get('date'):
+				s_dt = parser.parse(event.get('start').get('date'))
+				e_dt = parser.parse(event.get('end').get('date'))
+
+			new_event.start_time = s_dt.astimezone(pytz.UTC)
+			new_event.end_time = e_dt.astimezone(pytz.UTC)
+
+			new_event.summary = event.get('summary')
+			new_event.description = event.get('description')
+			new_event.organizer_email = event.get('organizer').get('email')
+			new_event.organizer_self = event.get('organizer').get('self')
+			new_event.attendees = str(event.get('attendees'))
+			new_event.conference_data = str(event.get('conferenceData'))
+			new_event.user_id = current_user.id
+			new_event.google_user_id = current_user.google_calendar_users.id
+
+			db.session.add(new_event)
+			db.session.commit()
 
 	return True
 
