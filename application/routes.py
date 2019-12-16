@@ -185,6 +185,3 @@ def user_posts(username):
 		.order_by(Post.date_posted.desc())\
 		.paginate(page=page, per_page=3)
 	return render_template('home.html', posts=posts, user=user)
-
-
-

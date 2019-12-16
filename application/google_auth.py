@@ -12,7 +12,7 @@ import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
-import ipdb
+from google.auth.exceptions import RefreshError
 
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
@@ -32,9 +32,10 @@ SCOPES = [
 ]
 
 def get_upcoming_events(service):
-	# Upcoming 10 Events
+
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=20, singleEvents=True, orderBy='startTime').execute()
+
 	events = events_result.get('items', [])
 	if not events:
 		print('No upcoming events found.')
@@ -58,13 +59,9 @@ def save_upcoming_events(events):
 			existing_event.description = event.get('description')
 			existing_event.organizer_email = event.get('organizer').get('email')
 			existing_event.organizer_self = event.get('organizer').get('self')
-			existing_event.attendees = str(event.get('attendees'))
-			existing_event.conference_data = str(event.get('conferenceData'))
-
+			existing_event.raw_event_json = str(event.get('attendees'))
 			existing_event.updated_at = datetime.datetime.utcnow()
-
-			existing_event.user_id = current_user.id
-			existing_event.google_user_id = current_user.google_calendar_users.id
+			existing_event.google_calendar_user_id = current_user.google_calendar_user.id
 
 			existing_event.save()
 		else:
@@ -88,32 +85,42 @@ def save_upcoming_events(events):
 			new_event.organizer_self = event.get('organizer').get('self')
 			new_event.attendees = str(event.get('attendees'))
 			new_event.conference_data = str(event.get('conferenceData'))
-			new_event.user_id = current_user.id
-			new_event.google_user_id = current_user.google_calendar_users.id
+			new_event.google_calendar_user_id = current_user.google_calendar_user.id
 
 			db.session.add(new_event)
 			db.session.commit()
 	return True
 
-@login_required
+
 @application.route('/google-auth')
+@login_required
 def request_api():
 	if 'credentials' not in flask.session:
 		return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 
-	#Build Calendar service from credentials
 	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
-	
-	if credentials.refresh_token == None:
-		user = GoogleCalendarUser.query.first()
-		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict())
+
+	if credentials is None:
+		user = GoogleCalendarUser.query.filter(GoogleCalendarUser.user_id == current_user.id).one_or_none()
+		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
+
+	if credentials.expired is False and credentials.valid is True:
 		service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		try:
+			calendarList = service.calendarList().list().execute() 
+		except RefreshError as e:
+			print(e)
+			# request = google.auth.transport.requests.Request()
+			# new_creds = credentials.refresh(request)
+			# service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=new_creds)
+			# calendarList = service.calendarList().list().execute()
+			flask.flash('Google account not connected. Please reauthorize.', 'danger')
+			return flask.redirect(flask.url_for('home'))
 	else:
-		service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-
-	calendarList = service.calendarList().list().execute() 
+		flask.flash('Google account not connected. Please reauthorize.', 'danger')
+		return flask.redirect(flask.url_for('home'))
+	
 	primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
-
 	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.google_email == primaryCal.get('id')).one_or_none()
 
 	if existing_user:
@@ -146,11 +153,10 @@ def request_api():
 
 	try: 
 		save_upcoming_events(get_upcoming_events(service))
-		print('events successfully saved')
-	except:
-		print('error with save_upcoming_events(get_upcoming_events(service))')
-	finally:
-		save_upcoming_events(get_upcoming_events(service))
+		print('Events saved successfully.')
+	except Exception as e:
+		print(e)
+		print('error with save_upcoming_events')
 	
 	return flask.jsonify(get_upcoming_events(service))
 
@@ -181,7 +187,7 @@ def google_calendar_oauth2callback():
 	flask.session['credentials'] = credentials_to_dict(credentials)
 
 	return flask.redirect(flask.url_for('request_api'))
-
+	
 @application.route('/revoke-google-auth')
 def revoke_google_auth():
 	if 'credentials' not in flask.session:
@@ -213,8 +219,7 @@ def credentials_to_dict(credentials):
 					'client_secret': credentials.client_secret,
 					'scopes': credentials.scopes}
 
-def get_credentials_dict():
-	user = GoogleCalendarUser.query.filter(GoogleCalendarUser.user_id == current_user.id).first()
+def get_credentials_dict(user):
 	return {'token': user.auth_token,
 		'refresh_token': user.refresh_token,
 		'token_uri': 'https://oauth2.googleapis.com/token',

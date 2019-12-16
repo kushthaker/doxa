@@ -18,8 +18,7 @@ class User(db.Model, UserMixin):
 	password = db.Column(db.String(60), nullable=False)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	posts = db.relationship('Post', backref='author', lazy=True)
-	google_calendar_users = db.relationship('GoogleCalendarUser', backref='user', uselist=False)
-	google_calendar_events = db.relationship('GoogleCalendarEvent', backref='user')
+	google_calendar_user = db.relationship('GoogleCalendarUser', backref='user', uselist=False)
 
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
@@ -206,7 +205,7 @@ class GoogleCalendarUser(db.Model, EnhancedDBModel):
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-	events = db.relationship('GoogleCalendarEvent', backref='google_user', lazy=True)
+	google_calendar_events = db.relationship('GoogleCalendarEvent', backref='google_calendar_user', lazy=True)
 
 	def __repr__(self):
 		return "GoogleCalendarUser('%s','%s','%s')" % (self.google_email, self.primary_timeZone, self.created_at)
@@ -218,16 +217,14 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 	ical_uid = db.Column(db.String(200), nullable=False)
 	start_time = db.Column(db.DateTime, nullable=False)
 	end_time = db.Column(db.DateTime, nullable=False)
-	summary = db.Column(db.Text, nullable=False)
+	summary = db.Column(db.String(300), nullable=False)
 	description = db.Column(db.Text)
 	organizer_email = db.Column(db.String(200), nullable=False)
 	organizer_self = db.Column(db.Boolean, default=False)
-	attendees = db.Column(db.Text)
-	conference_data = db.Column(db.Text)
+	json_data = db.Column(db.JSON)
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-	google_user_id = db.Column(db.Integer, db.ForeignKey('google_calendar_users.id'))
-	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+	google_calendar_user_id = db.Column(db.Integer, db.ForeignKey('google_calendar_users.id'))
 
 	def __repr__(self):
-		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.user_id)
+		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.google_calendar_user_id)
