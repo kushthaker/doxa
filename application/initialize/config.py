@@ -15,7 +15,7 @@ class Config:
   os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   CORS_HEADERS = 'Content-Type'
   # database stuff
-  LOCAL_PG_URL = 'postgresql://localhost/doxa_dev'
+  LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
   postgres_url = os.environ.get('AWS_RDS_URL')
   if postgres_url != None:
     print('USING VARIABLE %s' % postgres_url)
