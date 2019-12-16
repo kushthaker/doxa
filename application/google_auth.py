@@ -3,7 +3,8 @@ import flask
 from application.initialize.config import Config
 from application.app_setup import application
 from application.initialize.db_init import db
-from application.models import GoogleCalendarUser
+from application.models import GoogleCalendarUser, GoogleCalendarEvent
+from flask_login import login_user, current_user, logout_user, login_required
 import datetime
 import pytz
 from dateutil import parser
@@ -11,6 +12,7 @@ import requests
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
+from google.auth.exceptions import RefreshError
 
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
@@ -29,18 +31,96 @@ SCOPES = [
 'https://www.googleapis.com/auth/calendar.settings.readonly'
 ]
 
+def get_upcoming_events(service):
+
+	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=20, singleEvents=True, orderBy='startTime').execute()
+
+	events = events_result.get('items', [])
+	if not events:
+		print('No upcoming events found.')
+	return events
+
+def save_upcoming_events(events):
+	for event in events:
+		existing_event = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == event.get('id')).one_or_none()
+		if existing_event:
+			if event.get('start').get('dateTime'):
+				s_dt = parser.parse(event.get('start').get('dateTime'))
+				e_dt = parser.parse(event.get('end').get('dateTime'))
+			elif event.get('start').get('date'):
+				s_dt = parser.parse(event.get('start').get('date'))
+				e_dt = parser.parse(event.get('end').get('date'))
+
+			existing_event.start_time = s_dt.astimezone(pytz.UTC)
+			existing_event.end_time = e_dt.astimezone(pytz.UTC)
+
+			existing_event.summary = event.get('summary')
+			existing_event.description = event.get('description')
+			existing_event.organizer_email = event.get('organizer').get('email')
+			existing_event.organizer_self = event.get('organizer').get('self')
+			existing_event.raw_event_json = str(event.get('attendees'))
+			existing_event.updated_at = datetime.datetime.utcnow()
+			existing_event.google_calendar_user_id = current_user.google_calendar_user.id
+
+			existing_event.save()
+		else:
+			new_event = GoogleCalendarEvent()
+			new_event.google_id = event.get('id')
+			new_event.ical_uid = event.get('iCalUID')
+
+			if event.get('start').get('dateTime'):
+				s_dt = parser.parse(event.get('start').get('dateTime'))
+				e_dt = parser.parse(event.get('end').get('dateTime'))
+			elif event.get('start').get('date'):
+				s_dt = parser.parse(event.get('start').get('date'))
+				e_dt = parser.parse(event.get('end').get('date'))
+
+			new_event.start_time = s_dt.astimezone(pytz.UTC)
+			new_event.end_time = e_dt.astimezone(pytz.UTC)
+
+			new_event.summary = event.get('summary')
+			new_event.description = event.get('description')
+			new_event.organizer_email = event.get('organizer').get('email')
+			new_event.organizer_self = event.get('organizer').get('self')
+			new_event.attendees = str(event.get('attendees'))
+			new_event.conference_data = str(event.get('conferenceData'))
+			new_event.google_calendar_user_id = current_user.google_calendar_user.id
+
+			db.session.add(new_event)
+			db.session.commit()
+	return True
+
+
 @application.route('/google-auth')
+@login_required
 def request_api():
 	if 'credentials' not in flask.session:
 		return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 
-	#Build Calendar service from credentials
 	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
-	service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-	calendarList = service.calendarList().list().execute() 
+	if credentials is None:
+		user = GoogleCalendarUser.query.filter(GoogleCalendarUser.user_id == current_user.id).one_or_none()
+		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
+
+	if credentials.expired is False and credentials.valid is True:
+		service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+		try:
+			calendarList = service.calendarList().list().execute() 
+		except RefreshError as e:
+			print(e)
+			# request = google.auth.transport.requests.Request()
+			# new_creds = credentials.refresh(request)
+			# service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=new_creds)
+			# calendarList = service.calendarList().list().execute()
+			flask.flash('Google account not connected. Please reauthorize.', 'danger')
+			return flask.redirect(flask.url_for('home'))
+	else:
+		flask.flash('Google account not connected. Please reauthorize.', 'danger')
+		return flask.redirect(flask.url_for('home'))
+	
 	primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
-
 	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.google_email == primaryCal.get('id')).one_or_none()
 
 	if existing_user:
@@ -50,9 +130,10 @@ def request_api():
 		existing_user.primary_timeZone = primaryCal.get('timeZone')
 		existing_user.primary_etag = primaryCal.get('etag')
 		existing_user.primary_color_id = primaryCal.get('colorId')
+		existing_user.user_id = current_user.id
+		existing_user.updated_at = datetime.datetime.utcnow()
 		existing_user.save()
 	else:
-
 		new_user = GoogleCalendarUser()
 		new_user.google_email = primaryCal.get('id')
 		new_user.auth_token = credentials.token
@@ -61,25 +142,23 @@ def request_api():
 		new_user.primary_timeZone = primaryCal.get('timeZone')
 		new_user.primary_etag = primaryCal.get('etag')
 		new_user.primary_color_id = primaryCal.get('colorId')
-
+		new_user.user_id = current_user.id
 		db.session.add(new_user)
 		db.session.commit()
-
-	#Get 10 upcoming events
-	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=10, singleEvents=True, orderBy='startTime').execute()
-
-	events = events_result.get('items', [])
-	if not events:
-		print('No upcoming events found.')
 
 	# Save credentials back to session in case access token was refreshed.
 	# ACTION ITEM: In a production app, you likely want to save these
 	#              credentials in a persistent database instead.
 	flask.session['credentials'] = credentials_to_dict(credentials)
 
-	# return flask.render_template('calendar.html', events=events)
-	return flask.jsonify(events)
+	try: 
+		save_upcoming_events(get_upcoming_events(service))
+		print('Events saved successfully.')
+	except Exception as e:
+		print(e)
+		print('error with save_upcoming_events')
+	
+	return flask.jsonify(get_upcoming_events(service))
 
 @application.route('/%s' %GOOGLE_CALENDAR_AUTH_ROUTE)
 def build_google_calendar_auth_request():
@@ -97,43 +176,40 @@ def build_google_calendar_auth_request():
 
 @application.route('/%s' %GOOGLE_CALENDAR_CALLBACK_ROUTE)
 def google_calendar_oauth2callback():
-			state = flask.session['state']
-			flow = google_auth_oauthlib.flow.Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
-			flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
+	state = flask.session['state']
+	flow = google_auth_oauthlib.flow.Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
+	flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
 
-			authorization_response = flask.request.url
-			flow.fetch_token(authorization_response=authorization_response)
-			credentials = flow.credentials
+	authorization_response = flask.request.url
+	flow.fetch_token(authorization_response=authorization_response)
+	credentials = flow.credentials
 
-			flask.session['credentials'] = credentials_to_dict(credentials)
+	flask.session['credentials'] = credentials_to_dict(credentials)
 
-			return flask.redirect(flask.url_for('request_api'))
-
+	return flask.redirect(flask.url_for('request_api'))
+	
 @application.route('/revoke-google-auth')
-def revoke():
-  if 'credentials' not in flask.session:
-    return ('You need to <a href="/authorize">authorize</a> before ' +
-            'testing the code to revoke credentials.')
+def revoke_google_auth():
+	if 'credentials' not in flask.session:
+		return ('No credentials in session. You need to <a href="/google-auth">authorize</a>.')
 
-  credentials = google.oauth2.credentials.Credentials(
-    **flask.session['credentials'])
+	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
+	revoke = requests.post('https://accounts.google.com/o/oauth2/revoke', 
+		params={'token': credentials.token}, 
+		headers = {'content-type': 'application/x-www-form-urlencoded'})
 
-  revoke = requests.post('https://accounts.google.com/o/oauth2/revoke',
-      params={'token': credentials.token},
-      headers = {'content-type': 'application/x-www-form-urlencoded'})
+	status_code = getattr(revoke, 'status_code')
 
-  status_code = getattr(revoke, 'status_code')
-  if status_code == 200:
-    return('Credentials successfully revoked.' + print_index_table())
-  else:
-    return('An error occurred.' + print_index_table())
+	if status_code == 200:
+		return('Credentials successfully revoked.')
+	else:
+		return('Error with revoke post request to https://accounts.google.com/o/oauth2/revoke.')
 
 @application.route('/clear-google-auth')
-def clear_credentials():
+def clear_google_auth():
 	if 'credentials' in flask.session:
 		del flask.session['credentials']
-	return ('Credentials have been cleared.<br><br>' +
-					print_index_table())
+	return ('Credentials have been cleared.<br><br>')
 
 def credentials_to_dict(credentials):
 	return {'token': credentials.token,
@@ -143,25 +219,10 @@ def credentials_to_dict(credentials):
 					'client_secret': credentials.client_secret,
 					'scopes': credentials.scopes}
 
-def print_index_table():
-	return ('<table>' +
-					'<tr><td><a href="/test">Test an API request</a></td>' +
-					'<td>Submit an API request and see a formatted JSON response. ' +
-					'    Go through the authorization flow if there are no stored ' +
-					'    credentials for the user.</td></tr>' +
-					'<tr><td><a href="/authorize">Test the auth flow directly</a></td>' +
-					'<td>Go directly to the authorization flow. If there are stored ' +
-					'    credentials, you still might not be prompted to reauthorize ' +
-					'    the application.</td></tr>' +
-					'<tr><td><a href="/revoke">Revoke current credentials</a></td>' +
-					'<td>Revoke the access token associated with the current user ' +
-					'    session. After revoking credentials, if you go to the test ' +
-					'    page, you should see an <code>invalid_grant</code> error.' +
-					'</td></tr>' +
-					'<tr><td><a href="/clear">Clear Flask session credentials</a></td>' +
-					'<td>Clear the access token currently stored in the user session. ' +
-					'    After clearing the token, if you <a href="/test">test the ' +
-					'    API request</a> again, you should go back to the auth flow.' +
-					'</td></tr></table>')
-
-
+def get_credentials_dict(user):
+	return {'token': user.auth_token,
+		'refresh_token': user.refresh_token,
+		'token_uri': 'https://oauth2.googleapis.com/token',
+		'client_id': GOOGLE_CLIENT_ID,
+		'client_secret': GOOGLE_CLIENT_SECRET,
+		'scopes': user.scopes}
