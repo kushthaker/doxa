@@ -36,7 +36,7 @@ def downgrade():
     op.add_column('google_calendar_events', sa.Column('conference_data', sa.TEXT(), autoincrement=False, nullable=True))
     op.add_column('google_calendar_events', sa.Column('attendees', sa.TEXT(), autoincrement=False, nullable=True))
     op.add_column('google_calendar_events', sa.Column('google_user_id', sa.INTEGER(), autoincrement=False, nullable=True))
-    op.drop_constraint(None, 'google_calendar_events', type_='foreignkey')
+    op.drop_constraint('google_calendar_events_google_calendar_user_id_fkey', 'google_calendar_events', type_='foreignkey')
     op.create_foreign_key('google_calendar_events_user_id_fkey', 'google_calendar_events', 'users', ['user_id'], ['id'])
     op.create_foreign_key('google_calendar_events_google_user_id_fkey', 'google_calendar_events', 'google_calendar_users', ['google_user_id'], ['id'])
     op.drop_column('google_calendar_events', 'json_data')
