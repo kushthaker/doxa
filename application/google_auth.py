@@ -3,16 +3,19 @@ import flask
 from application.initialize.config import Config
 from application.app_setup import application
 from application.initialize.db_init import db
-from application.models import GoogleCalendarUser, GoogleCalendarEvent
+from application.models import GoogleCalendarUser, GoogleCalendarEvent, User
 from flask_login import login_user, current_user, logout_user, login_required
 import datetime
 import pytz
 from dateutil import parser
 import requests
+import json
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 from google.auth.exceptions import RefreshError
+
+import ipdb
 
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
@@ -59,7 +62,7 @@ def save_upcoming_events(events):
 			existing_event.description = event.get('description')
 			existing_event.organizer_email = event.get('organizer').get('email')
 			existing_event.organizer_self = event.get('organizer').get('self')
-			existing_event.raw_event_json = str(event.get('attendees'))
+			existing_event.json_data = json.dumps(event)
 			existing_event.updated_at = datetime.datetime.utcnow()
 			existing_event.google_calendar_user_id = current_user.google_calendar_user.id
 
@@ -83,13 +86,36 @@ def save_upcoming_events(events):
 			new_event.description = event.get('description')
 			new_event.organizer_email = event.get('organizer').get('email')
 			new_event.organizer_self = event.get('organizer').get('self')
-			new_event.attendees = str(event.get('attendees'))
-			new_event.conference_data = str(event.get('conferenceData'))
+			new_event.json_data = json.dumps(event)
 			new_event.google_calendar_user_id = current_user.google_calendar_user.id
 
 			db.session.add(new_event)
 			db.session.commit()
 	return True
+
+def update_existing_user_creds(existing_user, credentials, primaryCal):
+	existing_user.auth_token = credentials.token
+	existing_user.refresh_token = credentials.refresh_token
+	existing_user.scopes = str(credentials.scopes)
+	existing_user.primary_timeZone = primaryCal.get('timeZone')
+	existing_user.primary_etag = primaryCal.get('etag')
+	existing_user.primary_color_id = primaryCal.get('colorId')
+	existing_user.user_id = current_user.id
+	existing_user.updated_at = datetime.datetime.utcnow()
+	existing_user.save()
+
+def add_new_user_creds(credentials, primaryCal):
+	new_user = GoogleCalendarUser()
+	new_user.google_email = primaryCal.get('id')
+	new_user.auth_token = credentials.token
+	new_user.refresh_token = credentials.refresh_token
+	new_user.scopes = str(credentials.scopes)
+	new_user.primary_timeZone = primaryCal.get('timeZone')
+	new_user.primary_etag = primaryCal.get('etag')
+	new_user.primary_color_id = primaryCal.get('colorId')
+	new_user.user_id = current_user.id
+	db.session.add(new_user)
+	db.session.commit()
 
 
 @application.route('/google-auth')
@@ -100,55 +126,30 @@ def request_api():
 
 	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
 
-	if credentials is None:
-		user = GoogleCalendarUser.query.filter(GoogleCalendarUser.user_id == current_user.id).one_or_none()
-		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
-
 	if credentials.expired is False and credentials.valid is True:
 		service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		try:
-			calendarList = service.calendarList().list().execute() 
+			calendarList = service.calendarList().list().execute()
+			primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
 		except RefreshError as e:
 			print(e)
-			# request = google.auth.transport.requests.Request()
-			# new_creds = credentials.refresh(request)
-			# service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=new_creds)
-			# calendarList = service.calendarList().list().execute()
-			flask.flash('Google account not connected. Please reauthorize.', 'danger')
-			return flask.redirect(flask.url_for('home'))
+			del flask.session['credentials']
+			return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 	else:
-		flask.flash('Google account not connected. Please reauthorize.', 'danger')
+		flask.flash('Google account is not authorized.', 'danger')
 		return flask.redirect(flask.url_for('home'))
-	
-	primaryCal = next((filter(lambda cal: (cal.get('primary') == True), calendarList.get('items'))))
-	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.google_email == primaryCal.get('id')).one_or_none()
-
-	if existing_user:
-		existing_user.auth_token = credentials.token
-		existing_user.refresh_token = credentials.refresh_token
-		existing_user.scopes = str(credentials.scopes)
-		existing_user.primary_timeZone = primaryCal.get('timeZone')
-		existing_user.primary_etag = primaryCal.get('etag')
-		existing_user.primary_color_id = primaryCal.get('colorId')
-		existing_user.user_id = current_user.id
-		existing_user.updated_at = datetime.datetime.utcnow()
-		existing_user.save()
-	else:
-		new_user = GoogleCalendarUser()
-		new_user.google_email = primaryCal.get('id')
-		new_user.auth_token = credentials.token
-		new_user.refresh_token = credentials.refresh_token
-		new_user.scopes = str(credentials.scopes)
-		new_user.primary_timeZone = primaryCal.get('timeZone')
-		new_user.primary_etag = primaryCal.get('etag')
-		new_user.primary_color_id = primaryCal.get('colorId')
-		new_user.user_id = current_user.id
-		db.session.add(new_user)
-		db.session.commit()
 
 	# Save credentials back to session in case access token was refreshed.
 	# ACTION ITEM: In a production app, you likely want to save these
 	#              credentials in a persistent database instead.
+
+	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
+
+	if existing_user:
+		update_existing_user_creds(existing_user, credentials, primaryCal)
+	else:
+		add_new_user_creds(credentials, primaryCal)
+
 	flask.session['credentials'] = credentials_to_dict(credentials)
 
 	try: 
