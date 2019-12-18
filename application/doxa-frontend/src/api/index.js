@@ -1,26 +1,29 @@
 import axios from 'axios'
 
-const users = [{
-  id: 1,
-  name: 'callum',
-  email: 'maestro@fulfilled.ai'
-}]
-
 export function fetchUser(userId) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = users.find(user => user.id === userId)
-      if(user){
-        resolve(user)
+  return axios.get(`/api/users/${userId}`)
+    .then(response => {
+      return response
+    })
+    .catch(error => {
+      if(error.response.status == 404) {
+        return { data: null }
       }
-      else {
-        reject(Error('User does not exist'))
-      }
-    }, 300)
-  })
+    })
 }
 
-
 export function fetchUsers() {
-  return axios.get(`/api/test-jsonify-module`)
+  return axios.get(`/api/users`)
+}
+
+export function userLogin (credentials) {
+  return axios.post(`/login`)
+}
+
+export function fetchCSRF() {
+  return axios.get(`/api/get_csrf`)
+}
+
+export function registerUser(newUser) {
+  return axios.post('/register', newUser)
 }

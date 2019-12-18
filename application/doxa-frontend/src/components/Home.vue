@@ -20,7 +20,6 @@
       </div>
     </section>
   </div>
-
 </template>
 <script>
   import { mapState } from 'vuex'
@@ -35,6 +34,10 @@
     beforeMount() {
       this.$store.dispatch('loadUsers')
     }
+    // ,
+    // beforeRouteUpdate() {
+    //   this.$store.dispatch('loadUsers')
+    // }
   }
 </script>
 

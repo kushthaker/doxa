@@ -12,10 +12,11 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
+from flask_wtf import csrf
 
 # this should eventually be replaced by a CDN
-@application.route('/test-vue', methods=['GET'])
-def test_vue():
+@application.route('/app', methods=['GET'])
+def app():
 	return send_from_directory('doxa-frontend/dist/', 'index.html')
 
 @application.route('/static_files/js/<path:filename>', methods=['GET'])
@@ -44,12 +45,27 @@ def slack_event():
 		return '200'
 	return '200'
 
-@application.route('/api/test-jsonify-module', methods=['GET'])
-def test_jsonify_module():
-	print('in test_jsonify_module')
+@application.route('/api/users', methods=['GET'])
+def api_users():
 	users = User.query.all()
 	response = jsonify([user.to_dict() for user in users])
 	return response
+
+@application.route('/api/users/<int:user_id>', methods=['GET'])
+def api_user(user_id):
+	user = User.query.get_or_404(user_id)
+	return jsonify(user.to_dict())
+
+@application.route('/api/get_csrf', methods=['GET'])
+def api_get_csrf():
+	csrf_token = csrf.generate_csrf()
+	return jsonify({ 'csrf_token':  csrf_token})
+
+@application.route('/api/register', methods=['GET', 'POST'])
+def api_register():
+	if current_user.is_authenticated:
+		return jsonify({ current_user.to_dict() })
+
 
 @application.route("/")
 def home():
@@ -65,15 +81,27 @@ def about():
 @application.route("/register", methods=['GET','POST'])
 def register():
 	if current_user.is_authenticated:
+		if request.is_json:
+			return jsonify(current_user.to_dict())
 		return redirect(url_for('home'))
 	form = RegistrationForm()
+	
+	user = User(username=form.username.data, email=form.email.data)
 	if form.validate_on_submit():
-		hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-		user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+		hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')	
+		user.password = hashed_password
 		db.session.add(user)
 		db.session.commit()
 		flash('Account created for %s!' % form.username.data, 'success')
+		if request.is_json:
+			print(user.to_dict())
+			return jsonify(user.to_dict())
 		return redirect(url_for('home'))
+	print(form.errors)
+	if request.is_json:
+		response = user.to_dict()
+		response['errors'] = form.errors
+		return jsonify(response)
 	return render_template('register.html', title='Register', form=form)
 
 @application.route("/login", methods=['GET','POST'])

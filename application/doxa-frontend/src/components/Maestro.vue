@@ -1,31 +1,28 @@
 <template>
 <div>
   <div v-if="maestro">
-    <h3>The maestro is <em>{{maestro.name}}</em></h3>
+    <h3>The maestro is <em>{{maestro.username}}</em></h3>
+    <input v-model="maestro.username" placeholder="e.g. Callum John Killian Mitchell">
+    <p>The maestro's email is <strong>{{maestro.email}}</strong></p>
+    <input v-model="maestro.email" placeholder="e.g. maestro@fulfilled.maestro">
   </div>
-  <div>
-    <v-form>
-      <input v-model="maestro.name" placeholder="e.g. Callum John Killian Mitchell">
-      <p>Maestro is: {{ maestro.name }}</p>
-    </v-form>
+  <div v-else>
+    No user found.
   </div>
-
 </div>
 </template>
 
 <script>
-  import { fetchUser } from '@/api'
+  import { mapState } from 'vuex'
   export default {
-    data() {
-      return {maestro: null}
-    },
+    computed: mapState({
+      maestro: function(state){
+        return state.userData
+      }
+    }),
     beforeMount() {
-      console.log('Survey.beforeMount -> :id === ', this.$route.params.id)
       var userId = parseInt(this.$route.params.id)
-      fetchUser(userId).then(response => {
-        this.maestro = response
-      })
-      
+      this.$store.dispatch('loadUser', userId)
     }
   }
 </script>
