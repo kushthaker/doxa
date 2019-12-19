@@ -1,5 +1,4 @@
 from application.scheduled_data_tasks import apscheduler_util, slack_activities, google_calendar_activities
-from application.google_auth import *
 
 JOB_SCHEDULE = [
   {
@@ -19,8 +18,12 @@ JOB_SCHEDULE = [
     'trigger': apscheduler_util.build_minute_trigger(30)
   },
   {
-    'func': google_calendar_activities.update_user_events,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'func': google_calendar_activities.update_google_calendar_events,
+    'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    'func': google_calendar_activities.delete_google_calendar_events,
+    'trigger': apscheduler_util.build_hour_trigger(12)
   }
 ]
 

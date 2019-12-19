@@ -28,14 +28,12 @@ API_VERSION = 'v3'
 
 SCOPES = [
 'https://www.googleapis.com/auth/calendar',
-'https://www.googleapis.com/auth/calendar.events',
-'https://www.googleapis.com/auth/calendar.settings.readonly'
 ]
 
 def update_existing_user_creds(existing_user, credentials, primaryCal):
-
 	existing_user.auth_token = credentials.token
-	existing_user.refresh_token = credentials.refresh_token
+	if existing_user.refresh_token == None:
+		existing_user.refresh_token = credentials.refresh_token
 	existing_user.scopes = str(credentials.scopes)
 	existing_user.primary_timeZone = primaryCal.get('timeZone')
 	existing_user.primary_etag = primaryCal.get('etag')
@@ -43,6 +41,7 @@ def update_existing_user_creds(existing_user, credentials, primaryCal):
 	existing_user.user_id = current_user.id
 	existing_user.updated_at = datetime.datetime.utcnow()
 	existing_user.save()
+	return existing_user
 
 def add_new_user_creds(credentials, primaryCal):
 	new_user = GoogleCalendarUser()
@@ -56,11 +55,11 @@ def add_new_user_creds(credentials, primaryCal):
 	new_user.user_id = current_user.id
 	db.session.add(new_user)
 	db.session.commit()
-
+	return new_user
 
 @application.route('/google-auth')
 @login_required
-def request_api():
+def request_google_calendar_api():
 	if 'credentials' not in flask.session:
 		return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 
@@ -82,11 +81,11 @@ def request_api():
 	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
 
 	if existing_user:
-		update_existing_user_creds(existing_user, credentials, primaryCal)
+		user = update_existing_user_creds(existing_user, credentials, primaryCal)
 	else:
-		add_new_user_creds(credentials, primaryCal)
+		user = add_new_user_creds(credentials, primaryCal)
 
-	return flask.jsonify(get_upcoming_events(service))
+	return flask.jsonify(get_credentials_dict(user))
 
 @application.route('/%s' %GOOGLE_CALENDAR_AUTH_ROUTE)
 def build_google_calendar_auth_request():
@@ -95,7 +94,7 @@ def build_google_calendar_auth_request():
 		
 		authorization_url, state = flow.authorization_url(
 			access_type='offline',
-			include_granted_scopes='false')
+			include_granted_scopes='true')
 
 		flask.session['state'] = state
 		
@@ -114,7 +113,7 @@ def google_calendar_oauth2callback():
 
 	flask.session['credentials'] = credentials_to_dict(credentials)
 
-	return flask.redirect(flask.url_for('request_api'))
+	return flask.redirect(flask.url_for('request_google_calendar_api'))
 	
 @application.route('/revoke-google-auth')
 def revoke_google_auth():
