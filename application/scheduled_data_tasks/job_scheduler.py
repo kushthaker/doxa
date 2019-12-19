@@ -1,4 +1,5 @@
-from application.scheduled_data_tasks import apscheduler_util, slack_activities
+from application.scheduled_data_tasks import apscheduler_util, slack_activities, google_calendar_activities
+from application.google_auth import *
 
 JOB_SCHEDULE = [
   {
@@ -16,6 +17,10 @@ JOB_SCHEDULE = [
   {
     'func': slack_activities.capture_slack_conversation_reads,
     'trigger': apscheduler_util.build_minute_trigger(30)
+  },
+  {
+    'func': google_calendar_activities.update_user_events,
+    'trigger': apscheduler_util.build_hour_trigger(1)
   }
 ]
 

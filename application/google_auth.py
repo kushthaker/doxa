@@ -15,8 +15,6 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 from google.auth.exceptions import RefreshError
 
-import ipdb
-
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
 
@@ -34,66 +32,8 @@ SCOPES = [
 'https://www.googleapis.com/auth/calendar.settings.readonly'
 ]
 
-def get_upcoming_events(service):
-
-	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=20, singleEvents=True, orderBy='startTime').execute()
-
-	events = events_result.get('items', [])
-	if not events:
-		print('No upcoming events found.')
-	return events
-
-def save_upcoming_events(events):
-	for event in events:
-		existing_event = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == event.get('id')).one_or_none()
-		if existing_event:
-			if event.get('start').get('dateTime'):
-				s_dt = parser.parse(event.get('start').get('dateTime'))
-				e_dt = parser.parse(event.get('end').get('dateTime'))
-			elif event.get('start').get('date'):
-				s_dt = parser.parse(event.get('start').get('date'))
-				e_dt = parser.parse(event.get('end').get('date'))
-
-			existing_event.start_time = s_dt.astimezone(pytz.UTC)
-			existing_event.end_time = e_dt.astimezone(pytz.UTC)
-
-			existing_event.summary = event.get('summary')
-			existing_event.description = event.get('description')
-			existing_event.organizer_email = event.get('organizer').get('email')
-			existing_event.organizer_self = event.get('organizer').get('self')
-			existing_event.json_data = json.dumps(event)
-			existing_event.updated_at = datetime.datetime.utcnow()
-			existing_event.google_calendar_user_id = current_user.google_calendar_user.id
-
-			existing_event.save()
-		else:
-			new_event = GoogleCalendarEvent()
-			new_event.google_id = event.get('id')
-			new_event.ical_uid = event.get('iCalUID')
-
-			if event.get('start').get('dateTime'):
-				s_dt = parser.parse(event.get('start').get('dateTime'))
-				e_dt = parser.parse(event.get('end').get('dateTime'))
-			elif event.get('start').get('date'):
-				s_dt = parser.parse(event.get('start').get('date'))
-				e_dt = parser.parse(event.get('end').get('date'))
-
-			new_event.start_time = s_dt.astimezone(pytz.UTC)
-			new_event.end_time = e_dt.astimezone(pytz.UTC)
-
-			new_event.summary = event.get('summary')
-			new_event.description = event.get('description')
-			new_event.organizer_email = event.get('organizer').get('email')
-			new_event.organizer_self = event.get('organizer').get('self')
-			new_event.json_data = json.dumps(event)
-			new_event.google_calendar_user_id = current_user.google_calendar_user.id
-
-			db.session.add(new_event)
-			db.session.commit()
-	return True
-
 def update_existing_user_creds(existing_user, credentials, primaryCal):
+
 	existing_user.auth_token = credentials.token
 	existing_user.refresh_token = credentials.refresh_token
 	existing_user.scopes = str(credentials.scopes)
@@ -139,10 +79,6 @@ def request_api():
 		flask.flash('Google account is not authorized.', 'danger')
 		return flask.redirect(flask.url_for('home'))
 
-	# Save credentials back to session in case access token was refreshed.
-	# ACTION ITEM: In a production app, you likely want to save these
-	#              credentials in a persistent database instead.
-
 	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
 
 	if existing_user:
@@ -150,33 +86,24 @@ def request_api():
 	else:
 		add_new_user_creds(credentials, primaryCal)
 
-	flask.session['credentials'] = credentials_to_dict(credentials)
-
-	try: 
-		save_upcoming_events(get_upcoming_events(service))
-		print('Events saved successfully.')
-	except Exception as e:
-		print(e)
-		print('error with save_upcoming_events')
-	
 	return flask.jsonify(get_upcoming_events(service))
 
 @application.route('/%s' %GOOGLE_CALENDAR_AUTH_ROUTE)
 def build_google_calendar_auth_request():
 		flow = google_auth_oauthlib.flow.Flow.from_client_config(CLIENT_JSON, scopes=SCOPES)
 		flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
+		
 		authorization_url, state = flow.authorization_url(
-			# Enable offline access so that you can refresh an access token without
-			# re-prompting the user for permission. Recommended for web server apps.
 			access_type='offline',
-			# Enable incremental authorization. Recommended as a best practice.
 			include_granted_scopes='false')
-		flask.session['state'] = state
-		return flask.redirect(authorization_url)
 
+		flask.session['state'] = state
+		
+		return flask.redirect(authorization_url)
 
 @application.route('/%s' %GOOGLE_CALENDAR_CALLBACK_ROUTE)
 def google_calendar_oauth2callback():
+	
 	state = flask.session['state']
 	flow = google_auth_oauthlib.flow.Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
 	flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)

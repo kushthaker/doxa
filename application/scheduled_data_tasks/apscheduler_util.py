@@ -42,6 +42,10 @@ def create_three_test_tasks(scheduler):
   print(add_or_update_job_from_function(scheduler, \
                                         func=test_sum_two_numbers, trigger=build_minute_trigger(15), args=(2, 3)))
 
+def build_second_trigger(seconds):
+  trigger = CronTrigger(second='*/%s' % seconds)
+  return trigger
+
 def build_minute_trigger(minutes):
   trigger = CronTrigger(minute='*/%s' % minutes)
   return trigger
