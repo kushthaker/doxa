@@ -49,3 +49,8 @@ def build_minute_trigger(minutes):
 def build_hour_trigger(hours):
   trigger = CronTrigger(hour='*/%s' % hours)
   return trigger
+
+# FOR TESTING ONLY
+def build_second_trigger(seconds):
+  trigger = CronTrigger(second='*/%s' % seconds)
+  return trigger
