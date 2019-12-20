@@ -95,7 +95,11 @@ def delete_google_calendar_events():
 	# Get list of GoogleCalendarEvent.google_id for events updated in the last 12 hours (previous job) 
 	for event in events:
 		dt_c = pytz.UTC.localize(event.created_at)
-		dt_u = pytz.UTC.localize(event.updated_at)
+		if event.updated_at:
+			dt_u = pytz.UTC.localize(event.updated_at)
+		else:
+			dt_u = pytz.UTC.localize(datetime.datetime.utcnow())
+
 		dt_now = pytz.UTC.localize(datetime.datetime.utcnow())
 		tz = pytz.timezone(event.google_calendar_user.primary_timeZone)
 		

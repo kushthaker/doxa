@@ -26,9 +26,9 @@ GOOGLE_CALENDAR_CALLBACK_ROUTE = 'google_calendar_oauth2callback'
 API_SERVICE_NAME = 'calendar'
 API_VERSION = 'v3'
 
-SCOPES = [
-'https://www.googleapis.com/auth/calendar',
-]
+SCOPES = [ 'https://www.googleapis.com/auth/calendar',
+'https://www.googleapis.com/auth/calendar.events',
+'https://www.googleapis.com/auth/calendar.settings.readonly']
 
 def update_existing_user_creds(existing_user, credentials, primaryCal):
 	existing_user.auth_token = credentials.token
