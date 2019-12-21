@@ -95,12 +95,7 @@ def api_login():
 	return jsonify(response), 401
 
 @application.route('/api/register', methods=['POST'])
-@token_required
-def api_register(current_user):
-	if current_user:
-		errors = { 'Already logged in': ['Please log out before registering an account.'] }
-		response = form.data
-		return jsonify(response), 401
+def api_register():
 	form = RegistrationForm()
 	user = User(username=form.username.data, email=form.email.data)
 	if form.validate_on_submit():

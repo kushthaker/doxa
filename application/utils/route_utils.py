@@ -8,7 +8,6 @@ def token_required(f):
   @wraps(f)
   def _verify(*args, **kwargs):
     auth_headers = request.headers.get('Authorization', '').split()
-
     invalid_msg = {
       'Invalid token': ['Invalid token. Registeration and / or authentication required']
     }
