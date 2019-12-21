@@ -1,5 +1,4 @@
-<template>
-  
+<template>  
   <div>
     <ul v-if="formErrors" class="error-messages">
       <li v-for="error in formErrors">
@@ -29,25 +28,12 @@
     }),
     methods: {
       submitUser() {
-        let _this = this;
         this.$store.dispatch('registerNewUser').then(() => {
           if(!this.formErrors) {
             this.$router.push({ name: "Home" })
           }
         })
       }
-    },
-    // mapActions({
-    //   submitUser: 'registerNewUser'
-    // }),
-    
-    beforeMount() {
-      this.$store.dispatch('loadCSRF')
-      
-      // if(this.$store.currentUser) {
-      //   // redirect to home page
-      //   this.$router.go('/login')
-      // }
     }
   }
 </script>

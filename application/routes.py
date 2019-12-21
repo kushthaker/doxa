@@ -13,6 +13,9 @@ from application import slack_auth
 from application import google_auth
 from application.scheduled_data_tasks import apscheduler_util
 from flask_wtf import csrf
+import jwt
+from datetime import datetime, timedelta
+from application.utils.route_utils import token_required
 
 # this should eventually be replaced by a CDN
 @application.route('/app', methods=['GET'])
@@ -61,10 +64,49 @@ def api_get_csrf():
 	csrf_token = csrf.generate_csrf()
 	return jsonify({ 'csrf_token':  csrf_token})
 
-@application.route('/api/register', methods=['GET', 'POST'])
+@application.route('/api/user_details', methods=['GET'])
+@token_required
+def user_details(current_user):
+	return jsonify(current_user.user_details())
+	# will 401 in the token_required method if user is not logged in.
+
+@application.route('/api/login', methods=['POST'])
+def api_login():
+	form = LoginForm()
+	user = User.query.filter_by(email=form.email.data).first()
+	if form.validate_on_submit():
+		if user and bcrypt.check_password_hash(user.password, form.password.data):
+			token = jwt.encode(
+				{
+					'sub': user.email,
+					'iat': datetime.utcnow(),
+					'exp': datetime.utcnow() + timedelta(minutes=5)
+				},
+				application.config['SECRET_KEY']
+			)
+			response = user.to_dict()
+			response['token'] = token.decode('UTF-8')
+			return jsonify(response)
+		response = form.data
+		response['errors'] = { 'Credentials': ['Login unsuccessful. Please check email and password.'] }
+		return jsonify(response), 401
+	response = form.data
+	response['errors'] = form.errors
+	return jsonify(response), 401
+
+@application.route('/api/register', methods=['POST'])
 def api_register():
-	if current_user.is_authenticated:
-		return jsonify({ current_user.to_dict() })
+	form = RegistrationForm()
+	user = User(username=form.username.data, email=form.email.data)
+	if form.validate_on_submit():
+		hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')	
+		user.password = hashed_password
+		db.session.add(user)
+		db.session.commit()
+		return jsonify(user.to_dict())
+	response = user.to_dict()
+	response['errors'] = form.errors()
+	return jsonify(response), 401
 
 
 @application.route("/")
@@ -101,11 +143,24 @@ def register():
 	if request.is_json:
 		response = user.to_dict()
 		response['errors'] = form.errors
-		return jsonify(response)
+		return jsonify(response), 401
 	return render_template('register.html', title='Register', form=form)
 
 @application.route("/login", methods=['GET','POST'])
 def login():
+	if request.is_json:
+		if current_user.is_authenticated:
+			return jsonify({ 'authenticated': True })
+		else:
+			form = LoginForm()
+			user = User.query.filter_by(email=form.email.data).first()
+			if user and bcrypt.check_password_hash(user.password, form.password.data):
+				login_user(user, remember=form.remember.data)
+				return jsonify({ 'authenticated': True })
+			response = form.errors
+			form['authenticated'] = False
+			return jsonify(response)
+
 	if current_user.is_authenticated:
 		return redirect(url_for('home'))
 	form = LoginForm()

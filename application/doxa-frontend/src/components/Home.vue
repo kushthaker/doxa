@@ -27,17 +27,10 @@
     data() {
       return {}
     },
-
     computed: mapState({
       users: state => state.users
-    }),
-    beforeMount() {
-      this.$store.dispatch('loadUsers')
-    }
-    // ,
-    // beforeRouteUpdate() {
-    //   this.$store.dispatch('loadUsers')
-    // }
+    })
+    
   }
 </script>
 
