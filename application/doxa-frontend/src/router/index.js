@@ -30,10 +30,14 @@ const router = new Router({
         if(isAuthed) {
           if(user
           && (to.params.id === String(user.id))) {
-            next()
+            store.dispatch('loadUser', user).then(() => {
+              next()
+            })
           }
           else {
-            next(`/maestro/${user.id}`)
+            store.dispatch('loadUser', user).then(() => {
+              next(`/maestro/${user.id}`)
+            })
           }
         }
         else {

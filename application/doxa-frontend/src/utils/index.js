@@ -8,10 +8,3 @@ export function isValidJwt (jwt) {
   const now = new Date()
   return now < exp
 }
-
-export function canAccess(id, _this) {
-  var authed = _this.$store.getters.isAuthenticated
-  var user = _this.$store.getters.currentUser
-  if(authed && user && (user.id == id)) { return true }
-  return false
-}

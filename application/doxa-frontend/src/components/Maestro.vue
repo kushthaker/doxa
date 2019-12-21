@@ -14,7 +14,6 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { canAccess } from '@/utils'
   export default {
     computed: mapState({
       maestro: function(state) {
@@ -23,13 +22,7 @@
       currentUser: function(state) {
         return state.currentUser
       }
-    }),
-    beforeMount() {
-      var userId = parseInt(this.$route.params.id)
-      this.$store.dispatch('loadUser', this.currentUser).then(() => {
-        return
-      })
-    }
+    })
   }
 </script>
 

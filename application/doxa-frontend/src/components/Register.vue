@@ -34,10 +34,6 @@
           }
         })
       }
-    },
-    beforeMount() {
-      // this.$store.dispatch('clearFormErrors')
-      // this.$store.dispatch('loadCSRF')
     }
   }
 </script>
