@@ -7,22 +7,28 @@
     <input v-model="maestro.email" placeholder="e.g. maestro@fulfilled.maestro">
   </div>
   <div v-else>
-    No user found.
+    Loading...
   </div>
 </div>
 </template>
 
 <script>
   import { mapState } from 'vuex'
+  import { canAccess } from '@/utils'
   export default {
     computed: mapState({
-      maestro: function(state){
+      maestro: function(state) {
         return state.userData
+      },
+      currentUser: function(state) {
+        return state.currentUser
       }
     }),
     beforeMount() {
       var userId = parseInt(this.$route.params.id)
-      this.$store.dispatch('loadUser', userId)
+      this.$store.dispatch('loadUser', this.currentUser).then(() => {
+        return
+      })
     }
   }
 </script>
@@ -44,4 +50,3 @@ a {
   color: #42b983;
 }
 </style>
-

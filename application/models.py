@@ -26,6 +26,11 @@ class User(db.Model, UserMixin):
 	def to_dict(self):
 		return dict(id=self.id, username=self.username, email=self.email)
 
+	def user_details(self):
+		return dict(id=self.id, username=self.username, email=self.email, \
+		            google_calendar_user_id=self.google_calendar_user.id if self.google_calendar_user else None)
+		# GCal user may be null, so we need to account for this. username, email, id are req'd fields
+
 class Post(db.Model):
 	__tablename__ = 'posts' # follows general table name paradigm in database (plural)
 	id = db.Column(db.Integer, primary_key=True)

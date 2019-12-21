@@ -16,14 +16,22 @@ export function fetchUsers() {
   return axios.get(`/api/users`)
 }
 
-export function userLogin (credentials) {
-  return axios.post(`/login`)
+export function loginUser (credentials) {
+  return axios.post(`/api/login`, credentials)
+}
+
+export function getLogin() {
+  return axios.get(`/login`, {})
 }
 
 export function fetchCSRF() {
   return axios.get(`/api/get_csrf`)
 }
 
-export function registerUser(newUser) {
-  return axios.post('/register', newUser)
+export function registerUser(newUser, token) {
+  return axios.post('/api/register', newUser)
+}
+
+export function getUserDetails(user) {
+  return axios.get('/api/user_details', { data: user , headers: { Authorization: `Bearer: ${user.token}` }})
 }

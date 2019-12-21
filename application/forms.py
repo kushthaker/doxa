@@ -6,10 +6,11 @@ from application.models import User
 from flask_login import current_user
 
 class RegistrationForm(FlaskForm):
+	PASSWORDS_MATCH_ERROR = "Passwords must be the same."
 	username = StringField('Username', validators=[DataRequired(), Length(min=2,max=20)])
 	email = StringField('Email', validators=[DataRequired(), Email()])
 	password = PasswordField('Password', validators=[DataRequired()])
-	confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+	confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', PASSWORDS_MATCH_ERROR)])
 	submit = SubmitField('Create Account')
 
 	def validate_username(self, username):
