@@ -1,7 +1,10 @@
-from flask import redirect, request
+from flask import redirect, request, jsonify
+import flask
+from application.forms import SlackAuthorizationForm
 from application.initialize.config import Config
 from application.app_setup import application
 from application.models import SlackTeam, SlackUser
+from application.utils.route_utils import token_required
 import slack
 import functools
 from datetime import datetime
@@ -9,8 +12,8 @@ from datetime import datetime
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
 
-SLACK_CLIENT_ID = Config.SLACK_CLIENT_ID
-SLACK_CLIENT_SECRET = Config.SLACK_CLIENT_SECRET
+SLACK_CLIENT_ID = '557358026116.693643634144'#Config.SLACK_CLIENT_ID
+SLACK_CLIENT_SECRET = '96de57cbf3469a70ee97c69f9e1d32d7'#Config.SLACK_CLIENT_SECRET
 
 SLACK_SCOPES = [
   'channels:history',
@@ -39,7 +42,13 @@ SLACK_SCOPES = [
 
 @application.route(SLACK_AUTH_ROUTE)
 def slack_auth_route():
-  code = request.values.get('code')
+  return redirect('/app#/slack-auth/%s' % request.values.get('code'))
+
+@application.route('/api/finalize-slack-auth', methods=['POST'])
+@token_required
+def finalize_slack_auth(current_user):
+  auth_form = SlackAuthorizationForm()
+  code = auth_form.data.get('code')
 
   web_client = slack.WebClient()
   response = web_client.oauth_access(code=code, client_id=SLACK_CLIENT_ID, client_secret=SLACK_CLIENT_SECRET)
@@ -60,11 +69,13 @@ def slack_auth_route():
 
   user_id = res_data.get('user_id')
   existing_user = SlackUser.query.filter_by(slack_user_api_id=user_id).one_or_none()
-
+  ret_user = None
   if existing_user:
+    existing_user.user_id = current_user.id
     existing_user.is_authenticated = True
     existing_user.authentication_oauth_access_token = authentication_oauth_access_token
     existing_user.save()
+    
   else:
     web_client = slack.WebClient(authentication_oauth_access_token)
     response = web_client.users_info(user=user_id).data
@@ -84,12 +95,12 @@ def slack_auth_route():
                                created_date = datetime.utcnow(), \
                                slack_timezone_label = user_info_data.get('tz_label'), \
                                slack_timezone_offset = user_info_data.get('tz_offset'), \
-                               last_updated = datetime.utcnow() \
+                               last_updated = datetime.utcnow(), \
+                               user_id = current_user.id
                               )
     new_slack_user.save() # will want to then send them an email to get them onboarded or something
 
-  # this should eventually redirect to our homepage with some details on what we will do with Slack data
-  return _redirect_back_to_slack(slack_team.slack_team_api_id)
+  return jsonify(current_user.user_details())
 
 @application.route(SLACK_INSTALL_ROUTE)
 def slack_install_route():

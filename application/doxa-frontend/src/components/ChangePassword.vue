@@ -68,7 +68,7 @@
     }),
     methods: {
       submitNewPassword() {
-        this.$store.dispatch('changePassword').then((response) => {
+        this.$store.dispatch('changePassword').then(() => {
           if(!this.formErrors) {
             //this.$store.dispatch('changePasswordTrue')
           }

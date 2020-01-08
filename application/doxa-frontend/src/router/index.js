@@ -6,6 +6,7 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
+import SlackAuthorization from '@/components/SlackAuthorization'
 import store from '@/store'
 
 Vue.use(Router)
@@ -86,7 +87,16 @@ const router = new Router({
       component: Settings,
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
-        loginRequired(next, store)
+        const isAuthed = store.getters.isAuthenticated;
+        const user = store.getters.currentUser
+        if(isAuthed) {
+          store.dispatch('loadUser', user).then(() => {
+            next()
+          })
+        }
+        else {
+          next('/login')
+        }
       }
     },
     {
@@ -96,6 +106,18 @@ const router = new Router({
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
         loginRequired(next, store)
+      }
+    },
+    {
+      path: '/slack-auth/:code',
+      name: 'Fulfilled.ai Slack Authentication',
+      component: SlackAuthorization,
+      beforeEnter: (to, from, next) =>{
+        var _store = store
+        _store.commit('setCode', { authCode: to.params.code })
+        _store.dispatch('slackAuthFinal').then((response) => {
+          next('/settings')
+        })
       }
     }
   ]

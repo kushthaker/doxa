@@ -57,3 +57,5 @@ class ChangePasswordForm(FlaskForm):
 	new_password = PasswordField('New Password', validators=[DataRequired()])
 	confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password', PASSWORDS_MATCH_ERROR)])
 
+class SlackAuthorizationForm(FlaskForm):
+	code = TextAreaField('Slack Authorization Code', validators=[DataRequired()])

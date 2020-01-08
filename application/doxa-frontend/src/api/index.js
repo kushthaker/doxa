@@ -40,6 +40,10 @@ export function passwordChange(passwordForm, user) {
   return axios.post('/api/change-password', passwordForm, { headers: authHeader(user) })
 }
 
+export function finalizeSlackAuth(slackAuthData, user) {
+  return axios.post('/api/finalize-slack-auth', slackAuthData, { headers: authHeader(user) })
+}
+
 // pass this to headers in order to use JSON web token
 function authHeader(user) {
   return { Authorization: `Bearer: ${user.token}` }

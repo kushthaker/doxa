@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { fetchUsers, fetchUser, fetchCSRF, registerUser, loginUser, getLogin, getUserDetails, passwordChange } from '@/api'
+import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
+  loginUser, getLogin, getUserDetails, passwordChange,
+  finalizeSlackAuth } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -21,7 +23,8 @@ const state = {
   CSRFToken: null,
   jwt: '',
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
-  changePasswordSuccess: false
+  changePasswordSuccess: false,
+  authCode: null
 }
 
 const actions = {
@@ -120,6 +123,26 @@ const actions = {
   clearPasswordForm(context) {
     context.commit('setChangePasswordStatus', { changePasswordSuccess: false })
     context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
+  },
+  slackAuthFinal(context) {
+    var currentUser = state.currentUser
+
+    var slackAuthCode = { code: state.authCode }
+    slackAuthCode.csrf_token = state.CSRFToken
+    finalizeSlackAuth(slackAuthCode, currentUser)
+    .then(
+      function(response) {
+        console.log(response.data)
+        context.commit('setUserData', { userData: response.data })
+        return response
+      }
+    )
+    .catch(
+      function(error) {
+        console.log(error)
+        return false
+      }
+    )
   }
 }
 
@@ -166,6 +189,9 @@ const mutations = {
   },
   setChangePasswordStatus(state, payload) {
     state.changePasswordSuccess = payload.changePasswordSuccess
+  },
+  setCode(state, payload) {
+    state.authCode = payload.authCode
   }
 
 }
@@ -177,6 +203,9 @@ const getters = {
   },
   currentUser(state) {
     return state.currentUser
+  },
+  userData(state) {
+    return state.userData
   }
 }
 
