@@ -33,5 +33,14 @@ export function registerUser(newUser, token) {
 }
 
 export function getUserDetails(user) {
-  return axios.get('/api/user_details', { data: user , headers: { Authorization: `Bearer: ${user.token}` }})
+  return axios.get('/api/user_details', { data: user , headers: authHeader(user) })
+}
+
+export function passwordChange(passwordForm, user) {
+  return axios.post('/api/change-password', passwordForm, { headers: authHeader(user) })
+}
+
+// pass this to headers in order to use JSON web token
+function authHeader(user) {
+  return { Authorization: `Bearer: ${user.token}` }
 }

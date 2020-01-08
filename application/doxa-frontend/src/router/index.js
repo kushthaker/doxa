@@ -5,10 +5,10 @@ import Maestro from '@/components/Maestro'
 import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Settings from '@/components/Settings'
+import ChangePassword from '@/components/ChangePassword'
 import store from '@/store'
 
 Vue.use(Router)
-
 const router = new Router({
   routes: [
     {
@@ -52,7 +52,6 @@ const router = new Router({
       component: Register,
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
-        store.dispatch('loadCSRF')
         next()
       }
     },
@@ -62,7 +61,6 @@ const router = new Router({
       component: Login,
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
-        store.dispatch('loadCSRF')
         const isAuthed = store.getters.isAuthenticated;
         if(isAuthed) {
           const user = store.getters.currentUser;
@@ -88,27 +86,38 @@ const router = new Router({
       component: Settings,
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
-        store.dispatch('loadCSRF')
-        const isAuthed = store.getters.isAuthenticated;
-        const user = store.getters.currentUser
-        if(isAuthed) {
-          //load user's settings from DB
-          next()
-        }
-        else {
-          next('/')  
-        }
-        
+        loginRequired(next, store)
       }
     },
+    {
+      path: '/change-password',
+      name: 'Change password',
+      component: ChangePassword,
+      beforeEnter: (to, from, next) => {
+        store.dispatch('clearFormErrors')
+        loginRequired(next, store)
+      }
+    }
   ]
 })
 
 // this just sets the store variable "currentUser" to the currentUser cookie
 router.beforeEach((to, from, next) => {
   store.dispatch('checkLogin').then(() => {
-    next()
+    store.dispatch('loadCSRF').then(() => {
+      next()
+    })
   })
 })
+
+// simple way of sending them to req'd place if they are logged in, otherwise send them to login
+function loginRequired(_next, _store, newNext='/login') {
+  const isAuthed = _store.getters.isAuthenticated
+  const user = _store.getters.currentUser
+  if(isAuthed) {
+    return _next()
+  }
+  return _next(newNext)
+}
 
 export default router
