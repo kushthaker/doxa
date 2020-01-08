@@ -105,9 +105,8 @@ def api_register():
 		db.session.commit()
 		return jsonify(user.to_dict())
 	response = user.to_dict()
-	response['errors'] = form.errors()
+	response['errors'] = form.errors
 	return jsonify(response), 401
-
 
 @application.route("/")
 def home():

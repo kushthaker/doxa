@@ -7,13 +7,16 @@ import { isValidJwt } from '@/utils'
 Vue.use(Vuex)
 Vue.use(VueCookies)
 
+const NEW_LOGIN_USER = { email: null, password: null, csrf_token: null }
+const NEW_REGISTER_USER = { username: null, email: null, password: null, confirm_password: null, csrf_token: null }
+
 const state = {
   // single source of data
   users: [],
   userData: {},
-  newUser: { username: null, email: null, password: null, confirm_password: null, csrf_token: null },
+  newUser: Object.assign({}, NEW_REGISTER_USER),
   formErrors: null,
-  loginUser: { email: null, password: null, csrf_token: null },
+  loginUser: Object.assign({}, NEW_LOGIN_USER),
   currentUser: null,
   CSRFToken: null,
   jwt: ''
@@ -34,7 +37,7 @@ const actions = {
         context.commit('setUserData', { userData: response.data });
       })
       .catch((error) => {
-        debugger
+        console.log('Error loading user')
       })
   },
   loadCSRF(context) {
@@ -45,7 +48,8 @@ const actions = {
     state.newUser.csrf_token = state.CSRFToken
     var result = registerUser(state.newUser).then(
       function(response) {
-        context.commit('setNewUser', { newUser: state.newUser })
+        //context.commit('setNewUser', { newUser: state.newUser })
+        context.commit('clearNewUser', {})
         context.commit('setErrors', { errors: null })
       }
     ).catch(function(error) {
@@ -63,6 +67,7 @@ const actions = {
         context.commit('setCurrentUser', { currentUser: response.data })
         context.commit('saveCurrentUser', { currentUser: response.data })
         context.commit('setErrors', { errors: null })
+        context.commit('clearLoginUser', {})
         return context.commit('setJWT', { jwt: response.data.token })
       }
     )
@@ -81,6 +86,11 @@ const actions = {
   checkLogin(context) {
     const user = $cookies.get('currentUser')
     return context.commit('setCurrentUser', { currentUser: user })
+  },
+  clearCredentials(context) {
+    $cookies.set('currentUser', null)
+    context.commit('setCurrentUser', { currentUser: null})
+    context.commit('clearLoginUser', {})
   }
 }
 
@@ -115,6 +125,12 @@ const mutations = {
   },
   saveCurrentUser(state, payload) {
     $cookies.set('currentUser', payload.currentUser)
+  },
+  clearLoginUser(state, payload) {
+    state.loginUser = Object.assign({}, NEW_LOGIN_USER)
+  },
+  clearNewUser(state, payload) {
+    state.newUser = Object.assign({}, NEW_REGISTER_USER)
   }
 }
 

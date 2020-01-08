@@ -1,15 +1,41 @@
 <template>
   <div>
-    <ul v-if="formErrors" class="error-messages">
-      <li v-for="error in formErrors">
-        {{error}}
-      </li>
-    </ul>
-    <form @submit.prevent="submitUser">
-      <input v-model="loginUser.email" placeholder="Your email address" required>
-      <input v-model="loginUser.password" placeholder="Password" required type="password">
-      <button>Login</button>
-    </form>
+    <b-container>
+      <h2>Log in to Fulfilled.ai</h2>
+      <div v-if="formErrors" class="error-messages">
+        <b-alert v-for="error in formErrors" show variant="warning" v-bind:key="error">
+          {{error}}
+        </b-alert>
+      </div>
+      <b-form @submit.prevent="submitUser">
+        <b-form-group
+          label="Email"
+          label-for="input-1"
+        >
+          <b-form-input
+            v-model="loginUser.email"
+            placeholder="maestro@fulfilled.ai"
+            required
+            id="input-1"
+            type="text"
+          >
+          </b-form-input>
+        </b-form-group>
+        <b-form-group
+          label="Password"
+          label-for="input-2"
+        >
+          <b-form-input
+            v-model="loginUser.password"
+            required
+            id="input-2"
+            type="password"
+          >
+          </b-form-input>
+        </b-form-group>
+        <b-button type="submit" variant="primary">Login</b-button>
+      </b-form>
+    </b-container>
   </div>
 </template>
 
