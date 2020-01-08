@@ -132,7 +132,6 @@ const actions = {
     finalizeSlackAuth(slackAuthCode, currentUser)
     .then(
       function(response) {
-        console.log(response.data)
         context.commit('setUserData', { userData: response.data })
         return response
       }
