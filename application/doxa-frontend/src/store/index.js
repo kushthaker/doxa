@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { fetchUsers, fetchUser, fetchCSRF, registerUser, loginUser, getLogin, getUserDetails } from '@/api'
+import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
+  loginUser, getLogin, getUserDetails, passwordChange,
+  finalizeSlackAuth } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -9,7 +11,7 @@ Vue.use(VueCookies)
 
 const NEW_LOGIN_USER = { email: null, password: null, csrf_token: null }
 const NEW_REGISTER_USER = { username: null, email: null, password: null, confirm_password: null, csrf_token: null }
-
+const NEW_PASSWORD_CHANGE = { new_password: null, confirm_new_password: null }
 const state = {
   // single source of data
   users: [],
@@ -19,7 +21,10 @@ const state = {
   loginUser: Object.assign({}, NEW_LOGIN_USER),
   currentUser: null,
   CSRFToken: null,
-  jwt: ''
+  jwt: '',
+  changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
+  changePasswordSuccess: false,
+  authCode: null
 }
 
 const actions = {
@@ -51,13 +56,14 @@ const actions = {
         //context.commit('setNewUser', { newUser: state.newUser })
         context.commit('clearNewUser', {})
         context.commit('setErrors', { errors: null })
+        return true
       }
     ).catch(function(error) {
       fetchCSRF().then((response) => context.commit('setCSRF', { CSRFToken: response.data.csrf_token }))
       var registrationErrors = mapErrors(error.response)
       context.commit('setErrors', { errors: registrationErrors })
+      return false
     })
-    return result
   },
   userLogin(context) {
     state.loginUser.csrf_token = state.CSRFToken
@@ -91,6 +97,51 @@ const actions = {
     $cookies.set('currentUser', null)
     context.commit('setCurrentUser', { currentUser: null})
     context.commit('clearLoginUser', {})
+  },
+  changePassword(context) {
+    state.changePassword.csrf_token = state.CSRFToken
+    var result = passwordChange(state.changePassword, state.currentUser)
+    .then(
+      function(response) {
+        fetchCSRF().then((response) => context.commit('setCSRF', { CSRFToken: response.data.csrf_token }))
+        context.commit('setErrors', { errors: null })
+        context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
+        context.commit('setChangePasswordStatus', { changePasswordSuccess: true })
+        return true
+      }
+    )
+    .catch(
+      function(error) {
+        fetchCSRF().then((response) => context.commit('setCSRF', { CSRFToken: response.data.csrf_token }))
+        var passwordErrors = mapErrors(error.response)
+        context.commit('setErrors', { errors: passwordErrors })
+        context.dispatch('clearPasswordForm')
+        return false
+      }
+    )
+  },
+  clearPasswordForm(context) {
+    context.commit('setChangePasswordStatus', { changePasswordSuccess: false })
+    context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
+  },
+  slackAuthFinal(context) {
+    var currentUser = state.currentUser
+
+    var slackAuthCode = { code: state.authCode }
+    slackAuthCode.csrf_token = state.CSRFToken
+    finalizeSlackAuth(slackAuthCode, currentUser)
+    .then(
+      function(response) {
+        context.commit('setUserData', { userData: response.data })
+        return response
+      }
+    )
+    .catch(
+      function(error) {
+        console.log(error)
+        return false
+      }
+    )
   }
 }
 
@@ -131,7 +182,17 @@ const mutations = {
   },
   clearNewUser(state, payload) {
     state.newUser = Object.assign({}, NEW_REGISTER_USER)
+  },
+  setChangePassword(state, payload) {
+    state.changePassword = payload.changePasswordForm
+  },
+  setChangePasswordStatus(state, payload) {
+    state.changePasswordSuccess = payload.changePasswordSuccess
+  },
+  setCode(state, payload) {
+    state.authCode = payload.authCode
   }
+
 }
 
 const getters = {
@@ -141,6 +202,9 @@ const getters = {
   },
   currentUser(state) {
     return state.currentUser
+  },
+  userData(state) {
+    return state.userData
   }
 }
 

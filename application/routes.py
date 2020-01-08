@@ -6,7 +6,7 @@ from application.initialize.bcrypt_init import bcrypt
 from application.initialize.db_init import db
 from application.initialize.scheduler_jobstore_init import scheduler as apscheduler
 from application.app_setup import application
-from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
+from application.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, ChangePasswordForm
 from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
@@ -80,7 +80,7 @@ def api_login():
 				{
 					'sub': user.email,
 					'iat': datetime.utcnow(),
-					'exp': datetime.utcnow() + timedelta(minutes=5)
+					'exp': datetime.utcnow() + timedelta(minutes=10)
 				},
 				application.config['SECRET_KEY']
 			)
@@ -91,6 +91,20 @@ def api_login():
 		response['errors'] = { 'Credentials': ['Login unsuccessful. Please check email and password.'] }
 		return jsonify(response), 401
 	response = form.data
+	response['errors'] = form.errors
+	return jsonify(response), 401
+
+@application.route('/api/change-password', methods=['POST'])
+@token_required
+def api_change_password(current_user):
+	form = ChangePasswordForm()
+	if form.validate_on_submit():
+		hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+		current_user.password = hashed_password
+		db.session.add(current_user)
+		db.session.commit()
+		return jsonify({ 'Response': 'Password successfully changed' })
+	response = {}
 	response['errors'] = form.errors
 	return jsonify(response), 401
 

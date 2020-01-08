@@ -9,7 +9,7 @@ def token_required(f):
   def _verify(*args, **kwargs):
     auth_headers = request.headers.get('Authorization', '').split()
     invalid_msg = {
-      'Invalid token': ['Invalid token. Registeration and / or authentication required']
+      'Invalid token': ['Invalid token. Registration and / or authentication required']
     }
     expired_msg = {
       'Expired token': ['Expired token. Reauthentication required.']

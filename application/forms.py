@@ -52,4 +52,10 @@ class PostForm(FlaskForm):
 	content = TextAreaField('Content', validators=[DataRequired()])
 	submit = SubmitField('Post')
 
+class ChangePasswordForm(FlaskForm):
+	PASSWORDS_MATCH_ERROR = 'New passwords must be the same'
+	new_password = PasswordField('New Password', validators=[DataRequired()])
+	confirm_new_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password', PASSWORDS_MATCH_ERROR)])
 
+class SlackAuthorizationForm(FlaskForm):
+	code = TextAreaField('Slack Authorization Code', validators=[DataRequired()])

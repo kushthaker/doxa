@@ -71,18 +71,22 @@
         <b-col></b-col>
        </b-row>
       
-       <b-row>
+      <b-row v-if="userData.slack_user_id">
+        <b-col>Slack has been integrated</b-col>
+      </b-row>
+      
+
+       <b-row v-else>
         <b-col></b-col>
         <b-col cols="4" class="text-center">
           <!-- Slack logo -->
           You still need to integrate Slack
         </b-col>
         <b-col cols="4">
-          <b-button variant="outline-primary" to="/slack-integration">Integrate Slack</b-button>
+          <b-button variant="outline-primary" href="/slack-install">Integrate Slack</b-button>
         </b-col>
         <b-col></b-col>
       </b-row>
-      
       <hr class="my-4">
       
       <b-row>
@@ -115,9 +119,13 @@
 </template>
 
 <script>
-  // this has not been implemented yet
+  import { mapState } from 'vuex'
   export default {
-  
+    computed: mapState({
+      userData: function(state){
+        return state.userData
+      }
+    })
   }
 </script>
 
