@@ -126,9 +126,6 @@ const mutations = {
   saveCurrentUser(state, payload) {
     $cookies.set('currentUser', payload.currentUser)
   },
-  clearForm(state, payload) {
-    state.loginUser.password = null
-  },
   clearLoginUser(state, payload) {
     state.loginUser = Object.assign({}, NEW_LOGIN_USER)
   },
