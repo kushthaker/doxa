@@ -19,11 +19,11 @@ JOB_SCHEDULE = [
   },
   {
     'func': google_calendar_activities.update_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'trigger': apscheduler_util.build_second_trigger(12)
   },
   {
     'func': google_calendar_activities.delete_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'trigger': apscheduler_util.build_second_trigger(12)
   }
 ]
 

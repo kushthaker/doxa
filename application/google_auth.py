@@ -77,10 +77,9 @@ def request_google_calendar_api():
 	else:
 		flask.flash('Google account is not authorized.', 'danger')
 		return flask.redirect(flask.url_for('home'))
-
-	existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
-
-	if existing_user:
+	
+	if current_user.google_calendar_user:
+		existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
 		user = update_existing_user_creds(existing_user, credentials, primaryCal)
 	else:
 		user = add_new_user_creds(credentials, primaryCal)
@@ -124,11 +123,14 @@ def revoke_google_auth():
 	revoke = requests.post('https://accounts.google.com/o/oauth2/revoke', 
 		params={'token': credentials.token}, 
 		headers = {'content-type': 'application/x-www-form-urlencoded'})
-
 	status_code = getattr(revoke, 'status_code')
 
 	if status_code == 200:
-		return('Credentials successfully revoked.')
+		user = GoogleCalendarUser.query.filter(current_user.google_calendar_user.id == GoogleCalendarUser.id).one_or_none()
+		if user:
+			db.session.delete(user)
+			db.session.commit()
+		return('Credentials successfully revoked. Deleted current GoogleCalendarUser and child GoogleCalendarEvents.')
 	else:
 		return('Error with revoke post request to https://accounts.google.com/o/oauth2/revoke.')
 

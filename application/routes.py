@@ -11,6 +11,7 @@ from application.models import User, Post, RawSlackEvent
 from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
+from application import time_analysis
 from application.scheduled_data_tasks import apscheduler_util
 from flask_wtf import csrf
 import jwt

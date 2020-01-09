@@ -138,8 +138,8 @@ def delete_google_calendar_events():
 	return
 
 def get_upcoming_events(service):
-	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-	events_result = service.events().list(calendarId='primary', timeMin=now, maxResults=20, singleEvents=True, orderBy='startTime').execute()
+	minTime = (pytz.UTC.localize(datetime.datetime.utcnow()) - datetime.timedelta(days=60)).isoformat() 
+	events_result = service.events().list(calendarId='primary', timeMin=minTime, maxResults=150, singleEvents=True, orderBy='startTime').execute()
 	events = events_result.get('items', [])
 
 	if not events:
