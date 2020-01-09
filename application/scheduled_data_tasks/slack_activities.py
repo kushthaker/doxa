@@ -33,7 +33,8 @@ def capture_slack_activites_from_stored_raw_json():
           raw_slack_event_id=raw_slack_event_id,
           slack_event_type=slack_event_type,
           event_datetime=event_datetime,
-          last_updated=last_updated
+          last_updated=last_updated,
+          slack_event_subtype=slack_event_subtype
         )
         db.session.add(new_slack_event)
         total_new_slack_events += 1
