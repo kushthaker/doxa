@@ -1,6 +1,7 @@
 from application.google_auth import *
 from application.models import GoogleCalendarEvent, GoogleCalendarUser, User
-import google.auth.transport.requests
+import httplib2
+import google_auth_httplib2
 
 def update_google_calendar_events():
 	"""
@@ -12,6 +13,7 @@ def update_google_calendar_events():
 	added_events = 0
 
 	for user in users:
+		
 		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
 
 		if credentials.expired is False and credentials.valid is True:
@@ -136,6 +138,25 @@ def delete_google_calendar_events():
 		" users.")			
 	
 	return
+
+def refresh_google_credentials():
+
+	users = GoogleCalendarUser.query.all()
+	count = 0
+
+	for user in users:
+		creds_dict = get_credentials_dict(user)
+		creds_dict['scopes'] = list(map(lambda x: x[1:-1], creds_dict['scopes'][1:-1].split(', ')))
+		credentials = google.oauth2.credentials.Credentials(**creds_dict)
+		rq = google_auth_httplib2.Request(httplib2.Http())
+		credentials.refresh(rq)
+		print('refresh attempt')
+		user.auth_token = credentials.token
+		db.session.add(user)
+		db.session.commit()
+		count += 1
+
+	print("Updated auth token for ", count, " GoogleCalendarUsers.")	
 
 def get_upcoming_events(service):
 	minTime = (pytz.UTC.localize(datetime.datetime.utcnow()) - datetime.timedelta(days=60)).isoformat() 

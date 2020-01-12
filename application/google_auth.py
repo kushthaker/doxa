@@ -61,10 +61,10 @@ def add_new_user_creds(credentials, primaryCal):
 @login_required
 def request_google_calendar_api():
 	if 'credentials' not in flask.session:
+		print('credentials not in flask session')
 		return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 
 	credentials = google.oauth2.credentials.Credentials(**flask.session['credentials'])
-
 	if credentials.expired is False and credentials.valid is True:
 		service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 		try:
