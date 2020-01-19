@@ -11,11 +11,16 @@ class Config:
   GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
   GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
 
+  os.environ['GITHUB_CLIENT_ID'] = '5a3e0e69c7f6d67a3675'
+  os.environ['GITHUB_CLIENT_SECRET'] = '8a463ebef9a62a714f88241c857d5cebe79b33b4'
+  GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID') # stored in EB config
+  GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET') # stored in EB config
+
   # Google OAuth2 throws insecure transport error without https, this is temp workaround.
   os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   CORS_HEADERS = 'Content-Type'
   # database stuff
-  LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
+  LOCAL_PG_URL = 'postgresql://postgres:pgpassword@callum-dev.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/callum_dev'
   postgres_url = os.environ.get('AWS_RDS_URL')
   if postgres_url != None:
     print('USING VARIABLE %s' % postgres_url)
