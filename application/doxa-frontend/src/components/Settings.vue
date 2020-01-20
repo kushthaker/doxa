@@ -73,7 +73,7 @@
       
       <b-row v-if="userData.slack_user_id">
         <b-col></b-col>
-        <b-col cols="4">Slack has been integrated</b-col>
+        <b-col cols="4" class="text-center">Slack has been integrated</b-col>
         <b-col cols="4">
           <b-button variant="outline-secondary" href="/slack-install">Reintegrate Slack</b-button>
         </b-col>
