@@ -238,7 +238,7 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.google_calendar_user_id)
 
 #Stores GitHub user information
-class GithubUser(db.Model, EnhancedDBModel):
+class GitHubUser(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_users'
 	id = db.Column(db.Integer, primary_key=True)
 	github_user_api_id = db.Column(db.String(100), nullable=True)
@@ -251,19 +251,19 @@ class GithubUser(db.Model, EnhancedDBModel):
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
 
 	def __repr__(self):
-			return 'GithubUser(%s, %s, %s)' % (self.id, self.github_user_api_id, self.github_username)
+			return 'GitHubUser(%s, %s, %s)' % (self.id, self.github_user_api_id, self.github_username)
 
-#Stores repositories a GithubUser contribues to and whether or not they are tracked
-class GithubContributedRepo(db.Model, EnhancedDBModel):
+#Stores a repository a GithubUser contribues to and whether or not it is tracked in their cognitive output
+class GitHubContributedRepo(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_contr_repos'
 	id = db.Column(db.Integer, primary_key=True)
 	contributor_id = db.Column(db.Integer, db.ForeignKey('github_users.id'), nullable=False)
 	is_tracked = db.Column(db.Boolean, nullable = False, default=True)
 
 	def __repr__(self):
-			return 'GithubContributedRepo(%s, %s, %s)' % (self.id, self.contributor_id, self.is_tracked)
+			return 'GitHubContributedRepo(%s, %s, %s)' % (self.id, self.contributor_id, self.is_tracked)
 
-class GithubAction(db.Model, EnhancedDBModel):
+class GitHubAction(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_actions'
 	id = db.Column(db.Integer, primary_key=True)
 	contributor_id = db.Column(db.Integer, db.ForeignKey('github_users.id'), nullable=False)
@@ -275,5 +275,5 @@ class GithubAction(db.Model, EnhancedDBModel):
 	impact = db.Column(db.Float, nullable=False, default = True)
 
 	def __repr__(self):
-			return 'GithubAction(%s, %s, %s, %s, %s)' % (self.id, self.contributor_id, self.repo_id, self.contr_type, self.created_at)
+			return 'GitHubAction(%s, %s, %s, %s, %s)' % (self.id, self.contributor_id, self.repo_id, self.contr_type, self.created_at)
 
