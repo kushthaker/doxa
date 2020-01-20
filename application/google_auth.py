@@ -35,8 +35,7 @@ SCOPES = [ 'https://www.googleapis.com/auth/calendar',
 
 def update_existing_user_creds(existing_user, credentials, primaryCal, current_user):
 	existing_user.auth_token = credentials.token
-	if existing_user.refresh_token == None:
-		existing_user.refresh_token = credentials.refresh_token
+	existing_user.refresh_token = credentials.refresh_token if credentials.refresh_token else existing_user.refresh_token
 	existing_user.scopes = str(credentials.scopes)
 	existing_user.primary_timeZone = primaryCal.get('timeZone')
 	existing_user.primary_etag = primaryCal.get('etag')
