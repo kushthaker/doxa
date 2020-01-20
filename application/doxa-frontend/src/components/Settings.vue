@@ -72,10 +72,14 @@
        </b-row>
       
       <b-row v-if="userData.slack_user_id">
-        <b-col>Slack has been integrated</b-col>
+        <b-col></b-col>
+        <b-col cols="4">Slack has been integrated</b-col>
+        <b-col cols="4">
+          <b-button variant="outline-secondary" href="/slack-install">Reintegrate Slack</b-button>
+        </b-col>
+        <b-col></b-col>
       </b-row>
       
-
        <b-row v-else>
         <b-col></b-col>
         <b-col cols="4" class="text-center">
@@ -89,16 +93,24 @@
       </b-row>
       <hr class="my-4">
       
-      <b-row>
+      <b-row v-if="userData.google_calendar_user_id">
+        <b-col></b-col>
+        <b-col cols="4" class="text-center">Google Calendar has been integrated</b-col>
+        <b-col cols="4">
+          <b-button variant="outline-secondary" href="/build_google_calendar_auth_request">Reintegrate Google Calendar</b-button>
+        </b-col>
+        <b-col></b-col>
+      </b-row>
+      <b-row v-else>
         <b-col></b-col>
         <b-col cols="4" class="text-center">
           <!-- Slack logo -->
           You still need to integrate Google Calendar
         </b-col>
         <b-col cols="4">
-          <b-button variant="outline-primary" to="/google-calendar-integration">Integrate Google Calendar</b-button>
+          <b-button variant="outline-primary" href="/build_google_calendar_auth_request">Integrate Google Calendar</b-button>
         </b-col>
-        <b-col></b-col>
+        <b-col></b-col>  
       </b-row>
 
       <hr class="my-4">

@@ -44,6 +44,10 @@ export function finalizeSlackAuth(slackAuthData, user) {
   return axios.post('/api/finalize-slack-auth', slackAuthData, { headers: authHeader(user) })
 }
 
+export function finalizeGoogleAuth(googleAuthData, user) {
+  return axios.post('/api/finalize-google-auth', googleAuthData, { headers: authHeader(user) })
+}
+
 // pass this to headers in order to use JSON web token
 function authHeader(user) {
   return { Authorization: `Bearer: ${user.token}` }
