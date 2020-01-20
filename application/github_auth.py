@@ -7,7 +7,7 @@ from github import Github
 from application.initialize.config import Config
 from application.app_setup import application
 from application.initialize.db_init import db
-from application.models import User #TODO: add GitHub-specific models later
+from application.models import User #TODO: add GitHub-specific models
 
 import datetime
 import requests
@@ -35,16 +35,15 @@ GITHUB_SCOPES = [
   'workflow'
   ]
 
-GITHUB_REDIRECT_URI = None
-GITHUB_STATE = None
-
 #construct GitHub object
 
 ###This line no longer works with our current app config structure
-###due to Github-flask having an amateurishly inflexible app constructor
+###due to how Github-flask's app constructor is written
 #github = GitHub(application)
 
-#Manual setup
+#Working manual setup
+#Using default GitHub() constructor and then replicating GitHub.init_app(self, app)
+#See https://github.com/cenkalti/github-flask/blob/master/flask_github.py
 github = GitHub()
 github.client_id = Config.GITHUB_CLIENT_ID
 github.client_secret = Config.GITHUB_CLIENT_SECRET
@@ -68,29 +67,6 @@ def authorized(oauth_token):
 		flash("Authorization failed.")
 		return redirect(next_url)
 
-	#TODO: retrieve authenticated user information and save to the database
-
-	#gitUserData = Github(oauth_token).get_user()
-	#Check if user exists based on their GitHub name (since it is unique to the GitHub account)
-	#gitUser = GithubUser.query.filter_by(id=gitUserData.id).first()
-	# if gitUser is None:
-		#First time user has authenticated with the app
-		#TODO: setup other model information here (can probably do this with PyGithub)
-		# gitUser = GithubUser(
-		# 										github_oauth_access_token=oauth_token, \
-		# 										is_authenticated = True)
-		# gitUser.is_authenticated = True;
-		# print("New user authenticated!")
-
-	#Update the user's access token in the database
-	# gitUser.github_oauth_access_token = oauth_token
-	# gitUser.id = gitUserData.id
-	#gitUser.github_org_id = github.Organization.Organization.id in gitUserData.getOrgs().id
-	# gitUser.github_username = gitUserData.name
-	# gitUser.github_email_address = gitUserData.email
-	# gitUser.created_date = gitUserData.created_at
-	# gitUser.last_updated = gitUserData.updated_at
-	# db.session.add(gitUser)
-	# db.session.commit()
+	#TODO: retrieve authenticated user information and update/save to the database
 
 	return redirect(next_url)
