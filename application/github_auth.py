@@ -22,18 +22,7 @@ GITHUB_CLIENT_ID = Config.GITHUB_CLIENT_ID
 GITHUB_CLIENT_SECRET = Config.GITHUB_CLIENT_SECRET
 
 #Current scopes include all read access available in the API
-GITHUB_SCOPES = [
-  'repo',
-  'read:org',
-  'read:public_key',
-  'gist',
-  'notifications',
-  'user',
-  'read:discussion'
-  'read:packages',
-  'read:gpg_key',
-  'workflow'
-  ]
+GITHUB_SCOPES = "user, repo, read:org, read:public_key, gist, notifications, read:discussion, read:packages', read:gpg_key, workflow"
 
 #construct GitHub object
 
