@@ -236,3 +236,44 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.google_calendar_user_id)
+
+#Stores GitHub user information
+class GithubUser(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_users'
+	id = db.Column(db.Integer, primary_key=True)
+	github_user_api_id = db.Column(db.String(100), nullable=True)
+	github_email_address = db.Column(db.String(300))
+	github_username = db.Column(db.String(100), nullable=True)
+	is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+	github_oauth_access_token = db.Column(db.String(200))
+	is_deleted_on_github = db.Column(db.Boolean, nullable=False, default=False)
+	created_at = db.Column(db.DateTime, nullable=True)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
+
+	def __repr__(self):
+			return 'GithubUser(%s, %s, %s)' % (self.id, self.github_user_api_id, self.github_username)
+
+#Stores repositories a GithubUser contribues to and whether or not they are tracked
+class GithubContributedRepo(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_contr_repos'
+	id = db.Column(db.Integer, primary_key=True)
+	contributor_id = db.Column(db.Integer, db.ForeignKey('github_users.id'), nullable=False)
+	is_tracked = db.Column(db.Boolean, nullable = False, default=True)
+
+	def __repr__(self):
+			return 'GithubContributedRepo(%s, %s, %s)' % (self.id, self.contributor_id, self.is_tracked)
+
+class GithubAction(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_actions'
+	id = db.Column(db.Integer, primary_key=True)
+	contributor_id = db.Column(db.Integer, db.ForeignKey('github_users.id'), nullable=False)
+	repo_id = db.Column(db.Integer, db.ForeignKey('github_contr_repos.id'), nullable=False)
+	#There is no hard limit on GitHub branch name length, so may need to handle trunctation of long names
+	branch = db.Column(db.String(100), nullable = False)
+	contr_type = db.Column(db.String(100), nullable = False)
+	created_at = db.Column(db.DateTime, nullable=False, default = datetime.utcnow)
+	impact = db.Column(db.Float, nullable=False, default = True)
+
+	def __repr__(self):
+			return 'GithubAction(%s, %s, %s, %s, %s)' % (self.id, self.contributor_id, self.repo_id, self.contr_type, self.created_at)
+

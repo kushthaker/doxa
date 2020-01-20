@@ -37,12 +37,11 @@ GITHUB_SCOPES = [
 
 #construct GitHub object
 
-###This line no longer works with our current app config structure
-###due to how Github-flask's app constructor is written
+###This constructor no longer works with our current app config structure
+###due to how Github-flask's app constructor is written (expects app.config['thing'] specifically)
 #github = GitHub(application)
 
-#Working manual setup
-#Using default GitHub() constructor and then replicating GitHub.init_app(self, app)
+#Instead: using default GitHub() constructor and then replicating GitHub.init_app(self, app)
 #See https://github.com/cenkalti/github-flask/blob/master/flask_github.py
 github = GitHub()
 github.client_id = Config.GITHUB_CLIENT_ID
@@ -55,7 +54,6 @@ github.session = requests.session()
 #Call to attempt to authorize a user with the GitHub API
 @application.route(GITHUB_AUTH_ROUTE)
 def github_auth_route():
-	#pdb.set_trace()
 	return github.authorize(scope=GITHUB_SCOPES)
 
 #Invoked after github authorization attempt
