@@ -1,4 +1,4 @@
-from application.google_auth import *
+from application.google_auth import * # TODO: remove this very gross `import *`
 from application.models import GoogleCalendarEvent, GoogleCalendarUser, User
 import httplib2
 import google_auth_httplib2
@@ -13,7 +13,7 @@ def update_google_calendar_events():
 	added_events = 0
 
 	for user in users:
-		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
+		credentials = Credentials(**get_credentials_dict(user))
 
 		if credentials.expired is False and credentials.valid is True:
 			service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
@@ -108,7 +108,7 @@ def delete_google_calendar_events():
 			last_updated_event_ids.append(event.google_id)
 
 	for user in users:
-		credentials = google.oauth2.credentials.Credentials(**get_credentials_dict(user))
+		credentials = Credentials(**get_credentials_dict(user))
 
 		if credentials.expired is False and credentials.valid is True:
 			service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)

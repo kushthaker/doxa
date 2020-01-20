@@ -7,6 +7,7 @@ import Login from '@/components/Login'
 import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
 import SlackAuthorization from '@/components/SlackAuthorization'
+import GoogleCalendarAuthorization from '@/components/GoogleCalendarAuthorization'
 import store from '@/store'
 
 Vue.use(Router)
@@ -116,6 +117,22 @@ const router = new Router({
         var _store = store
         _store.commit('setCode', { authCode: to.params.code })
         _store.dispatch('slackAuthFinal').then((response) => {
+          next('/settings')
+        })
+      }
+    },
+    {
+      path: '/google-auth',
+      name: 'Fulfilled.ai Google Calendar Authorization',
+      component: GoogleCalendarAuthorization,
+      beforeEnter: (to, from, next) => {
+        var _store = store
+        var urlParams = to.query
+        if(urlParams.refresh_token === 'None') {
+          urlParams.refresh_token = null
+        }
+        _store.commit('setGoogleCalendarAuth', { params: urlParams })
+        _store.dispatch('googleAuthFinal').then((response) => {
           next('/settings')
         })
       }
