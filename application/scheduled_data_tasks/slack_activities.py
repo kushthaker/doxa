@@ -149,6 +149,21 @@ def capture_slack_conversation_reads():
         db.session.commit()
       print('%s total new SlackConversationRead rows for SlackUser w/ ID %s' % (slack_conversation_read_count, slack_user.id))  
 
+def update_slack_users_data():
+  slack_users = SlackUser.query.all()
+  updated_slack_user_count = 0
+  for slack_user in slack_users:
+    slack_user_info = _get_slack_user_information(slack_user)
+    if slack_user_info:
+      slack_user.slack_email_address = slack_user_info.get('user').get('profile').get('email')
+      slack_user.slack_timezone_offset = slack_user_info.get('user').get('tz_offset')
+      slack_user.slack_timezone_label = slack_user_info.get('user').get('tz_label')
+      slack_user.slack_username = slack_user_info.get('user').get('name')
+      slack_user.is_deleted_on_slack = slack_user_info.get('user').get('deleted')
+      slack_user.save()
+      updated_slack_user_count += 1
+  print('Updated Slack User data for %s Slack users' % updated_slack_user_count)
+
 # Tested using a limit to check the loop, it works
 def _capture_raw_slack_user_conversations(slack_user_client):
   channel_types_str = str.join(', ', ['public_channel', 'private_channel', 'im', 'mpim'])
@@ -176,3 +191,13 @@ def _get_conversation_type_from_raw_slack_conversation(raw_slack_conversation):
   
   print('Not sure what conversation type this is: %s' % raw_slack_conversation.get('id'))
   return None
+
+def _get_slack_user_information(slack_user):
+  slack_client = slack_user.slack_client()
+  try:
+    result = slack_client.users_info(user=slack_user.slack_user_api_id)
+    return result.data
+  except SlackApiError:
+    print('API info query failed for SlackUser id %s' % slack_user.id)
+    return None
+    return slack_user_info
