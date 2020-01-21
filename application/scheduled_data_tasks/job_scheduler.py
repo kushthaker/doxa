@@ -28,6 +28,10 @@ JOB_SCHEDULE = [
   {
     'func': google_calendar_activities.refresh_google_credentials,
     'trigger': apscheduler_util.build_minute_trigger(30)
+  },
+  {
+    'func': slack_activities.update_slack_users_data,
+    'trigger': apscheduler_util.build_hour_trigger(2)
   }
 ]
 
