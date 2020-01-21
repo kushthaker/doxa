@@ -29,10 +29,10 @@ def roundup_next_5min(write):
 	"""
 	from stackoverflow.com/questions/13071384
 	"""
-	dt = write.event_datetime
-	nsecs = dt.minute*60 + dt.second + dt.microsecond*1e-6
-	delta = math.ceil(nsecs / 300) * 300 - nsecs
-	return dt + datetime.timedelta(seconds=delta)
+dt = write.event_datetime
+nsecs = dt.minute*60 + dt.second + dt.microsecond*1e-6
+delta = math.ceil(nsecs / 300) * 300 - nsecs
+return dt + datetime.timedelta(seconds=delta)
 
 def create_time_series(date):
 	start = datetime.datetime.combine(date, datetime.time(0,0))
@@ -45,17 +45,31 @@ def format_read_time(read):
 	r = read.period_end_datetime
 	return datetime.datetime(r.year, r.month, r.day, r.hour, r.minute)
 
+def get_meeting_times(meeting):
+	x = pd.date_range(start=meeting.start_time, end=meeting.end_time, freq='5T')
+	times = [pt.to_pydatetime() for pt in x.tolist()]
+	return times
 
 @application.route('/calculate-time')
 def calculate_time():
 	#get user reads, use date as dict key
 	reads = SlackConversationRead.query.filter(SlackConversationRead.slack_user_id == 3).all()
-	events = SlackUserEvent.query.filter(SlackUserEvent.slack_user_id == 3).all()
-	writes = [write for write in events if write.slack_event_type == 'message' or write.slack_event_type == 'reaction_added']
-	clean_reads = list(map(format_read_time, reads))
-	clean_writes = list(map(roundup_next_5min, writes))
 	dates = [read.period_start_datetime.date() for read in reads]
 	time_data = dict.fromkeys(set(dates))
+	clean_reads = list(map(format_read_time, reads))
+	
+	#get user writes
+	slack_events = SlackUserEvent.query.filter(SlackUserEvent.slack_user_id == 3).all()	
+	writes = [write for write in slack_events if write.slack_event_type == 'message' or write.slack_event_type == 'reaction_added']
+	clean_writes = list(map(roundup_next_5min, writes))
+
+	#get user meetings
+	calendar_events = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_calendar_user_id == 7).all()
+	meetings = [e for e in events if json.loads(e.json_data).get('attendees')]
+	clean_meetings = []
+	for m in meetings:
+		for time in get_meeting_times(meeting):
+			clean_meetings.append(time)
 
 	#create 5min freq series
 	for k,v in time_data.items():
@@ -64,8 +78,9 @@ def calculate_time():
 			time_data[k][x] = {'meeting': 0, 'read': 0, 'write': 0}
 			time_data[k][x]['read'] = 1 if x in clean_reads else 0
 			time_data[k][x]['write'] = 1 if x in clean_writes else 0
+			time_data[k][x]['meeting'] = 1 if x in clean_meetings else 0
 
-	return 'yeye'
+	return True
 
 
 
