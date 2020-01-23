@@ -19,7 +19,6 @@ class Config:
   CORS_HEADERS = 'Content-Type'
   # database stuff
   LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
-  #LOCAL_PG_URL = 'postgresql://postgres:pgpassword@callum-dev.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/callum_dev'
   postgres_url = os.environ.get('AWS_RDS_URL')
   if postgres_url != None:
     print('USING VARIABLE %s' % postgres_url)
