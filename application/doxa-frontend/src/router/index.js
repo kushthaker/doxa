@@ -136,6 +136,22 @@ const router = new Router({
           next('/settings')
         })
       }
+    },
+    {
+      path: '/github-auth',
+      name: 'Fulfilled.ai Github Authorization',
+      component: GithubAuthorization,
+      beforeEnter: (to, from, next) => {
+        var _store = store
+        var urlParams = to.query
+        if(urlParams.refresh_token === 'None') {
+          urlParams.refresh_token = null
+        }
+        _store.commit('setGithubAuth', { params: urlParams })
+        _store.dispatch('githubAuthFinal').then((response) => {
+          next('/settings')
+        })
+      }
     }
   ]
 })

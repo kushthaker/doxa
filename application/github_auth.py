@@ -24,6 +24,12 @@ GITHUB_CLIENT_SECRET = Config.GITHUB_CLIENT_SECRET
 #Current scopes include all read access available in the API
 GITHUB_SCOPES = "user, repo, read:org, read:public_key, gist, notifications, read:discussion, read:packages', read:gpg_key, workflow"
 
+
+#TODO: find a better/more secure way to store this
+#(just need it to be accessible inside finalize_github_auth)
+oauthtkn = None
+
+
 #construct GitHub object
 
 ###This constructor no longer works with our current app config structure
@@ -49,11 +55,43 @@ def github_auth_route():
 @application.route(GITHUB_CALLBACK_ROUTE)
 @gitCreds.authorized_handler
 def authorized(oauth_token):
-	next_url = request.args.get('next') or url_for('home')
+	oauthtkn = oauth_token
+
+@application.route('/api/finalize-google-auth', methods=['POST'])
+@token_required
+def finalize_github_auth(current_user):
+
+	#next_url = request.args.get('next') or url_for('home')
+	next_url = 
 	if oauth_token is None:
 		flash("Authorization failed.")
-		return redirect(next_url)
+		return redirect('/app#/settings?%s' % url_credentials)
 
-	#TODO: retrieve authenticated user information and update/save to the database
+	#Retrieve authenticated user information and update/save to the database
+	gitUserData = Github(oauth_token).get_user()
+	#Check if user exists based on their GitHub name (since it is unique to the GitHub account)
+	gitUser = GithubUser.query.filter_by(id=gitUserData.id).first()
+	if gitUser is None:
+		#First time user has authenticated with the app
+		#TODO: setup other model information here (can probably do this with PyGithub)
+		gitUser = GithubUser(
+			id=gitUserData.id, \
+			github_oauth_access_token=oauth_token, \
+			github_username=gitUserData.name, \
+			github_email_address=gitUserData.email, \
+			is_authenticated = True, \
+			is_deleted_on_github=False, \
+			created_at=gitUserData.created_at, \
+			updated_at=gitUserData.updated_at)
+		db.session.add(gitUser)
+		db.session.commit()
+		print("New user authenticated!")
+
+	else:
+		gitUser.github_oauth_access_token = oauth_token
+		gitUser.is_authenticated = True
+
+
+  #Update the user's access token in the database
 	flash("Authorization successful.")
 	return redirect(next_url)

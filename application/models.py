@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
 	posts = db.relationship('Post', backref='author', lazy=True)
 	google_calendar_user = db.relationship('GoogleCalendarUser', backref='user', uselist=False)
 	slack_user = db.relationship('SlackUser', backref='user', uselist=False)
+	github_user = db.relationship('GithubUser', backref='user', uselist=False)
 
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
@@ -236,3 +237,19 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.google_calendar_user_id)
+
+#Stores GitHub user information
+class GitHubUser(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_users'
+	id = db.Column(db.Integer, primary_key=True)
+	github_oauth_access_token = db.Column(db.String(200))
+	github_email_address = db.Column(db.String(300))
+	github_username = db.Column(db.String(100), nullable=True)
+	is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+	is_deleted_on_github = db.Column(db.Boolean, nullable=False, default=False)
+	created_at = db.Column(db.DateTime, nullable=True)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+	def __repr__(self):
+		return 'GitHubUser(%s, %s, %s)' % (self.github_username, self.id, self.user_id)

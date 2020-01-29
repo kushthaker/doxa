@@ -115,14 +115,22 @@
 
       <hr class="my-4">
 
-      <b-row>
+      <b-row v-if="userData.google_calendar_user_id">
+        <b-col></b-col>
+        <b-col cols="4" class="text-center">Github has been integrated</b-col>
+        <b-col cols="4">
+          <b-button variant="outline-secondary" href="/github-auth">Reintegrate Github</b-button>
+        </b-col>
+        <b-col></b-col>
+      </b-row>
+      <b-row v-else>
         <b-col></b-col>
         <b-col cols="4" class="text-center">
-          <!-- Slack logo -->
+          <!-- Github logo -->
           You still need to integrate Github
         </b-col>
         <b-col cols="4">
-          <b-button variant="outline-primary" href="/github-integration">Integrate Github</b-button>
+          <b-button variant="outline-primary" href="/github-auth">Integrate Github</b-button>
         </b-col>
         <b-col></b-col>
       </b-row>

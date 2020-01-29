@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
   loginUser, getLogin, getUserDetails, passwordChange,
-  finalizeSlackAuth, finalizeGoogleAuth } from '@/api'
+  finalizeSlackAuth, finalizeGoogleAuth, finalizeGithubAuth } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -145,7 +145,7 @@ const actions = {
     )
   },
   googleAuthFinal(context) {
-    // might be able to push this / slackAuthFinal into one general function eventually
+    // might be able to push this / slackAuthFinal / githubAuthFinal into one general function eventually
     var currentUser = state.currentUser
 
     var googleCalendarAuthDetails = state.googleCalendarAuthDetails
@@ -163,7 +163,27 @@ const actions = {
       }
     )
     
+  },
+  githubAuthFinal(context) {
+    var currentUser = state.currentUser
+
+    var githubAuthDetails = state.githubAuthDetails
+    githubAuthDetails.csrf_token = state.CSRFToken
+    finalizeGithubAuth(githubAuthDetails, currentUser) 
+    .then(
+      function(response) {
+        context.commit('setUserData', { userData: response.data })
+      }
+    )
+    .catch(
+      function(error) {
+        console.log(error)
+        return false
+      }
+    )
+    
   }
+
 }
 
 const mutations = {
