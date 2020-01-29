@@ -2,6 +2,7 @@ from application.google_auth import *
 from application.models import GoogleCalendarEvent, GoogleCalendarUser, User
 import httplib2
 import google_auth_httplib2
+import ipdb
 
 def update_google_calendar_events():
 	"""
@@ -150,7 +151,6 @@ def refresh_google_credentials():
 		credentials = google.oauth2.credentials.Credentials(**creds_dict)
 		rq = google_auth_httplib2.Request(httplib2.Http())
 		credentials.refresh(rq)
-		print('refresh attempt')
 		user.auth_token = credentials.token
 		db.session.add(user)
 		db.session.commit()

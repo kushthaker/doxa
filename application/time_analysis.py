@@ -29,10 +29,10 @@ def roundup_next_5min(write):
 	"""
 	from stackoverflow.com/questions/13071384
 	"""
-dt = write.event_datetime
-nsecs = dt.minute*60 + dt.second + dt.microsecond*1e-6
-delta = math.ceil(nsecs / 300) * 300 - nsecs
-return dt + datetime.timedelta(seconds=delta)
+	dt = write.event_datetime
+	nsecs = dt.minute*60 + dt.second + dt.microsecond*1e-6
+	delta = math.ceil(nsecs / 300) * 300 - nsecs
+	return dt + datetime.timedelta(seconds=delta)
 
 def create_time_series(date):
 	start = datetime.datetime.combine(date, datetime.time(0,0))

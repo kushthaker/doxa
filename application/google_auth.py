@@ -31,6 +31,7 @@ SCOPES = [ 'https://www.googleapis.com/auth/calendar',
 'https://www.googleapis.com/auth/calendar.settings.readonly']
 
 def update_existing_user_creds(existing_user, credentials, primaryCal):
+	print('Credentials expiry: ', credentials.expiry)
 	existing_user.auth_token = credentials.token
 	if existing_user.refresh_token == None:
 		existing_user.refresh_token = credentials.refresh_token
@@ -44,6 +45,7 @@ def update_existing_user_creds(existing_user, credentials, primaryCal):
 	return existing_user
 
 def add_new_user_creds(credentials, primaryCal):
+	print('Credentials expiry: ', credentials.expiry)
 	new_user = GoogleCalendarUser()
 	new_user.google_email = primaryCal.get('id')
 	new_user.auth_token = credentials.token
@@ -126,7 +128,8 @@ def revoke_google_auth():
 	status_code = getattr(revoke, 'status_code')
 
 	if status_code == 200:
-		user = GoogleCalendarUser.query.filter(current_user.google_calendar_user.id == GoogleCalendarUser.id).one_or_none()
+		if current_user.google_calendar_user:
+			user = GoogleCalendarUser.query.filter(current_user.google_calendar_user.id == GoogleCalendarUser.id).one_or_none()
 		if user:
 			db.session.delete(user)
 			db.session.commit()
