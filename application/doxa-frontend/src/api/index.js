@@ -48,6 +48,11 @@ export function finalizeGoogleAuth(googleAuthData, user) {
   return axios.post('/api/finalize-google-auth', googleAuthData, { headers: authHeader(user) })
 }
 
+export function finalizeGithubAuth(githubAuthData, user) {
+  return axios.post('/api/finalize-github-auth', githubAuthData, { headers: authHeader(user) })
+}
+
+
 // pass this to headers in order to use JSON web token
 function authHeader(user) {
   return { Authorization: `Bearer: ${user.token}` }

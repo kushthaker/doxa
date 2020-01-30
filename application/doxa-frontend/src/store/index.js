@@ -25,6 +25,7 @@ const state = {
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
   changePasswordSuccess: false,
   authCode: null,
+  githubAuthCode: null,
   googleCalendarAuthDetails: {}
 }
 
@@ -167,12 +168,13 @@ const actions = {
   githubAuthFinal(context) {
     var currentUser = state.currentUser
 
-    var githubAuthDetails = state.githubAuthDetails
-    githubAuthDetails.csrf_token = state.CSRFToken
-    finalizeGithubAuth(githubAuthDetails, currentUser) 
+    var githubAuthCode = { code: state.githubAuthCode }
+    githubAuthCode.csrf_token = state.CSRFToken
+    finalizeGithubAuth(githubAuthCode, currentUser) 
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
+        return response        
       }
     )
     .catch(
@@ -192,6 +194,7 @@ const mutations = {
     state.users = payload.users
   },
   setUserData(state, payload) {
+    console.log(payload.userData)
     state.userData = payload.userData
   },
   setCSRF(state, payload) {
@@ -232,6 +235,9 @@ const mutations = {
   },
   setCode(state, payload) {
     state.authCode = payload.authCode
+  },
+  setGithubAuth(state, payload) {
+    state.githubAuthCode = payload.githubAuthCode
   },
   setGoogleCalendarAuth(state, payload) {
     state.googleCalendarAuthDetails = payload.params

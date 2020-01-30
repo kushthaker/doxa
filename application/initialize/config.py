@@ -11,8 +11,8 @@ class Config:
   GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
   GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
 
-  os.environ['GITHUB_CLIENT_ID'] = '5a3e0e69c7f6d67a3675'
-  os.environ['GITHUB_CLIENT_SECRET'] = '8a463ebef9a62a714f88241c857d5cebe79b33b4'
+  os.environ['GITHUB_CLIENT_ID'] = '8f973132f734007974af'
+  os.environ['GITHUB_CLIENT_SECRET'] = '4b5ec0eabcbe1f21ebe0a49b73b46117f7bc6fca'
   GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID') # stored in EB config
   GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET') # stored in EB config
 

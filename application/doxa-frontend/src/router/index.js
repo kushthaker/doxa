@@ -8,6 +8,7 @@ import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
 import SlackAuthorization from '@/components/SlackAuthorization'
 import GoogleCalendarAuthorization from '@/components/GoogleCalendarAuthorization'
+import GithubAuthorization from '@/components/GithubAuthorization'
 import store from '@/store'
 
 Vue.use(Router)
@@ -138,16 +139,12 @@ const router = new Router({
       }
     },
     {
-      path: '/github-auth',
+      path: '/github-auth/:code',
       name: 'Fulfilled.ai Github Authorization',
       component: GithubAuthorization,
       beforeEnter: (to, from, next) => {
         var _store = store
-        var urlParams = to.query
-        if(urlParams.refresh_token === 'None') {
-          urlParams.refresh_token = null
-        }
-        _store.commit('setGithubAuth', { params: urlParams })
+        _store.commit('setGithubAuth', { githubAuthCode: to.params.code  })
         _store.dispatch('githubAuthFinal').then((response) => {
           next('/settings')
         })

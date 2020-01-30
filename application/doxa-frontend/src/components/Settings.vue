@@ -115,7 +115,7 @@
 
       <hr class="my-4">
 
-      <b-row v-if="userData.google_calendar_user_id">
+      <b-row v-if="userData.github_user_id">
         <b-col></b-col>
         <b-col cols="4" class="text-center">Github has been integrated</b-col>
         <b-col cols="4">
