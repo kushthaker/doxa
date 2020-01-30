@@ -20,7 +20,7 @@ class User(db.Model, UserMixin):
 	posts = db.relationship('Post', backref='author', lazy=True)
 	google_calendar_user = db.relationship('GoogleCalendarUser', backref='user', uselist=False)
 	slack_user = db.relationship('SlackUser', backref='user', uselist=False)
-	github_user = db.relationship('GithubUser', backref='user', uselist=False)
+	github_user = db.relationship('GitHubUser', backref='user', uselist=False)
 
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
@@ -30,6 +30,7 @@ class User(db.Model, UserMixin):
 
 	def user_details(self):
 		return dict(id=self.id, username=self.username, email=self.email, \
+					github_user_id=self.github_user.id if self.github_user else None, \
 		            google_calendar_user_id=self.google_calendar_user.id if self.google_calendar_user else None, \
 		            slack_user_id=self.slack_user.id if self.slack_user else None)
 		# GCal user may be null, so we need to account for this. username, email, id are req'd fields

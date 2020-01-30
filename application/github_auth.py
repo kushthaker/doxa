@@ -1,4 +1,4 @@
-from flask import url_for, flash, redirect, request
+from flask import url_for, flash, redirect, request, jsonify
 from flask_github import GitHub as GitHubCredentials
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -7,7 +7,9 @@ from github import Github as GitHubUserData
 from application.initialize.config import Config
 from application.app_setup import application
 from application.initialize.db_init import db
-from application.models import User #TODO: add GitHub-specific models
+from application.models import User, GitHubUser #TODO: add GitHub-specific models
+from application.utils.route_utils import token_required
+
 
 import datetime
 import requests
@@ -62,7 +64,6 @@ def authorized(oauth_token):
 def finalize_github_auth(current_user):
 
 	#next_url = request.args.get('next') or url_for('home')
-	next_url = 
 	if oauth_token is None:
 		flash("Authorization failed.")
 		return redirect('/app#/settings?%s' % url_credentials)
@@ -70,11 +71,11 @@ def finalize_github_auth(current_user):
 	#Retrieve authenticated user information and update/save to the database
 	gitUserData = Github(oauth_token).get_user()
 	#Check if user exists based on their GitHub name (since it is unique to the GitHub account)
-	gitUser = GithubUser.query.filter_by(id=gitUserData.id).first()
+	gitUser = GitHubUser.query.filter_by(id=gitUserData.id).first()
 	if gitUser is None:
 		#First time user has authenticated with the app
 		#TODO: setup other model information here (can probably do this with PyGithub)
-		gitUser = GithubUser(
+		gitUser = GitHubUser(
 			id=gitUserData.id, \
 			github_oauth_access_token=oauth_token, \
 			github_username=gitUserData.name, \
@@ -94,4 +95,4 @@ def finalize_github_auth(current_user):
 
   #Update the user's access token in the database
 	flash("Authorization successful.")
-	return redirect(next_url)
+	return jsonify(current_user.user_details())
