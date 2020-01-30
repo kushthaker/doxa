@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar toggleable="lg" type="dark" variant="info">
+    <b-navbar toggleable="lg" type="dark" class="lookyherekushthaker">
       <div>
         <b-navbar-brand to="/">
           <img src="../assets/logo_transparent.png" alt="Fulfilled.ai" width="120" height="120">
@@ -44,6 +44,8 @@
   }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>  
+<style>
+  .lookyherekushthaker {
+    background-color: #000000;
+  }
 </style>
