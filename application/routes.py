@@ -81,7 +81,7 @@ def api_login():
 				{
 					'sub': user.email,
 					'iat': datetime.utcnow(),
-					'exp': datetime.utcnow() + timedelta(minutes=10)
+					'exp': datetime.utcnow() + timedelta(hours=12)
 				},
 				application.config['SECRET_KEY']
 			)
