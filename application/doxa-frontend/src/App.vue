@@ -19,12 +19,37 @@
 
 <style>
 
-/*#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+#app {
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}*/
+}
+
+h1, h3 {
+  color: #000000;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: bold
+}
+
+h2, h4, h6, p, a, li {
+  color: #0000007a;
+  font-family: 'Roboto', sans-serif;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+h6 {
+  font-weight: bold;
+  color: #000000;
+}
+
+.sidebar {
+  font-size: 1.1em;
+}
+
+.sidebar-section {
+  margin: 0px 0px 30px 0px;
+}
 </style>

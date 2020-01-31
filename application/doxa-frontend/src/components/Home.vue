@@ -2,7 +2,7 @@
   <div>
     <section class="hero is-primary">
       <div class="hero-body">
-        <div class="container has-text-centered">
+        <div class="container">
           <h2 class="title">List of users</h2>
         </div>
       </div>

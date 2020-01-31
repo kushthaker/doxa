@@ -1,15 +1,33 @@
 <template>
-<div>
-  <div v-if="maestro">
-    <h3>The maestro is <em>{{maestro.username}}</em></h3>
-    <input v-model="maestro.username" placeholder="e.g. Callum John Killian Mitchell">
-    <p>The maestro's email is <strong>{{maestro.email}}</strong></p>
-    <input v-model="maestro.email" placeholder="e.g. maestro@fulfilled.maestro">
+  <div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10">
+          <h1>h1 Welcome, Maestros.</h1>
+          <h2>Let's connect your apps.</h2>
+          <h3>h3 Use this for most section headers.</h3>
+          <h4>h1 Let's connect your apps.</h4>
+          <h5>h1 Let's connect your apps.</h5>
+          <p>h1 Let's connect your apps.</p>
+          <a>h1 Let's connect your apps.</a>
+        </div>
+        <div class="col-md-2" id="right-sidebar">
+          <h3>Quotes</h3>
+            <div class="sidebar-section">
+              <p class="sidebar">"Less mental clutter means more mental resources available for deep thinking."</p>
+              <h6>-Cal Newport</h6>
+            </div>
+          <h3>Concepts</h3>
+            <div>
+              <p class="sidebar">"Attention residue is when thoughts about a task persist and intrude while performing another task"</p>
+              <h6>-Sophie Leroy</h6>
+            </div>
+
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div v-else>
-    Loading...
-  </div>
-</div>
 </template>
 
 <script>
@@ -28,18 +46,13 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
+  blockquote:before {
+  color: #ccc;
+  content: close-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>
