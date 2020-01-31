@@ -24,8 +24,7 @@ const state = {
   jwt: '',
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
   changePasswordSuccess: false,
-  authCode: null,
-  googleCalendarAuthDetails: {}
+  authCode: null
 }
 
 const actions = {
@@ -146,11 +145,10 @@ const actions = {
   },
   googleAuthFinal(context) {
     // might be able to push this / slackAuthFinal into one general function eventually
+    // stores credentials to validate in session (don't need to pass any params)
     var currentUser = state.currentUser
-
-    var googleCalendarAuthDetails = state.googleCalendarAuthDetails
-    googleCalendarAuthDetails.csrf_token = state.CSRFToken
-    finalizeGoogleAuth(googleCalendarAuthDetails, currentUser) 
+    var form = { csrf_token: state.CSRFToken }
+    finalizeGoogleAuth(form, currentUser) 
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
@@ -212,11 +210,7 @@ const mutations = {
   },
   setCode(state, payload) {
     state.authCode = payload.authCode
-  },
-  setGoogleCalendarAuth(state, payload) {
-    state.googleCalendarAuthDetails = payload.params
   }
-
 }
 
 const getters = {

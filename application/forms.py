@@ -61,11 +61,8 @@ class SlackAuthorizationForm(FlaskForm):
 	code = TextAreaField('Slack Authorization Code', validators=[DataRequired()])
 
 class GoogleCalendarAuthorizationForm(FlaskForm):
-	refresh_token = TextAreaField('Google Calendar Refresh Token', validators=[DataRequired()])
-	token = TextAreaField('Google Calendar Access Token', validators=[DataRequired()])
-	scopes = TextAreaField('Google Calendar Scopes', validators=[DataRequired()])
-	token_uri = TextAreaField('Google Calendar Scopes', validators=[DataRequired()])
+	code = TextAreaField('Google Calendar Code', validators=[DataRequired()])
+	code_verifier = TextAreaField('Google Calendar Code Verifier', validators=[DataRequired()])
 
 	def to_dict(self):
-		return dict(refresh_token=self.refresh_token.data, token=self.token.data, \
-		               scopes=self.scopes.data, token_uri=self.token_uri.data)
+		return dict(code=self.code.data, code_verifier=self.code_verifier.data)
