@@ -50,10 +50,6 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 
-@media screen and (min-width: 0px) and (max-width: 800px) {
-  #right-sidebar { display: none; }
-}
-
 .logo {
   margin: 10px 0px 40px 10px;
 }
