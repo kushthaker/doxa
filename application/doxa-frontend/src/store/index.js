@@ -24,7 +24,6 @@ const state = {
   jwt: '',
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
   changePasswordSuccess: false,
-<<<<<<< HEAD
   authCode: null,
   githubAuthCode: null,
 }
