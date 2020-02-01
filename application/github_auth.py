@@ -75,7 +75,7 @@ def finalize_github_auth(current_user):
     gitUser = GitHubUser(
       id=gitUserData.id, \
       github_oauth_access_token=oauth_token, \
-      github_username=gitUserData.name, \
+      github_username=gitUserData.login, \
       github_email_address=gitUserData.email, \
       is_authenticated = True, \
       is_deleted_on_github=False, \
@@ -83,11 +83,16 @@ def finalize_github_auth(current_user):
       updated_at=gitUserData.updated_at, \
       user_id = current_user.id)
     
-    print("New user authorizaed!")
+    print("New user authorized!")
 
   else:
     gitUser.github_oauth_access_token = oauth_token
+    gitUser.github_username = gitUserData.login
+    gitUser.github_email_address = gitUserData.email
     gitUser.is_authenticated = True
+    gitUser.is_deleted_on_github = False
+    gitUser.created_at = gitUserData.created_at
+    gitUser.updated_at = gitUserData.updated_at
     db.session.add(gitUser)
     print("Authorization updated!")
 
