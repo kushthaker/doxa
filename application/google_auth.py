@@ -16,6 +16,7 @@ from google.auth.exceptions import RefreshError
 from application.utils.route_utils import token_required
 from application.forms import GoogleCalendarAuthorizationForm
 import urllib
+from flask import request
 
 GOOGLE_CLIENT_ID = Config.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = Config.GOOGLE_CLIENT_SECRET
@@ -92,30 +93,16 @@ def request_google_calendar_api():
 def build_google_calendar_auth_request():
 		flow = Flow.from_client_config(CLIENT_JSON, scopes=SCOPES)
 		flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
-		
-		authorization_url, state = flow.authorization_url(
-			access_type='offline',
-			include_granted_scopes='true',
-			prompt='consent')
-
+		flow.autogenerate_code_verifier = True
+		authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true', prompt='consent')
 		flask.session['state'] = state
-		
+		flask.session['code_verifier'] = flow.code_verifier
 		return flask.redirect(authorization_url)
 
 @application.route('/%s' % GOOGLE_CALENDAR_CALLBACK_ROUTE)
 def google_calendar_oauth2callback():
-	
-	state = flask.session['state']
-	flow = Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
-	flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
-
-	authorization_response = flask.request.url
-	flow.fetch_token(authorization_response=authorization_response)
-	credentials = flow.credentials
-
-	flask.session['credentials'] = credentials_to_dict(credentials)
-	url_credentials = credentials_to_url_params(credentials)
-	return flask.redirect('/app#/google-auth?%s' % url_credentials)
+	flask.session['code'] = request.values.get('code')
+	return flask.redirect('/app#/google-auth')
 	
 @application.route('/revoke-google-auth')
 def revoke_google_auth():
@@ -147,12 +134,21 @@ def clear_google_auth():
 @application.route('/api/finalize-google-auth', methods=['POST'])
 @token_required
 def finalize_google_auth(current_user):
-	auth_form = GoogleCalendarAuthorizationForm()
+	state = flask.session.get('state')
+	code = flask.session.get('code')
+	code_verifier = flask.session.get('code_verifier')
+
+	# cleans up stuff from session after auth
+	flask.session['state'], flask.session['code'], flask.session['code_verifier'] = None, None, None
+
+	auth_form = GoogleCalendarAuthorizationForm(code=code, code_verifier=code_verifier)
 	if auth_form.validate_on_submit():
+		flow = Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
+		flow.redirect_uri = flask.url_for(GOOGLE_CALENDAR_CALLBACK_ROUTE, _external=True)
+		flow.fetch_token(code=code, code_verifier=code_verifier)
+
+		credentials = flow.credentials
 		current_google_calendar_user = current_user.google_calendar_user		
-		credentials = Credentials(**auth_form.to_dict(),
-	                              client_id=GOOGLE_CLIENT_ID,
-	                              client_secret=GOOGLE_CLIENT_SECRET)
 		primary_calendar = get_primary_calendar_details(credentials)
 		if primary_calendar:
 			if current_google_calendar_user:
@@ -175,9 +171,8 @@ def credentials_to_dict(credentials):
 		'scopes': credentials.scopes
 	}
 
-def credentials_to_url_params(credentials):
-	dict_credentials = credentials_to_dict(credentials)
-	return urllib.parse.urlencode(dict_credentials)
+def args_to_url_params(**kwargs):
+	return urllib.parse.urlencode(dict(kwargs))
 
 def get_credentials_dict(user):
 	return {
@@ -186,7 +181,7 @@ def get_credentials_dict(user):
 		'token_uri': 'https://oauth2.googleapis.com/token',
 		'client_id': GOOGLE_CLIENT_ID,
 		'client_secret': GOOGLE_CLIENT_SECRET,
-		'scopes': user.scopes
+		'scopes': fix_scopes_string(user.scopes)
 	}
 
 def get_primary_calendar_details(credentials):
@@ -200,3 +195,8 @@ def get_primary_calendar_details(credentials):
 			return None
 		return primary_calendar
 	return None
+
+def fix_scopes_string(scopes):
+	if len(scopes) < 2:
+		return scopes
+	return list(map(lambda x: x[1:-1], scopes[1:-1].split(', ')))

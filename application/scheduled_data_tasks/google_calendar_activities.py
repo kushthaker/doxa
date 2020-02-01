@@ -1,7 +1,16 @@
-from application.google_auth import * # TODO: remove this very gross `import *`
 from application.models import GoogleCalendarEvent, GoogleCalendarUser, User
 import httplib2
 import google_auth_httplib2
+from google.oauth2.credentials import Credentials
+from application.google_auth import get_credentials_dict
+import googleapiclient.discovery
+from dateutil import parser
+import json
+from google.auth.exceptions import RefreshError
+import pytz
+from application.google_auth import API_SERVICE_NAME, API_VERSION
+import datetime
+from application.initialize.db_init import db
 
 def update_google_calendar_events():
 	"""
@@ -144,8 +153,7 @@ def refresh_google_credentials():
 
 	for user in users:
 		creds_dict = get_credentials_dict(user)
-		creds_dict['scopes'] = list(map(lambda x: x[1:-1], creds_dict['scopes'][1:-1].split(', ')))
-		credentials = google.oauth2.credentials.Credentials(**creds_dict)
+		credentials = Credentials(**creds_dict)
 		rq = google_auth_httplib2.Request(httplib2.Http())
 		credentials.refresh(rq)
 		user.auth_token = credentials.token

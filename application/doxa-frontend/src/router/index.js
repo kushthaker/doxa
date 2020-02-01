@@ -128,11 +128,6 @@ const router = new Router({
       component: GoogleCalendarAuthorization,
       beforeEnter: (to, from, next) => {
         var _store = store
-        var urlParams = to.query
-        if(urlParams.refresh_token === 'None') {
-          urlParams.refresh_token = null
-        }
-        _store.commit('setGoogleCalendarAuth', { params: urlParams })
         _store.dispatch('googleAuthFinal').then((response) => {
           next('/settings')
         })
