@@ -95,7 +95,7 @@ const actions = {
   },
   clearCredentials(context) {
     $cookies.set('currentUser', null)
-    context.commit('setCurrentUser', { currentUser: null})
+    context.commit('clearCurrentUser', {})
     context.commit('clearLoginUser', {})
   },
   changePassword(context) {
@@ -210,6 +210,9 @@ const mutations = {
   },
   setCode(state, payload) {
     state.authCode = payload.authCode
+  },
+  clearCurrentUser(state, payload) {
+    state.currentUser = null
   }
 }
 

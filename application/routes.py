@@ -31,6 +31,18 @@ def send_static_js(filename):
 def send_static_css(filename):
 	return send_from_directory('doxa-frontend/dist/static_files/css', filename)
 
+@application.route('/static_files/img/<path:filename>', methods=['GET'])
+def send_static_img(filename):
+	return send_from_directory('doxa-frontend/dist/static_files/img', filename)
+
+@application.route('/static_files/<path:filename>', methods=['GET'])
+def send_static_favicon(filename):
+	return send_from_directory('doxa-frontend/dist/static_files', 'favicon.png')
+
+@application.route('/favicon.ico', methods=['GET'])
+def send_favicon(filename):
+	return send_from_directory('doxa-frontend/dist/static_files', 'favicon.png')
+
 @application.route('/slack-event', methods=['POST'])
 def slack_event():
 	print(request)

@@ -1,15 +1,13 @@
 <template>
-<div>
-  <div v-if="maestro">
-    <h3>The maestro is <em>{{maestro.username}}</em></h3>
-    <input v-model="maestro.username" placeholder="e.g. Callum John Killian Mitchell">
-    <p>The maestro's email is <strong>{{maestro.email}}</strong></p>
-    <input v-model="maestro.email" placeholder="e.g. maestro@fulfilled.maestro">
+  <div>
+    <h1>h1 Welcome, Maestros.</h1>
+    <h2>Let's connect your apps.</h2>
+    <h3>h3 Use this for most section headers.</h3>
+    <h4>h1 Let's connect your apps.</h4>
+    <h5>h1 Let's connect your apps.</h5>
+    <p>h1 Let's connect your apps.</p>
+    <a>h1 Let's connect your apps.</a>
   </div>
-  <div v-else>
-    Loading...
-  </div>
-</div>
 </template>
 
 <script>
@@ -28,18 +26,13 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  blockquote:before {
+    color: #ccc;
+    content: close-quote;
+    font-size: 4em;
+    line-height: 0.1em;
+    margin-right: 0.25em;
+    vertical-align: -0.4em;
+  }
+
 </style>
