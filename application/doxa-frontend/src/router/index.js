@@ -28,7 +28,7 @@ const router = new Router({
       name: 'Maestro',
       component: Maestro,
       beforeEnter: (to, from, next) => {
-        const isAuthed = store.getters.isAuthenticated;
+        const isAuthed = store.getters.isLoggedIn;
         const user = store.getters.currentUser
         if(isAuthed) {
           if(user
@@ -53,8 +53,12 @@ const router = new Router({
       name: 'Register',
       component: Register,
       beforeEnter: (to, from, next) => {
-        store.dispatch('clearFormErrors')
-        next()
+        var isLoggedIn = store.getters.isLoggedIn
+        if(!isLoggedIn) {
+          store.dispatch('clearFormErrors')
+          next()  
+        }
+        
       }
     },
     {
@@ -62,8 +66,9 @@ const router = new Router({
       name: 'Login',
       component: Login,
       beforeEnter: (to, from, next) => {
+        debugger
         store.dispatch('clearFormErrors')
-        const isAuthed = store.getters.isAuthenticated;
+        const isAuthed = store.getters.isLoggedIn;
         if(isAuthed) {
           const user = store.getters.currentUser;
           next(`/maestro/${user.id}`)
@@ -77,7 +82,7 @@ const router = new Router({
       path: '/logout',
       name: 'Logout',
       beforeEnter: (to, from, next) => {
-        store.dispatch('clearCredentials').then(() => {
+        return store.dispatch('clearCredentials').then(() => {
           next('/login')
         })
       }
@@ -88,7 +93,7 @@ const router = new Router({
       component: Settings,
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
-        const isAuthed = store.getters.isAuthenticated;
+        const isAuthed = store.getters.isLoggedIn;
         const user = store.getters.currentUser
         if(isAuthed) {
           store.dispatch('loadUser', user).then(() => {
@@ -110,12 +115,11 @@ const router = new Router({
       }
     },
     {
-      path: '/slack-auth/:code',
+      path: '/slack-auth',
       name: 'Fulfilled.ai Slack Authentication',
       component: SlackAuthorization,
       beforeEnter: (to, from, next) =>{
         var _store = store
-        _store.commit('setCode', { authCode: to.params.code })
         _store.dispatch('slackAuthFinal').then((response) => {
           next('/settings')
         })
@@ -146,7 +150,7 @@ router.beforeEach((to, from, next) => {
 
 // simple way of sending them to req'd place if they are logged in, otherwise send them to login
 function loginRequired(_next, _store, newNext='/login') {
-  const isAuthed = _store.getters.isAuthenticated
+  const isAuthed = _store.getters.isLoggedIn
   const user = _store.getters.currentUser
   if(isAuthed) {
     return _next()

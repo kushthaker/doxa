@@ -55,11 +55,11 @@
     }),
     methods: {
       submitUser() {
-        return this.$store.dispatch('userLogin').then(() => {
+        return this.$store.dispatch('userLogin2').then(() => {
           if(!this.formErrors) {
             var currentUser = this.$store.getters.currentUser
-            this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})
-            return currentUser
+            return this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})
+            
           }
         })
       },

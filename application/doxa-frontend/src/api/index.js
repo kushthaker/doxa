@@ -20,6 +20,14 @@ export function loginUser (credentials) {
   return axios.post(`/api/login`, credentials)
 }
 
+export function loginUser2 (credentials) {
+  return axios.post(`/api/login2`, credentials)
+}
+
+export function checkLogin() {
+  return axios.get('/api/check-login')
+}
+
 export function getLogin() {
   return axios.get(`/login`, {})
 }
@@ -33,22 +41,21 @@ export function registerUser(newUser, token) {
 }
 
 export function getUserDetails(user) {
-  return axios.get('/api/user_details', { data: user , headers: authHeader(user) })
+  return axios.get('/api/user_details')
 }
 
 export function passwordChange(passwordForm, user) {
-  return axios.post('/api/change-password', passwordForm, { headers: authHeader(user) })
+  return axios.post('/api/change-password', passwordForm)
 }
 
-export function finalizeSlackAuth(slackAuthData, user) {
-  return axios.post('/api/finalize-slack-auth', slackAuthData, { headers: authHeader(user) })
+export function finalizeSlackAuth(form) {
+  return axios.get('/api/finalize-slack-auth', form)
 }
 
-export function finalizeGoogleAuth(form, user) {
-  return axios.post('/api/finalize-google-auth', form, { headers: authHeader(user) })
+export function finalizeGoogleAuth(form) {
+  return axios.get('/api/finalize-google-auth', form)
 }
 
-// pass this to headers in order to use JSON web token
-function authHeader(user) {
-  return { Authorization: `Bearer: ${user.token}` }
+export function logoutUser(user) {
+  return axios.get('/api/logout')
 }

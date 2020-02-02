@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
-  loginUser, getLogin, getUserDetails, passwordChange,
-  finalizeSlackAuth, finalizeGoogleAuth } from '@/api'
+  loginUser, checkLogin, getUserDetails, passwordChange,
+  finalizeSlackAuth, finalizeGoogleAuth, loginUser2, logoutUser } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -24,7 +24,8 @@ const state = {
   jwt: '',
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
   changePasswordSuccess: false,
-  authCode: null
+  authCode: null,
+  isLoggedIn: false,
 }
 
 const actions = {
@@ -86,17 +87,49 @@ const actions = {
     )
     return result
   },
+  userLogin2(context) {
+    state.loginUser.csrf_token = state.CSRFToken
+    return loginUser2(state.loginUser)
+    .then(
+      function(response) {
+        context.commit('setErrors', { errors: null })
+        context.commit('clearLoginUser', {})
+        return context.commit('setCurrentUser', { currentUser: response.data })
+      }
+    )
+    .catch(
+      function(error) {
+        fetchCSRF().then((response) => context.commit('setCSRF', { CSRFToken: response.data.csrf_token }))
+        var loginErrors = mapErrors(error.response)
+        return context.commit('setErrors', { errors: loginErrors })
+      } 
+    )
+  },
   clearFormErrors(context) {
     state.formErrors = null
   },
   checkLogin(context) {
-    const user = $cookies.get('currentUser')
-    return context.commit('setCurrentUser', { currentUser: user })
+    return checkLogin().then((response) => {
+      if (response.data == null) {
+        return context.commit('clearCurrentUser', {})
+      }
+      else {
+        return context.commit('setCurrentUser', { currentUser: response.data })
+      }
+    })
   },
   clearCredentials(context) {
-    $cookies.set('currentUser', null)
-    context.commit('clearCurrentUser', {})
-    context.commit('clearLoginUser', {})
+    return logoutUser()
+      .then((response) => {
+        context.commit('clearCurrentUser', {})
+        context.commit('clearLoginUser', {})
+        return response
+      })
+      .catch((error) => {
+        context.commit('clearCurrentUser', {})
+        context.commit('clearLoginUser', {})
+        return error
+      })
   },
   changePassword(context) {
     state.changePassword.csrf_token = state.CSRFToken
@@ -126,10 +159,8 @@ const actions = {
   },
   slackAuthFinal(context) {
     var currentUser = state.currentUser
-
-    var slackAuthCode = { code: state.authCode }
-    slackAuthCode.csrf_token = state.CSRFToken
-    finalizeSlackAuth(slackAuthCode, currentUser)
+    var request = { csrf_token: state.CSRFToken }
+    return finalizeSlackAuth(request)
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
@@ -185,13 +216,7 @@ const mutations = {
     state.jwt = payload.jwt
   },
   setCurrentUser(state, payload) {
-    state.currentUser = payload.currentUser
-    if(payload.currentUser) {
-      state.jwt = payload.currentUser.token  
-    }
-    else {
-      state.jwt = ''
-    }
+    state.currentUser = payload.currentUser  
   },
   saveCurrentUser(state, payload) {
     $cookies.set('currentUser', payload.currentUser)
@@ -208,9 +233,6 @@ const mutations = {
   setChangePasswordStatus(state, payload) {
     state.changePasswordSuccess = payload.changePasswordSuccess
   },
-  setCode(state, payload) {
-    state.authCode = payload.authCode
-  },
   clearCurrentUser(state, payload) {
     state.currentUser = null
   }
@@ -218,6 +240,9 @@ const mutations = {
 
 const getters = {
   // reusable data accessors
+  isLoggedIn(state) {
+    return state.currentUser != null
+  },
   isAuthenticated(state) {
     return isValidJwt(state.jwt)
   },

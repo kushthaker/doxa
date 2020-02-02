@@ -13,7 +13,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 import googleapiclient.discovery
 from google.auth.exceptions import RefreshError
-from application.utils.route_utils import token_required
+from flask_login import login_required
 from application.forms import GoogleCalendarAuthorizationForm
 import urllib
 from flask import request
@@ -132,8 +132,8 @@ def clear_google_auth():
 
 
 @application.route('/api/finalize-google-auth', methods=['POST'])
-@token_required
-def finalize_google_auth(current_user):
+@login_required
+def finalize_google_auth():
 	state = flask.session.get('state')
 	code = flask.session.get('code')
 	code_verifier = flask.session.get('code_verifier')
