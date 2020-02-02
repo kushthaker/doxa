@@ -67,7 +67,7 @@ def logged_in():
 		return jsonify(current_user.to_dict())
 	return jsonify(None)
 
-@application.route('/api/login2', methods=['POST'])
+@application.route('/api/login', methods=['POST'])
 def api_login_2():
 	form = LoginForm()
 	user = User.query.filter_by(email=form.email.data).first()
@@ -109,30 +109,6 @@ def api_get_csrf():
 @login_required
 def user_details():
 	return jsonify(current_user.user_details())
-
-@application.route('/api/login', methods=['POST'])
-def api_login():
-	form = LoginForm()
-	user = User.query.filter_by(email=form.email.data).first()
-	if form.validate_on_submit():
-		if user and bcrypt.check_password_hash(user.password, form.password.data):
-			token = jwt.encode(
-				{
-					'sub': user.email,
-					'iat': datetime.utcnow(),
-					'exp': datetime.utcnow() + timedelta(hours=12)
-				},
-				application.config['SECRET_KEY']
-			)
-			response = user.to_dict()
-			response['token'] = token.decode('UTF-8')
-			return jsonify(response)
-		response = form.data
-		response['errors'] = { 'Credentials': ['Login unsuccessful. Please check email and password.'] }
-		return jsonify(response), 401
-	response = form.data
-	response['errors'] = form.errors
-	return jsonify(response), 401
 
 @application.route('/api/change-password', methods=['POST'])
 @login_required

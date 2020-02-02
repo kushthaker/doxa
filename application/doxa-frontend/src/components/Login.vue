@@ -55,7 +55,7 @@
     }),
     methods: {
       submitUser() {
-        return this.$store.dispatch('userLogin2').then(() => {
+        return this.$store.dispatch('userLogin').then(() => {
           if(!this.formErrors) {
             var currentUser = this.$store.getters.currentUser
             return this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})

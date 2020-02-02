@@ -20,10 +20,6 @@ export function loginUser (credentials) {
   return axios.post(`/api/login`, credentials)
 }
 
-export function loginUser2 (credentials) {
-  return axios.post(`/api/login2`, credentials)
-}
-
 export function checkLogin() {
   return axios.get('/api/check-login')
 }

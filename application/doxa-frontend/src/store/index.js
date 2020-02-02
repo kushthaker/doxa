@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
-  loginUser, checkLogin, getUserDetails, passwordChange,
-  finalizeSlackAuth, finalizeGoogleAuth, loginUser2, logoutUser } from '@/api'
+  checkLogin, getUserDetails, passwordChange,
+  finalizeSlackAuth, finalizeGoogleAuth, loginUser, logoutUser } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -68,28 +68,7 @@ const actions = {
   },
   userLogin(context) {
     state.loginUser.csrf_token = state.CSRFToken
-    var result = loginUser(state.loginUser)
-    .then(
-      function(response) {
-        context.commit('setCurrentUser', { currentUser: response.data })
-        context.commit('saveCurrentUser', { currentUser: response.data })
-        context.commit('setErrors', { errors: null })
-        context.commit('clearLoginUser', {})
-        return context.commit('setJWT', { jwt: response.data.token })
-      }
-    )
-    .catch(
-      function(error) {
-        fetchCSRF().then((response) => context.commit('setCSRF', { CSRFToken: response.data.csrf_token }))
-        var loginErrors = mapErrors(error.response)
-        context.commit('setErrors', { errors: loginErrors })
-      }
-    )
-    return result
-  },
-  userLogin2(context) {
-    state.loginUser.csrf_token = state.CSRFToken
-    return loginUser2(state.loginUser)
+    return loginUser(state.loginUser)
     .then(
       function(response) {
         context.commit('setErrors', { errors: null })
