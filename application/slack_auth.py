@@ -4,14 +4,15 @@ from application.forms import SlackAuthorizationForm
 from application.initialize.config import Config
 from application.app_setup import application
 from application.models import SlackTeam, SlackUser
-from application.utils.route_utils import token_required
 import slack
 import functools
 from datetime import datetime
+from flask_login import login_required, current_user
+from flask import session
 
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
-
+FINALIZE_SLACK_AUTH_ROUTE = '/api/finalize-slack-auth'
 SLACK_CLIENT_ID = Config.SLACK_CLIENT_ID
 SLACK_CLIENT_SECRET = Config.SLACK_CLIENT_SECRET
 
@@ -42,14 +43,14 @@ SLACK_SCOPES = [
 
 @application.route(SLACK_AUTH_ROUTE)
 def slack_auth_route():
-  return redirect('/app#/slack-auth/%s' % request.values.get('code'))
+  session['code'] = request.values.get('code')
+  return redirect('/app#/slack-auth')
 
-@application.route('/api/finalize-slack-auth', methods=['POST'])
-@token_required
-def finalize_slack_auth(current_user):
-  auth_form = SlackAuthorizationForm()
-  code = auth_form.data.get('code')
-
+@application.route(FINALIZE_SLACK_AUTH_ROUTE, methods=['GET'])
+@login_required
+def finalize_slack_auth():
+  code = session['code']
+  session['code'] = None
   web_client = slack.WebClient()
   response = web_client.oauth_access(code=code, client_id=SLACK_CLIENT_ID, client_secret=SLACK_CLIENT_SECRET)
   res_data = response.data

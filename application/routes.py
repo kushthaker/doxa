@@ -15,8 +15,8 @@ from application import github_auth
 from application.scheduled_data_tasks import apscheduler_util
 from flask_wtf import csrf
 import jwt
+from flask import session
 from datetime import datetime, timedelta
-from application.utils.route_utils import token_required
 
 # this should eventually be replaced by a CDN
 @application.route('/app', methods=['GET'])
@@ -40,7 +40,7 @@ def send_static_favicon(filename):
 	return send_from_directory('doxa-frontend/dist/static_files', 'favicon.png')
 
 @application.route('/favicon.ico', methods=['GET'])
-def send_favicon(filename):
+def send_favicon():
 	return send_from_directory('doxa-frontend/dist/static_files', 'favicon.png')
 
 @application.route('/slack-event', methods=['POST'])
@@ -61,6 +61,34 @@ def slack_event():
 		return '200'
 	return '200'
 
+@application.route('/api/check-login', methods=['GET'])
+def logged_in():
+	if current_user.is_authenticated:
+		return jsonify(current_user.to_dict())
+	return jsonify(None)
+
+@application.route('/api/login', methods=['POST'])
+def api_login_2():
+	form = LoginForm()
+	user = User.query.filter_by(email=form.email.data).first()
+	if user and bcrypt.check_password_hash(user.password, form.password.data):
+		login_user(user, True)
+		print(session)
+		response = user.to_dict()
+		response['authenticated'] = True
+		return jsonify(response)
+	response = form.errors
+	response['errors'] = { 'Credentials': ['Login unsuccessful. Please check email and password.'] }
+	return jsonify(response), 401
+
+@application.route('/api/logout', methods=['GET'])
+def api_logout():
+	if current_user.is_authenticated:
+		logout_user()
+		return jsonify(True)
+	return jsonify({ 'errors': { 'Logout': ['No user is logged in.']}}), 401
+
+
 @application.route('/api/users', methods=['GET'])
 def api_users():
 	users = User.query.all()
@@ -78,38 +106,13 @@ def api_get_csrf():
 	return jsonify({ 'csrf_token':  csrf_token})
 
 @application.route('/api/user_details', methods=['GET'])
-@token_required
-def user_details(current_user):
+@login_required
+def user_details():
 	return jsonify(current_user.user_details())
-	# will 401 in the token_required method if user is not logged in.
-
-@application.route('/api/login', methods=['POST'])
-def api_login():
-	form = LoginForm()
-	user = User.query.filter_by(email=form.email.data).first()
-	if form.validate_on_submit():
-		if user and bcrypt.check_password_hash(user.password, form.password.data):
-			token = jwt.encode(
-				{
-					'sub': user.email,
-					'iat': datetime.utcnow(),
-					'exp': datetime.utcnow() + timedelta(hours=12)
-				},
-				application.config['SECRET_KEY']
-			)
-			response = user.to_dict()
-			response['token'] = token.decode('UTF-8')
-			return jsonify(response)
-		response = form.data
-		response['errors'] = { 'Credentials': ['Login unsuccessful. Please check email and password.'] }
-		return jsonify(response), 401
-	response = form.data
-	response['errors'] = form.errors
-	return jsonify(response), 401
 
 @application.route('/api/change-password', methods=['POST'])
-@token_required
-def api_change_password(current_user):
+@login_required
+def api_change_password():
 	form = ChangePasswordForm()
 	if form.validate_on_submit():
 		hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')

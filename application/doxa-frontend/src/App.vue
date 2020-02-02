@@ -30,8 +30,16 @@
       'right-sidebar': Sidebar
     },
     computed: mapState({
-      currentUser: function(state){
+      currentUser: function(state) {
         return state.currentUser
+      },
+      isAuthenticated: function(state) {
+        if (state.currentUser) {
+          console.log(true)
+          return true
+        }
+        console.log(false)
+        return false
       }
     })
   }
