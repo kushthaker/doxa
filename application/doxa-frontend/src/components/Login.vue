@@ -58,8 +58,8 @@
         return this.$store.dispatch('userLogin').then(() => {
           if(!this.formErrors) {
             var currentUser = this.$store.getters.currentUser
-            this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})
-            return currentUser
+            return this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})
+            
           }
         })
       },

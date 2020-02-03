@@ -13,7 +13,7 @@
             <b-nav-item-dropdown :text='currentUser.email' right>
               <b-dropdown-item to="/focus-plan">Dashboard</b-dropdown-item>
               <b-dropdown-item to="/focus-plan">Focus Plan</b-dropdown-item>
-              <b-dropdown-item to="/focus-plan">Settings</b-dropdown-item>
+              <b-dropdown-item to="/settings">Settings</b-dropdown-item>
               <b-dropdown-item to="/logout">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </template>
@@ -38,7 +38,11 @@
   export default {
     computed: mapState({
       isAuthenticated: function(state) {
-        return isValidJwt(state.jwt)
+        console.log(state)
+        if(state.currentUser) {
+          return true
+        }
+        return false
       },
       currentUser: function(state) {
         return state.currentUser
