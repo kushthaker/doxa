@@ -13,7 +13,12 @@ import datetime
 import pytz
 from application.initialize.db_init import db
 
-g_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == 7).first()
+def book_upcoming_week_focus_time():
+  """
+  Book time each day in upcoming week given user preferences.
+  """
+  g_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == 7).first()
+
 
 d = pytz.UTC.localize(now) 
 est = pytz.timeZone(user.primary_timeZone)
@@ -26,6 +31,19 @@ datetime.timedelta(minutes=120)
 datetime.timedelta(minutes=150)
 
 a.isoformat()
+
+"""
+for event in date
+  order by start time
+  start workday start <- possible start
+  delta = focus_length
+  start time first event <- possible end 
+  if workday start >= delta, book
+    if start of next in start-end first
+      use next end
+  else set possible end as possible start
+"""
+
 
 start = datetime.datetime(2020, 2, 2, 22, 26).isoformat()
 end = start + datetime.timedelta(0, 7200)
