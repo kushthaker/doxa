@@ -12,7 +12,6 @@ from flask import session
 
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
-FINALIZE_SLACK_AUTH_ROUTE = '/api/finalize-slack-auth'
 SLACK_CLIENT_ID = Config.SLACK_CLIENT_ID
 SLACK_CLIENT_SECRET = Config.SLACK_CLIENT_SECRET
 
@@ -41,16 +40,10 @@ SLACK_SCOPES = [
   'users:read.email'
 ]
 
-@application.route(SLACK_AUTH_ROUTE)
-def slack_auth_route():
-  session['code'] = request.values.get('code')
-  return redirect('/app#/slack-auth')
-
-@application.route(FINALIZE_SLACK_AUTH_ROUTE, methods=['GET'])
+@application.route(SLACK_AUTH_ROUTE, methods=['GET'])
 @login_required
 def finalize_slack_auth():
-  code = session['code']
-  session['code'] = None
+  code = request.values.get('code')
   web_client = slack.WebClient()
   response = web_client.oauth_access(code=code, client_id=SLACK_CLIENT_ID, client_secret=SLACK_CLIENT_SECRET)
   res_data = response.data
@@ -101,7 +94,7 @@ def finalize_slack_auth():
                               )
     new_slack_user.save() # will want to then send them an email to get them onboarded or something
 
-  return jsonify(current_user.user_details())
+  return redirect('/app#/settings')
 
 @application.route(SLACK_INSTALL_ROUTE)
 def slack_install_route():

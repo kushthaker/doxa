@@ -44,10 +44,6 @@ export function passwordChange(passwordForm, user) {
   return axios.post('/api/change-password', passwordForm)
 }
 
-export function finalizeSlackAuth(form) {
-  return axios.get('/api/finalize-slack-auth', form)
-}
-
 export function finalizeGoogleAuth(form) {
   return axios.get('/api/finalize-google-auth', form)
 }
