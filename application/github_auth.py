@@ -4,7 +4,6 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 from github import Github as GitHubUserData
 
-from application.forms import GithubAuthorizationForm
 from application.initialize.config import Config
 from application.app_setup import application
 from application.initialize.db_init import db
@@ -49,13 +48,12 @@ def authorized(oauth_token):
   if oauth_token is None:
     return flask.jsonify({ 'error: failed to retrieve an oauth token' })
   session['github_code'] = oauth_token #TODO: replace with one-time code OR more secure flask session variants 
-  return redirect('/app#/github-auth')
+  return redirect(FINALIZE_GITHUB_AUTH_ROUTE)
 
 
-@application.route(FINALIZE_GITHUB_AUTH_ROUTE, methods=['GET'])
+@application.route(FINALIZE_GITHUB_AUTH_ROUTE)
 @login_required
 def finalize_github_auth():
-  auth_form = GithubAuthorizationForm()
   oauth_token = session['github_code']
   session['github_code'] = None
   if oauth_token is None:
@@ -92,4 +90,4 @@ def finalize_github_auth():
   db.session.commit()
 
   #Update the user's access token in the database
-  return jsonify(current_user.user_details())
+  return redirect('/app#/settings')

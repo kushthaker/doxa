@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
   checkLogin, getUserDetails, passwordChange,
-  finalizeSlackAuth, finalizeGoogleAuth, finalizeGithubAuth, loginUser, logoutUser } from '@/api'
+  finalizeSlackAuth, finalizeGoogleAuth, loginUser, logoutUser } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -25,7 +25,6 @@ const state = {
   changePassword: Object.assign({}, NEW_PASSWORD_CHANGE),
   changePasswordSuccess: false,
   authCode: null,
-  githubAuthCode: null,
   isLoggedIn: false,
 }
 
@@ -161,23 +160,6 @@ const actions = {
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
-      }
-    )
-    .catch(
-      function(error) {
-        console.log(error)
-        return false
-      }
-    )
-    
-  },
-  githubAuthFinal(context) {
-    var request = { csrf_token: state.CSRFToken }
-    return finalizeGithubAuth(request) 
-    .then(
-      function(response) {
-        context.commit('setUserData', { userData: response.data })
-        return response        
       }
     )
     .catch(

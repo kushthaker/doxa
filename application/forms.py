@@ -66,6 +66,3 @@ class GoogleCalendarAuthorizationForm(FlaskForm):
 
 	def to_dict(self):
 		return dict(code=self.code.data, code_verifier=self.code_verifier.data)
-
-class GithubAuthorizationForm(FlaskForm):
-	code = TextAreaField('Github Authorization Code', validators=[DataRequired()])
