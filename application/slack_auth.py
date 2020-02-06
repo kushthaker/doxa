@@ -41,11 +41,6 @@ SLACK_SCOPES = [
   'users:read.email'
 ]
 
-# @application.route(SLACK_AUTH_ROUTE)
-# def slack_auth_route():
-#   session['code'] = request.values.get('code')
-#   return redirect('/app#/slack-auth')
-
 @application.route(SLACK_AUTH_ROUTE, methods=['GET'])
 @login_required
 def finalize_slack_auth():
@@ -100,7 +95,7 @@ def finalize_slack_auth():
                               )
     new_slack_user.save() # will want to then send them an email to get them onboarded or something
 
-  return redirect('/app#/settings') #jsonify(current_user.user_details())
+  return redirect('/app#/settings')
 
 @application.route(SLACK_INSTALL_ROUTE)
 def slack_install_route():
