@@ -6,7 +6,6 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
-import GoogleCalendarAuthorization from '@/components/GoogleCalendarAuthorization'
 import store from '@/store'
 
 Vue.use(Router)
@@ -111,17 +110,6 @@ const router = new Router({
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
         loginRequired(next, store)
-      }
-    },
-    {
-      path: '/google-auth',
-      name: 'Fulfilled.ai Google Calendar Authorization',
-      component: GoogleCalendarAuthorization,
-      beforeEnter: (to, from, next) => {
-        var _store = store
-        _store.dispatch('googleAuthFinal').then((response) => {
-          next('/settings')
-        })
       }
     }
   ]
