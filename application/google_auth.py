@@ -104,11 +104,8 @@ def build_google_calendar_auth_request():
 def finalize_google_auth():
 	code = request.values.get('code')
 	state = flask.session.get('state')
-	#code = flask.session.get('code')
 	code_verifier = flask.session.get('code_verifier')
 
-	print('in google callback')
-	# cleans up stuff from session after auth
 	flask.session['state'], flask.session['code'], flask.session['code_verifier'] = None, None, None
 
 	if (code is not None) & (code_verifier is not None):

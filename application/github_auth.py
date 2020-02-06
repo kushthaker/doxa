@@ -47,7 +47,7 @@ def github_auth_route():
 def authorized(oauth_token):
   if oauth_token is None:
     return flask.jsonify({ 'error: failed to retrieve an oauth token' })
-  session['github_code'] = oauth_token #TODO: replace with one-time code OR more secure flask session variants 
+  session['github_code'] = oauth_token
   return redirect(FINALIZE_GITHUB_AUTH_ROUTE)
 
 
