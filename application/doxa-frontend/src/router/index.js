@@ -6,8 +6,6 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
-import SlackAuthorization from '@/components/SlackAuthorization'
-import GoogleCalendarAuthorization from '@/components/GoogleCalendarAuthorization'
 import store from '@/store'
 
 Vue.use(Router)
@@ -112,28 +110,6 @@ const router = new Router({
       beforeEnter: (to, from, next) => {
         store.dispatch('clearFormErrors')
         loginRequired(next, store)
-      }
-    },
-    {
-      path: '/slack-auth',
-      name: 'Fulfilled.ai Slack Authentication',
-      component: SlackAuthorization,
-      beforeEnter: (to, from, next) =>{
-        var _store = store
-        _store.dispatch('slackAuthFinal').then((response) => {
-          next('/settings')
-        })
-      }
-    },
-    {
-      path: '/google-auth',
-      name: 'Fulfilled.ai Google Calendar Authorization',
-      component: GoogleCalendarAuthorization,
-      beforeEnter: (to, from, next) => {
-        var _store = store
-        _store.dispatch('googleAuthFinal').then((response) => {
-          next('/settings')
-        })
       }
     }
   ]
