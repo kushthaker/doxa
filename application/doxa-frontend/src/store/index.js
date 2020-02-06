@@ -138,7 +138,6 @@ const actions = {
     context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
   },
   slackAuthFinal(context) {
-    var currentUser = state.currentUser
     var request = { csrf_token: state.CSRFToken }
     return finalizeSlackAuth(request)
     .then(
@@ -157,9 +156,8 @@ const actions = {
   googleAuthFinal(context) {
     // might be able to push this / slackAuthFinal / githubAuthFinal into one general function eventually
     // stores credentials to validate in session (don't need to pass any params)
-    var currentUser = state.currentUser
     var form = { csrf_token: state.CSRFToken }
-    finalizeGoogleAuth(form, currentUser) 
+    finalizeGoogleAuth(form) 
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
@@ -174,11 +172,8 @@ const actions = {
     
   },
   githubAuthFinal(context) {
-    var currentUser = state.currentUser
-
-    var githubAuthCode = { code: state.githubAuthCode }
-    githubAuthCode.csrf_token = state.CSRFToken
-    finalizeGithubAuth(githubAuthCode, currentUser) 
+    var request = { csrf_token: state.CSRFToken }
+    return finalizeGithubAuth(request) 
     .then(
       function(response) {
         context.commit('setUserData', { userData: response.data })
@@ -234,9 +229,6 @@ const mutations = {
   },
   setChangePasswordStatus(state, payload) {
     state.changePasswordSuccess = payload.changePasswordSuccess
-  },
-  setGithubAuth(state, payload) {
-    state.githubAuthCode = payload.githubAuthCode
   },
   clearCurrentUser(state, payload) {
     state.currentUser = null

@@ -52,8 +52,8 @@ export function finalizeGoogleAuth(form) {
   return axios.get('/api/finalize-google-auth', form)
 }
 
-export function finalizeGithubAuth(githubAuthData, user) {
-  return axios.post('/api/finalize-github-auth', githubAuthData, { headers: authHeader(user) })
+export function finalizeGithubAuth(form) {
+  return axios.get('/api/finalize-github-auth', form)
 }
 
 export function logoutUser(user) {

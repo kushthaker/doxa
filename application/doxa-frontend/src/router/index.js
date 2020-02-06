@@ -138,12 +138,12 @@ const router = new Router({
       }
     },
     {
-      path: '/github-auth/:code',
+      path: '/github-auth',
       name: 'Fulfilled.ai Github Authorization',
       component: GithubAuthorization,
       beforeEnter: (to, from, next) => {
+        debugger;
         var _store = store
-        _store.commit('setGithubAuth', { githubAuthCode: to.params.code  })
         _store.dispatch('githubAuthFinal').then((response) => {
           next('/settings')
         })
