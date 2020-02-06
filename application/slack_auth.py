@@ -12,7 +12,6 @@ from flask import session
 
 SLACK_INSTALL_ROUTE = '/slack-install'
 SLACK_AUTH_ROUTE = '/slack-auth-one'
-FINALIZE_SLACK_AUTH_ROUTE = '/api/finalize-slack-auth'
 SLACK_CLIENT_ID = Config.SLACK_CLIENT_ID
 SLACK_CLIENT_SECRET = Config.SLACK_CLIENT_SECRET
 
