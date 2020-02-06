@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
-  checkLogin, getUserDetails, passwordChange, loginUser, logoutUser } from '@/api'
+  checkLogin, getUserDetails, passwordChange, finalizeGoogleAuth, loginUser, logoutUser } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -134,6 +134,25 @@ const actions = {
   clearPasswordForm(context) {
     context.commit('setChangePasswordStatus', { changePasswordSuccess: false })
     context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
+  },
+  googleAuthFinal(context) {
+    // might be able to push this / slackAuthFinal into one general function eventually
+    // stores credentials to validate in session (don't need to pass any params)
+    var currentUser = state.currentUser
+    var form = { csrf_token: state.CSRFToken }
+    finalizeGoogleAuth(form, currentUser) 
+    .then(
+      function(response) {
+        context.commit('setUserData', { userData: response.data })
+      }
+    )
+    .catch(
+      function(error) {
+        console.log(error)
+        return false
+      }
+    )
+    
   }
 }
 
@@ -143,7 +162,6 @@ const mutations = {
     state.users = payload.users
   },
   setUserData(state, payload) {
-    console.log(payload.userData)
     state.userData = payload.userData
   },
   setCSRF(state, payload) {
