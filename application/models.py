@@ -243,6 +243,7 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 class GitHubUser(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_users'
 	id = db.Column(db.Integer, primary_key=True)
+	github_api_user_id = db.Column(db.Integer, nullable=False)
 	github_oauth_access_token = db.Column(db.String(200))
 	github_email_address = db.Column(db.String(300))
 	github_username = db.Column(db.String(100), nullable=True)
