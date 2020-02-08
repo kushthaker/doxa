@@ -47,7 +47,7 @@ def github_auth_route():
 def authorized(oauth_token):
   if oauth_token is None:
     return flask.jsonify({ 'error: failed to retrieve an oauth token' })
-  session['github_code'] = oauth_token #TODO: replace with one-time code OR more secure flask session variants 
+  session['github_code'] = oauth_token
   return redirect(FINALIZE_GITHUB_AUTH_ROUTE)
 
 
@@ -62,11 +62,11 @@ def finalize_github_auth():
   #Retrieve authenticated user information and update/save to the database
   gitUserData = GitHubUserData(oauth_token).get_user()
   #Check if user exists based on their GitHub name (since it is unique to the GitHub account)
-  gitUser = GitHubUser.query.filter_by(id=gitUserData.id).first()
+  gitUser = GitHubUser.query.filter_by(github_api_user_id=gitUserData.id).first()
   if gitUser is None:
     #First time user has authenticated with the app
     gitUser = GitHubUser(
-      id=gitUserData.id, \
+      github_api_user_id=gitUserData.id, \
       github_oauth_access_token=oauth_token, \
       github_username=gitUserData.login, \
       github_email_address=gitUserData.email, \
