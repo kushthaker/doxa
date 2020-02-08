@@ -255,3 +255,15 @@ class GitHubUser(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return 'GitHubUser(%s, %s, %s)' % (self.github_username, self.id, self.user_id)
+
+class GitHubPullRequest(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_pull_requests'
+	id = db.Column(db.Integer, primary_key=True)
+	contributor = db.Column(db.String(100), nullable=False)
+	comment_count = db.Column(db.Integer, nullable=False)
+	commit_count = db.Column(db.Integer, nullable=False)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	is_merged = db.Column(db.Boolean, nullable=False, default=False)
+	impact_score = db.Column(db.Integer, nullable=True)
+
