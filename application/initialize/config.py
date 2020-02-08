@@ -11,8 +11,6 @@ class Config:
   GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
   GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
 
-  os.environ['GITHUB_CLIENT_ID'] = '8f973132f734007974af'
-  os.environ['GITHUB_CLIENT_SECRET'] = '4b5ec0eabcbe1f21ebe0a49b73b46117f7bc6fca'
   GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID') # stored in EB config
   GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET') # stored in EB config
 
@@ -20,8 +18,7 @@ class Config:
   os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
   CORS_HEADERS = 'Content-Type'
   # database stuff
-  #LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
-  LOCAL_PG_URL = 'postgresql://postgres:pgpassword@callum-dev.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/callum_dev'
+  LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
   postgres_url = os.environ.get('AWS_RDS_URL')
   if postgres_url != None:
     print('USING VARIABLE %s' % postgres_url)
