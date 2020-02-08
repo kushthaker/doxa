@@ -1,0 +1,38 @@
+import os
+
+class Config:
+  # basic stuff
+  APPLICATION_SECRET_KEY = '7a273729d601733097ead8f655a410eb'
+
+  # Slack API keys
+  SLACK_CLIENT_ID = os.environ.get('SLACK_CLIENT_ID') # stored in EB config
+  SLACK_CLIENT_SECRET = os.environ.get('SLACK_CLIENT_SECRET') # stored in EB config
+
+  GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
+  GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
+
+  os.environ['GITHUB_CLIENT_ID'] = '8f973132f734007974af'
+  os.environ['GITHUB_CLIENT_SECRET'] = '4b5ec0eabcbe1f21ebe0a49b73b46117f7bc6fca'
+  GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID') # stored in EB config
+  GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET') # stored in EB config
+
+  # Google OAuth2 throws insecure transport error without https, this is temp workaround.
+  os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+  CORS_HEADERS = 'Content-Type'
+  # database stuff
+  #LOCAL_PG_URL = 'postgresql://localhost/doxa-db-dev'
+  LOCAL_PG_URL = 'postgresql://postgres:pgpassword@callum-dev.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/callum_dev'
+  postgres_url = os.environ.get('AWS_RDS_URL')
+  if postgres_url != None:
+    print('USING VARIABLE %s' % postgres_url)
+    SQLALCHEMY_DATABASE_URI = postgres_url
+  else:
+    print('USING VARIABLE LOCAL')
+    SQLALCHEMY_DATABASE_URI = LOCAL_PG_URL
+
+  # gets rid of annoying message when starting app
+  sqlalchemy_tracking_notifications = not os.environ.get('IS_PRODUCTION')
+  if sqlalchemy_tracking_notifications:
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+  else:
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
