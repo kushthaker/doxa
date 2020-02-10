@@ -6,16 +6,16 @@ JOB_SCHEDULE = [
     'trigger': apscheduler_util.build_hour_trigger(1)
   },
   {
+    'func': slack_activities.capture_slack_conversation_reads,
+    'trigger': apscheduler_util.build_minute_trigger(30)
+  },
+  {
     'func': slack_activities.capture_slack_conversations,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'trigger': apscheduler_util.build_minute_trigger(5)
   },
   {
     'func': slack_activities.capture_slack_conversation_queries,
     'trigger': apscheduler_util.build_minute_trigger(5)
-  },
-  {
-    'func': slack_activities.capture_slack_conversation_reads,
-    'trigger': apscheduler_util.build_minute_trigger(30)
   },
   {
     'func': google_calendar_activities.update_google_calendar_events,
