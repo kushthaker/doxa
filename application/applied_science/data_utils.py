@@ -3,6 +3,8 @@ import datetime as dt
 import pandas as pd
 from application.models import GoogleCalendarEvent, SlackUserEvent, SlackConversationRead
 import numpy as np
+from sqlalchemy import any_
+import math
 
 def roll(df, w, **kwargs):
   # returns iterable of DataFrames each having some length (for window-type functions)
@@ -26,9 +28,12 @@ def convert_to_utc_timezone_function(slack_timezone_offset):
   return lambda datetime: datetime - dt.timedelta(hours=slack_timezone_offset / 3600.0)
 
 def build_google_calendar_event_date_filter(start_utc_datetime, end_utc_datetime):
-  start_between_filter = (GoogleCalendarEvent.start_time >= start_utc_datetime) & (GoogleCalendarEvent.start_time < end_utc_datetime)
-  end_between_filter = (GoogleCalendarEvent.end_time >= start_utc_datetime) & (GoogleCalendarEvent.end_time < end_utc_datetime)
-  encompass_filter = (GoogleCalendarEvent.start_time < start_utc_datetime) & (GoogleCalendarEvent.end_time > end_utc_datetime)
+  start_between_filter = (GoogleCalendarEvent.start_time >= start_utc_datetime) \
+    & (GoogleCalendarEvent.start_time < end_utc_datetime)
+  end_between_filter = (GoogleCalendarEvent.end_time >= start_utc_datetime) \
+    & (GoogleCalendarEvent.end_time < end_utc_datetime)
+  encompass_filter = (GoogleCalendarEvent.start_time < start_utc_datetime) \
+    & (GoogleCalendarEvent.end_time > end_utc_datetime)
   return start_between_filter | end_between_filter | encompass_filter
 
 def build_slack_user_event_date_filter(start_utc_datetime, end_utc_datetime):
@@ -36,7 +41,8 @@ def build_slack_user_event_date_filter(start_utc_datetime, end_utc_datetime):
     & (SlackUserEvent.slack_event_type == any_(['message', 'reaction_added', 'reaction_removed']))
 
 def build_slack_conversation_read_date_filter(start_utc_datetime, end_utc_datetime):
-  return (SlackConversationRead.period_start_datetime >= start_utc_datetime) & (SlackConversationRead.period_start_datetime < end_utc_datetime)
+  return (SlackConversationRead.period_start_datetime >= start_utc_datetime) \
+    & (SlackConversationRead.period_start_datetime < end_utc_datetime)
 
 def create_pandas_datetime_series(start, end, frequency='5T'):
   '''
@@ -81,10 +87,114 @@ def workday_weekend_filter(df, weekend_days=(5, 6), hour_timezone_offset=-5):
   weekend_days = set(weekend_days)
   return df.loc[(df.index + dt.timedelta(hours=hour_timezone_offset)).weekday.isin(weekend_days) == False]
 
+def is_collaborative_naive(df, min_interrupt_len=1):
+  '''
+    df: a short period pandas Dataframe which can be looked at to determine
+      whether this period contains collaborative time.
+    min_interrupt_len: the minimum interrupt length required to determine
+      whether an interruption to focused work time
+  '''
+  read_interruptions = df[SLACK_CONVERSATION_READ_COLUMN_NAME] >= 1
+  user_event_interruptions = df[SLACK_USER_EVENT_COLUMN_NAME] >= 1
+  if len(df.loc[read_interruptions | user_event_interruptions]) >= 1:
+    return True
+  return len(df.loc[read_interruptions | user_event_interruptions] >= 1)
+
+def slack_user_event_data(user, start_datetime_utc, end_datetime_utc):
+  '''
+    user: a User model, from which data will be queried
+    start_datetime_utc: the start datetime where data will be queried from, in UTC
+    end_datetime_utc: the end datetime where data will be queried from, in UTC
+    ----
+    returns a raw pandas Dataframe of the SlackUserEvent model which falls in the given timeframe
+  '''
+  slack_user_event_filter = (SlackUserEvent.slack_user_id == user.slack_user.id) & \
+  build_slack_user_event_date_filter(start_datetime_utc, end_datetime_utc)
+  slack_user_event_df = pd.read_sql(SlackUserEvent.query.filter(\
+                          slack_user_event_filter).statement, SlackUserEvent.query.session.bind)
+  return slack_user_event_df
+  
+def slack_conversation_read_data(user, start_datetime_utc, end_datetime_utc):
+  '''
+    user: a User model, from which data will be queried
+    start_datetime_utc: the start datetime where data will be queried from, in UTC
+    end_datetime_utc: the end datetime where data will be queried from, in UTC
+    ----
+    returns a raw pandas Dataframe of the SlackConversationRead model which falls in the given timeframe
+  '''
+  slack_conversation_read_filter = \
+    (SlackConversationRead.slack_user_id == user.slack_user.id) \
+    & build_slack_conversation_read_date_filter(start_datetime_utc, end_datetime_utc)
+  slack_conversation_read_df = pd.read_sql(SlackConversationRead.query.filter(slack_conversation_read_filter) \
+                                           .statement, SlackConversationRead.query.session.bind)
+  return slack_conversation_read_df
+
+
+def google_calendar_event_data(user, start_datetime_utc, end_datetime_utc, df=False):
+  '''
+    user: User model object, from which data will be queried
+    start_datetime_utc: the start datetime.datetime where data will be queried from, in UTC
+    end_datetime_utc: the end datetime.datetime where data will be queried from, in UTC
+    df: boolean
+    ----
+    returns a raw pandas Dataframe of the SlackConversationRead model which falls in the given timeframe (if `df` is 
+    set to True), otherwise returns a list of GoogleCalendarEvent objects
+  '''
+  google_calendar_event_filter = (GoogleCalendarEvent.google_calendar_user_id == \
+                                    user.google_calendar_user.id) \
+                                    & build_google_calendar_event_date_filter(start_datetime_utc, end_datetime_utc)
+  if df:
+    google_calendar_event_df = pd.read_sql(GoogleCalendarEvent.query.filter \
+                                (google_calendar_event_filter).statement, GoogleCalendarEvent.query.session.bind)
+    return google_calendar_event_df
+  google_calendar_events = GoogleCalendarEvent.query.filter(google_calendar_event_filter).all()
+  return google_calendar_events
+
+def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_datetime_utc):
+  '''
+    user: User model object, from which data will be queried
+    start_datetime_utc: the start datetime.datetime where data will be queried from, in UTC
+    end_datetime_utc: the end datetime.datetime where data will be queried from, in UTC
+    df: boolean
+    ----
+    returns a pandas Dataframe of the user's activity with the following columns:
+    documentation TODO
+  '''  
+  slack_user_event_df = slack_user_event_data(user, start_datetime_utc, end_datetime_utc)
+  slack_conversation_read_df = slack_conversation_read_data(user, start_datetime_utc, end_datetime_utc)
+  google_calendar_events = google_calendar_event_data(user, start_datetime_utc, end_datetime_utc)
+
+  slack_conversation_read_df['rounded_period_start_datetime'] = \
+    vector_rounddown_next_5min(slack_conversation_read_df['period_start_datetime'])
+  slack_conversation_read_series = slack_conversation_read_df.groupby( \
+                                  by=['rounded_period_start_datetime']).count()['id']
+  
+  slack_user_event_df['rounded_event_datetime'] = vector_rounddown_next_5min(slack_user_event_df['event_datetime'])
+  slack_user_event_series = slack_user_event_df.groupby(by=['rounded_event_datetime']).count()['id']
+
+  datetime_index = pd.DatetimeIndex(pd.date_range(start=start_datetime_utc, end=end_datetime_utc, freq='5T'))
+  activity_df = pd.DataFrame(datetime_index, index=datetime_index, columns=['datetime_utc'])
+  
+  activity_df['slack_conversation_read_count'] = slack_conversation_read_series
+  activity_df['slack_conversation_read_count'] = activity_df['slack_conversation_read_count'].fillna(0)
+  
+  activity_df['slack_user_event_count'] = slack_user_event_series
+  activity_df['slack_user_event_count'] = activity_df['slack_user_event_count'].fillna(0)
+  
+  activity_df['google_calendar_event_id'] = np.nan
+  for event in google_calendar_events:
+    for calendar_event in gce:
+      activity_df.loc[(activity_df.index >= calendar_event.start_time) \
+                      & (activity_df.index < calendar_event.end_time), \
+                      ['google_calendar_event_id']] = calendar_event.id
+  activity_df['in_meeting'] = activity_df['google_calendar_event_id'].notna().astype(int)
+  activity_df.name = f'Collaboration data for User {user.id} from f{start_datetime_utc} to f{end_datetime_utc}'
+  return activity_df
 
 def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2):
   '''
-    df: pandas Dataframe with datetime index. The index should have periods which have an even separation (standard is five minutes)
+    df: pandas Dataframe with datetime index. The index should have
+      periods which have an even separation (standard is five minutes)
     streak_length: the minimum number of periods without collaborative time determining whether focused work has begun
     collab_func: the function which gets passed a set of periods to determine whether collaborative time has occurred
     interruption_period_length: the number of periods required for a period of focused work time to be considered 
@@ -115,7 +225,8 @@ def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interrupt
         streak_start = None
     else:
       if not in_streak:
-        if not collab_func(mini_df, min_interrupt_len=INTERRUPTION_PERIOD_LENGTH): # checking fully uninterrupted time
+        # checking fully uninterrupted time
+        if not collab_func(mini_df, min_interrupt_len=INTERRUPTION_PERIOD_LENGTH):
           in_streak = True
           streak_start = mini_df.index[0][0]
       if (final_index == final_period) & in_streak:
@@ -129,10 +240,14 @@ def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interrupt
 def is_collaborative_time(df, min_interrupt_len=None, \
   min_interrupt_read_amount=1, min_interrupt_send_amount=1):
   '''
-    df: a short period pandas Dataframe which can be looked at to determine whether this period contains collaborative time.
-    min_interrupt_len: the minimum interrupt length required to determine whether an interruption to focused work time
-    min_interrupt_read_amount: the minimum number of reads which must occur in a period to determine whether message reads make the period "collaborative"
-    min_interrupt_send_amount: the minimum number of sends which must occur in a period to determine whether message sends make the period "collaborative"
+    df: a short period pandas Dataframe which can be looked at to determine whether
+      this period contains collaborative time.
+    min_interrupt_len: the minimum interrupt length required to determine
+      whether an interruption to focused work time
+    min_interrupt_read_amount: the minimum number of reads which must occur in a period to determine
+      whether message reads make the period "collaborative"
+    min_interrupt_send_amount: the minimum number of sends which must occur in a period to determine
+      whether message sends make the period "collaborative"
   '''
   if not min_interrupt_len:
     min_interrupt_len = len(df)
@@ -141,14 +256,3 @@ def is_collaborative_time(df, min_interrupt_len=None, \
   if len(df.loc[read_interruptions | user_event_interruptions]) >= min_interrupt_len:
     return True
   return False
-
-def is_collaborative_naive(df, min_interrupt_len=1):
-  '''
-    df: a short period pandas Dataframe which can be looked at to determine whether this period contains collaborative time.
-    min_interrupt_len: the minimum interrupt length required to determine whether an interruption to focused work time
-  '''
-  read_interruptions = df[SLACK_CONVERSATION_READ_COLUMN_NAME] >= 1
-  user_event_interruptions = df[SLACK_USER_EVENT_COLUMN_NAME] >= 1
-  if len(df.loc[read_interruptions | user_event_interruptions]) >= 1:
-    return True
-  return len(df.loc[read_interruptions | user_event_interruptions] >= 1)
