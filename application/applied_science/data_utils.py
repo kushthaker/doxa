@@ -3,19 +3,20 @@ import datetime as dt
 import pandas as pd
 from application.models import GoogleCalendarEvent, SlackUserEvent, SlackConversationRead
 import numpy as np
-# returns iterable of DataFrames each having some length (for window type functions)
+
 def roll(df, w, **kwargs):
-    v = df.values
-    d0, d1 = v.shape
-    s0, s1 = v.strides
+  # returns iterable of DataFrames each having some length (for window-type functions)
+  v = df.values
+  d0, d1 = v.shape
+  s0, s1 = v.strides
 
-    a = stride(v, (d0 - (w - 1), w, d1), (s0, s0, s1))
+  a = stride(v, (d0 - (w - 1), w, d1), (s0, s0, s1))
 
-    rolled_df = pd.concat({
-        row: pd.DataFrame(values, columns=df.columns)
-        for row, values in zip(df.index, a)
-    })
-    return rolled_df.groupby(level=0, **kwargs)
+  rolled_df = pd.concat({
+      row: pd.DataFrame(values, columns=df.columns)
+      for row, values in zip(df.index, a)
+  })
+  return rolled_df.groupby(level=0, **kwargs)
 
 def convert_to_user_timezone_function(slack_timezone_offset):
   return lambda datetime: datetime + dt.timedelta(hours=slack_timezone_offset / 3600.0)
@@ -37,8 +38,13 @@ def build_slack_user_event_date_filter(start_utc_datetime, end_utc_datetime):
 def build_slack_conversation_read_date_filter(start_utc_datetime, end_utc_datetime):
   return (SlackConversationRead.period_start_datetime >= start_utc_datetime) & (SlackConversationRead.period_start_datetime < end_utc_datetime)
 
-def create_pandas_datetime_series(start, end):
-  return pd.date_range(start=start,end=end, freq='5T')
+def create_pandas_datetime_series(start, end, frequency='5T'):
+  '''
+    start: the desired start time of the timeseries
+    end: the desired end time of the time series
+    frequency: optional, the frequency at which time indices occur in the series (default is '5T', or five minutes)
+  '''
+  return pd.date_range(start=start,end=end, freq=frequency)
 
 def rounddown_next_5min(event_datetime):
   event_datetime = pd.Timestamp(event_datetime)
@@ -51,7 +57,7 @@ vector_rounddown_next_5min = np.vectorize(rounddown_next_5min) # allows this fun
 str_index_fnc = lambda real_datetime: str(real_datetime)
 str_index_fnc_vec = np.vectorize(str_index_fnc)
 
-def add_time_delta(time, delta):
+def add_time_delta_to_time(time, delta):
   new_datetime = dt.date(1996, 2, 7)
   return (dt.datetime.combine(new_datetime, time) + delta).time()
 
@@ -62,8 +68,8 @@ def workday_time_filter(df, local_start_time=(8, 30), local_end_time=(17, 30), h
     local_start_time: user's hours / minutes for their day end, in a tuple
     hour_timezone_offset: user's timezone offset from UTC, in hours. Defaults to -5: (ET)
   '''
-  start_time_utc = add_time_delta(dt.time(*local_start_time), dt.timedelta(hours=hour_timezone_offset))
-  end_time_utc = add_time_delta(dt.time(*local_end_time), dt.timedelta(hours=hour_timezone_offset))
+  start_time_utc = add_time_delta_to_time(dt.time(*local_start_time), dt.timedelta(hours=hour_timezone_offset))
+  end_time_utc = add_time_delta_to_time(dt.time(*local_end_time), dt.timedelta(hours=hour_timezone_offset))
   return df.loc[(df.index.time >= start_time_utc) & (df.index.time < end_time_utc)]
 
 def workday_weekend_filter(df, weekend_days=(5, 6), hour_timezone_offset=-5):
@@ -121,7 +127,7 @@ def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interrupt
 
 # can likely change these arguments to kwargs later to make this stuff more generalizable
 def is_collaborative_time(df, min_interrupt_len=None, \
-    min_interrupt_read_amount=1, min_interrupt_send_amount=1):
+  min_interrupt_read_amount=1, min_interrupt_send_amount=1):
   '''
     df: a short period pandas Dataframe which can be looked at to determine whether this period contains collaborative time.
     min_interrupt_len: the minimum interrupt length required to determine whether an interruption to focused work time
