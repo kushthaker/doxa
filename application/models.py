@@ -345,4 +345,4 @@ class GitHubComment(db.Model, EnhancedDBModel):
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.writer_id, self.type, self.parent_id, self.impact_score)
+		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.writer_id, self.comment_type, self.parent_id, self.impact_score)
