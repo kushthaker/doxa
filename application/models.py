@@ -256,6 +256,21 @@ class GitHubUser(db.Model, EnhancedDBModel):
 	def __repr__(self):
 		return 'GitHubUser(%s, %s, %s)' % (self.github_username, self.id, self.user_id)
 
+class GitHubRepo(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_repos'
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(300), nullable = False)
+	github_api_repo_id = db.Column(db.Integer, nullable=False)
+	created_at = db.Column(db.DateTime, nullable=True)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
+	owner = db.Column(db.String(100), nullable=True)
+	organization = db.Column(db.String(100), nullable=True)
+	is_private = db.Column(db.Boolean, nullable=False, default=False)
+
+	def __repr__(self):
+		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.owner)
+
+
 class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
