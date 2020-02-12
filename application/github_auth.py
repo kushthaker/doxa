@@ -77,6 +77,7 @@ def finalize_github_auth():
       user_id = current_user.id)
 
   else:
+    gitUser.github_api_user_id = gitUserData.id
     gitUser.github_oauth_access_token = oauth_token
     gitUser.github_username = gitUserData.login
     gitUser.github_email_address = gitUserData.email
