@@ -274,11 +274,19 @@ class GitHubRepo(db.Model, EnhancedDBModel):
 class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
+	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
 	contributor = db.Column(db.String(100), nullable=False)
-	comment_count = db.Column(db.Integer, nullable=False)
-	commit_count = db.Column(db.Integer, nullable=False)
+	base_sha = db.Column(db.String(100), nullable=False)
+	head_sha = db.Column(db.String(100), nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	comment_count = db.Column(db.Integer, nullable=True)
+	commit_count = db.Column(db.Integer, nullable=True)
+	insertions = db.Column(db.Integer, nullable=True)
+	deletions = db.Column(db.Integer, nullable=True)
+	edit_points = db.Column(db.Integer, nullable=True)
+	files_changed = db.Column(db.Integer, nullable=False)
+	percent_churn = db.Column(db.Float, nullable=False)
 	is_merged = db.Column(db.Boolean, nullable=False, default=False)
 	impact_score = db.Column(db.Integer, nullable=True)
 
