@@ -270,10 +270,33 @@ class GitHubRepo(db.Model, EnhancedDBModel):
 	def __repr__(self):
 		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.owner)
 
+class GitHubCommit(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_commits'
+	id = db.Column(db.Integer, primary_key=True)
+	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
+	#Author is assumed original writer of the code
+	#(might be different from committer in cases such as patches or history rewrites)
+	author_id = db.Column(db.Integer, nullable=False)
+	committer_id = db.Column(db.Integer, nullable=True)
+	pusher_id = db.Column(db.Integer, nullable=True)
+	sha = db.Column(db.String(100), nullable=False)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	comment_count = db.Column(db.Integer, nullable=True)
+	insertions = db.Column(db.Integer, nullable=True)
+	deletions = db.Column(db.Integer, nullable=True)
+	edit_points = db.Column(db.Integer, nullable=True)
+	files_changed = db.Column(db.Integer, nullable=True)
+	impact_score = db.Column(db.Integer, nullable=True)
+
+	def __repr__(self):
+		return 'GitHubCommit(%s, %s, %s, %s)' % (self.id, self.repository_id, self.author_id, self.impact_score)
+
 
 class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
+	github_api_pr_id = db.Column(db.Integer, nullable=False)
 	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
 	contributor = db.Column(db.String(100), nullable=False)
 	base_sha = db.Column(db.String(100), nullable=False)
@@ -285,8 +308,10 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	insertions = db.Column(db.Integer, nullable=True)
 	deletions = db.Column(db.Integer, nullable=True)
 	edit_points = db.Column(db.Integer, nullable=True)
-	files_changed = db.Column(db.Integer, nullable=False)
+	files_changed = db.Column(db.Integer, nullable=True)
 	percent_churn = db.Column(db.Float, nullable=False)
 	is_merged = db.Column(db.Boolean, nullable=False, default=False)
 	impact_score = db.Column(db.Integer, nullable=True)
 
+	def __repr__(self):
+		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.repository_id, self.contributor, self.impact_score)
