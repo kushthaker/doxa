@@ -140,11 +140,10 @@ def delete_google_calendar_events():
 				print("Error with google_calendar_activities.delete_google_calendar_events.")
 				print(e)
 				continue
-
+	db.session.commit()
 	print("Deleted ", deleted_events, \
 		" GoogleCalendarEvents for ", len(users), \
-		" users.")			
-	
+		" users.")
 	return
 
 def refresh_google_credentials():
