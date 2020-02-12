@@ -273,7 +273,7 @@ class GitHubRepo(db.Model, EnhancedDBModel):
 class GitHubCommit(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_commits'
 	id = db.Column(db.Integer, primary_key=True)
-	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
+	repository_id = db.Column(db.Integer, nullable=False)
 	#Author is assumed original writer of the code
 	#(might be different from committer in cases such as patches or history rewrites)
 	author_id = db.Column(db.Integer, nullable=False)
@@ -287,7 +287,7 @@ class GitHubCommit(db.Model, EnhancedDBModel):
 	deletions = db.Column(db.Integer, nullable=True)
 	edit_points = db.Column(db.Integer, nullable=True)
 	files_changed = db.Column(db.Integer, nullable=True)
-	impact_score = db.Column(db.Integer, nullable=True)
+	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
 		return 'GitHubCommit(%s, %s, %s, %s)' % (self.id, self.repository_id, self.author_id, self.impact_score)
@@ -297,7 +297,7 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
 	github_api_pr_id = db.Column(db.Integer, nullable=False)
-	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
+	repository_id = db.Column(db.Integer, nullable=False)
 	contributor_id = db.Column(db.Integer, nullable=False)
 	base_sha = db.Column(db.String(100), nullable=False)
 	head_sha = db.Column(db.String(100), nullable=False)
@@ -311,7 +311,38 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	files_changed = db.Column(db.Integer, nullable=True)
 	percent_churn = db.Column(db.Float, nullable=False)
 	is_merged = db.Column(db.Boolean, nullable=False, default=False)
-	impact_score = db.Column(db.Integer, nullable=True)
+	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
 		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.repository_id, self.contributor_id, self.impact_score)
+
+class GitHubIssue(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_issues'
+	id = db.Column(db.Integer, primary_key=True)
+	github_api_issue_id = db.Column(db.Integer, nullable=False)
+	creator_id = db.Column(db.Integer, nullable=False)
+	closer_id = db.Column(db.Integer, nullable=True)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	state = db.Column(db.String(20), nullable=True)
+	comment_count = db.Column(db.Integer, nullable=True)
+	creation_impact_score = db.Column(db.Float, nullable=True)
+	closure_impact_score = db.Column(db.Float, nullable=True)
+
+	def __repr__(self):
+		return 'GitHubIssue(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_issue_id, self.creator_id, self.closer_id, self.creation_impact_score, self.closure_impact_score)
+
+class GitHubComment(db.Model, EnhancedDBModel):
+	__tablename__ = 'github_comments'
+	id = db.Column(db.Integer, primary_key=True)
+	github_api_comment_id = db.Column(db.Integer, nullable=False)
+	writer_id = db.Column(db.Integer, nullable=False)	
+	comment_type = db.Column(db.String(30), primary_key=True)
+	#ID of the commit, issue, PR or other that this comment was made on
+	parent_id = db.Column(db.Integer, nullable=False)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	impact_score = db.Column(db.Float, nullable=True)
+
+	def __repr__(self):
+		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.writer_id, self.type, self.parent_id, self.impact_score)
