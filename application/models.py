@@ -298,7 +298,7 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	id = db.Column(db.Integer, primary_key=True)
 	github_api_pr_id = db.Column(db.Integer, nullable=False)
 	repository_id = db.Column(db.Integer, db.ForeignKey('github_repos.id'))
-	contributor = db.Column(db.String(100), nullable=False)
+	contributor_id = db.Column(db.Integer, nullable=False)
 	base_sha = db.Column(db.String(100), nullable=False)
 	head_sha = db.Column(db.String(100), nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
@@ -314,4 +314,4 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	impact_score = db.Column(db.Integer, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.repository_id, self.contributor, self.impact_score)
+		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.repository_id, self.contributor_id, self.impact_score)
