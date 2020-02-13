@@ -259,27 +259,31 @@ class GitHubUser(db.Model, EnhancedDBModel):
 class GitHubRepo(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_repos'
 	id = db.Column(db.Integer, primary_key=True)
-	name = db.Column(db.String(300), nullable = False)
 	github_api_repo_id = db.Column(db.Integer, nullable=False)
+	#Repository names can be up to 100 characters long
+	#https://github.com/evalEmpire/gitpan/issues/123
+	name = db.Column(db.String(100), nullable = False)
 	created_at = db.Column(db.DateTime, nullable=True)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
-	owner = db.Column(db.String(100), nullable=True)
+	#GitHub API user id of owner
+	owner_id = db.Column(db.Integer, nullable=True)
 	organization = db.Column(db.String(100), nullable=True)
 	is_private = db.Column(db.Boolean, nullable=False, default=False)
 
 	def __repr__(self):
-		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.owner)
+		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.owner_id)
 
 class GitHubCommit(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_commits'
 	id = db.Column(db.Integer, primary_key=True)
-	repository_id = db.Column(db.Integer, nullable=False)
+	github_api_repo_id = db.Column(db.Integer, nullable=False)
 	#Author is assumed original writer of the code
 	#(might be different from committer in cases such as patches or history rewrites)
-	author_id = db.Column(db.Integer, nullable=False)
-	committer_id = db.Column(db.Integer, nullable=True)
-	pusher_id = db.Column(db.Integer, nullable=True)
-	sha = db.Column(db.String(100), nullable=False)
+	github_api_author_id = db.Column(db.Integer, nullable=False)
+	github_api_committer_id = db.Column(db.Integer, nullable=True)
+	#Full-length GitHub sha are 40 hex characters
+	#https://stackoverflow.com/a/18134919
+	sha = db.Column(db.String(40), nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	comment_count = db.Column(db.Integer, nullable=True)
@@ -290,17 +294,17 @@ class GitHubCommit(db.Model, EnhancedDBModel):
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubCommit(%s, %s, %s, %s)' % (self.id, self.repository_id, self.author_id, self.impact_score)
+		return 'GitHubCommit(%s, %s, %s, %s)' % (self.id, self.github_api_repo_id, self.github_api_author_id, self.impact_score)
 
 
 class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
 	github_api_pr_id = db.Column(db.Integer, nullable=False)
-	repository_id = db.Column(db.Integer, nullable=False)
-	contributor_id = db.Column(db.Integer, nullable=False)
-	base_sha = db.Column(db.String(100), nullable=False)
-	head_sha = db.Column(db.String(100), nullable=False)
+	github_api_repo_id = db.Column(db.Integer, nullable=False)
+	github_api_author_id = db.Column(db.Integer, nullable=False)
+	base_sha = db.Column(db.String(40), nullable=False)
+	head_sha = db.Column(db.String(40), nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	comment_count = db.Column(db.Integer, nullable=True)
@@ -314,35 +318,38 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.repository_id, self.contributor_id, self.impact_score)
+		return 'GitHubPullRequest(%s, %s, %s, %s, %s)' % (self.id, self.github_api_pr_id, self.github_api_repo_id, self.github_api_author_id, self.impact_score)
 
 class GitHubIssue(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_issues'
 	id = db.Column(db.Integer, primary_key=True)
 	github_api_issue_id = db.Column(db.Integer, nullable=False)
-	creator_id = db.Column(db.Integer, nullable=False)
-	closer_id = db.Column(db.Integer, nullable=True)
+	github_api_creator_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
-	state = db.Column(db.String(20), nullable=True)
+	#State can be "open", "closed" or "all"
+	#https://developer.github.com/v3/issues/#parameters
+	state = db.Column(db.String(10), nullable=True)
 	comment_count = db.Column(db.Integer, nullable=True)
 	creation_impact_score = db.Column(db.Float, nullable=True)
 	closure_impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubIssue(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_issue_id, self.creator_id, self.closer_id, self.creation_impact_score, self.closure_impact_score)
+		return 'GitHubIssue(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_issue_id, self.github_api_creator_id, self.creation_impact_score, self.closure_impact_score)
 
 class GitHubComment(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_comments'
 	id = db.Column(db.Integer, primary_key=True)
 	github_api_comment_id = db.Column(db.Integer, nullable=False)
-	writer_id = db.Column(db.Integer, nullable=False)	
+	github_api_author_id = db.Column(db.Integer, nullable=False)	
+	#Type distinguishes between "commit", "PR", "issue" etc. comments
+	#Playing it safe with space allocation
 	comment_type = db.Column(db.String(30), primary_key=True)
 	#ID of the commit, issue, PR or other that this comment was made on
-	parent_id = db.Column(db.Integer, nullable=False)
+	github_api_parent_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.writer_id, self.comment_type, self.parent_id, self.impact_score)
+		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.github_api_author_id, self.comment_type, self.github_api_parent_id, self.impact_score)
