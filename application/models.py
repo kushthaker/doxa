@@ -266,12 +266,12 @@ class GitHubRepo(db.Model, EnhancedDBModel):
 	created_at = db.Column(db.DateTime, nullable=True)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=True)
 	#GitHub API user id of owner
-	owner_id = db.Column(db.Integer, nullable=True)
+	github_api_owner_id = db.Column(db.Integer, nullable=True)
 	organization = db.Column(db.String(100), nullable=True)
 	is_private = db.Column(db.Boolean, nullable=False, default=False)
 
 	def __repr__(self):
-		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.owner_id)
+		return 'GitHubRepo(%s, %s, %s)' % (self.name, self.id, self.github_api_owner_id)
 
 class GitHubCommit(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_commits'
