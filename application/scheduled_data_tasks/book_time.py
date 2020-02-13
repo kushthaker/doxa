@@ -14,13 +14,18 @@ import pytz
 from application.initialize.db_init import db
 
 
-def set_utc_tz(event):
+def set_utc_tz(event, g_user):
+  user_tz = pytz.timezone(g_user.primary_timeZone)
   if event.get('start').get('dateTime'):
     s_dt = parser.parse(event.get('start').get('dateTime')).replace(tzinfo=pytz.UTC)
+    s_dt = s_dt.astimezone(user_tz)
     e_dt = parser.parse(event.get('end').get('dateTime')).replace(tzinfo=pytz.UTC)
+    e_dt = e_dt.astimezone(user_tz)
   elif event.get('start').get('date'):
     s_dt = parser.parse(event.get('start').get('date')).replace(tzinfo=pytz.UTC)
+    s_dt = s_dt.astimezone(user_tz)
     e_dt = parser.parse(event.get('end').get('date')).replace(tzinfo=pytz.UTC)
+    e_dt = e_dt.astimezone(user_tz)
   event_id = event.get('id')
   return dict({'start':s_dt,'end':e_dt,'event_id':event_id})
 
@@ -32,9 +37,33 @@ def get_upcoming_events(service):
     print('No upcoming events found.')
   return events
 
-def book_time(date):
-  start = dates[date].get('workday_start')
-  end = dates[date].get('workday_end')
+def attempt_booking(start, end, focus_length):
+  if end - start > datetime.timedelta(hours=focus_length):
+
+    event = {
+    'summary': 'Focus Time',
+    'location': 'Desk',
+    'description': 'Uninterrupted time for your most important work.',
+    'start': {
+      'dateTime': start.isoformat(),
+      'timeZone': g_user.primary_timeZone,
+    },
+    'end': {
+      'dateTime': (start + datetime.timedelta(hours=focus_length)).isoformat(),
+      'timeZone': g_user.primary_timeZone,
+    },
+    'colorId':'3',
+    'reminders': {
+      'useDefault': False,
+      'overrides': [
+        {'method': 'popup', 'minutes': 10},
+      ],
+    },
+    }
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    return True
+  else:
+    return False
 
 def book_upcoming_week_focus_time():
   """
@@ -49,7 +78,7 @@ def book_upcoming_week_focus_time():
     if credentials.expired is False and credentials.valid is True: ## other checks here?
       service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
       events = get_upcoming_events(service)
-      utc_events = [set_utc_tz(e) for e in events]
+      utc_events = [set_utc_tz(e, g_user) for e in events]
       
       dates = dict.fromkeys(set([e.get('start').date() for e in utc_events]))
       for k,v in dates.items():
@@ -59,27 +88,29 @@ def book_upcoming_week_focus_time():
 
       for i in range(1,8):
         book_date = book_date + datetime.timedelta(1)
-        workday_start: datetime.datetime(book_date.year, book_date.month, book_date.day, user.workday_start.hour, user.workday_start.minute)
-        workday_end: datetime.datetime(book_date.year, book_date.month, book_date.day,user.workday_end.hour, user.workday_end.minute)
+        workday_start =  pytz.utc.localize(datetime.datetime(book_date.year, book_date.month, book_date.day, user.workday_start.hour, user.workday_start.minute))
+        workday_start = workday_start.astimezone(pytz.timezone(g_user.primary_timeZone))
+        workday_end = pytz.utc.localize(datetime.datetime(book_date.year, book_date.month, book_date.day,user.workday_end.hour, user.workday_end.minute))
+        workday_start = workday_end.astimezone(pytz.timezone(g_user.primary_timeZone))
+        day_events = sorted(dates[book_date], key= lambda i: i['start'])
 
-        for e in dates[book_date]:
-          """
-          Use recursion here?
-          """
-
-          """
-          for event in date
-          order by start time
-          start workday start <- possible start
-          delta = focus_length
-          start time first event <- possible end 
-          if workday start >= delta, book
-          if start of next in start-end first
-          use next end
-          else set possible end as possible start
-          """
-
+        if attempt_booking(workday_start, day_events[0].get('start'), g_user.user.focus_length):
           dates[book_date].append(dict({'focus_booked': 1}))
+          continue
+          
+        for i in range(len(day_events)-1):
+          if attempt_booking(day_events[i].get('end'),day_events[i+1].get('start'), g_user.user.focus_length):
+            dates[book_date].append(dict({'focus_booked': 1}))
+            break
+        
+        if dates[book_date][-1].get('focused_booked'):
+          continue
+        else:
+          if attempt_booking(day_events[-1].get('end'), workday_end, g_user.user.focus_length):
+            dates[book_date].append(dict({'focus_booked': 1}))
+            continue
+
+        dates[book_date].append(dict({'focus_booked': 0}))
 
 
 """
