@@ -86,5 +86,4 @@ def downgrade():
     op.drop_table('github_pull_requests')
     op.drop_table('github_issues')
     op.drop_table('github_commits')
-    op.drop_table('github_comments')
     # ### end Alembic commands ###
