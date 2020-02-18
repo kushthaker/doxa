@@ -334,7 +334,7 @@ class GitHubIssue(db.Model, EnhancedDBModel):
 	closure_impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
-		return 'GitHubIssue(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_issue_id, self.github_api_creator_id, self.creation_impact_score, self.closure_impact_score)
+		return 'GitHubIssue(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_issue_id, self.github_api_creator_id, self.open_impact_score, self.closure_impact_score)
 
 class GitHubComment(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_comments'
