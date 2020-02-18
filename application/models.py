@@ -276,6 +276,8 @@ class GitHubRepo(db.Model, EnhancedDBModel):
 class GitHubCommit(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_commits'
 	id = db.Column(db.Integer, primary_key=True)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	github_api_repo_id = db.Column(db.Integer, nullable=False)
 	#Author is assumed original writer of the code
 	#(might be different from committer in cases such as patches or history rewrites)
@@ -284,9 +286,7 @@ class GitHubCommit(db.Model, EnhancedDBModel):
 	#Full-length GitHub sha are 40 hex characters
 	#https://stackoverflow.com/a/18134919
 	sha = db.Column(db.String(40), nullable=False)
-	created_at = db.Column(db.DateTime, nullable=False)
-	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
-	comment_count = db.Column(db.Integer, nullable=True)
+	github_api_committed_at = db.Column(db.DateTime, nullable=False)
 	insertions = db.Column(db.Integer, nullable=True)
 	deletions = db.Column(db.Integer, nullable=True)
 	edit_points = db.Column(db.Integer, nullable=True)
@@ -300,15 +300,15 @@ class GitHubCommit(db.Model, EnhancedDBModel):
 class GitHubPullRequest(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_pull_requests'
 	id = db.Column(db.Integer, primary_key=True)
+	created_at = db.Column(db.DateTime, nullable=False)
+	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	github_api_pr_id = db.Column(db.Integer, nullable=False)
 	github_api_repo_id = db.Column(db.Integer, nullable=False)
 	github_api_author_id = db.Column(db.Integer, nullable=False)
 	base_sha = db.Column(db.String(40), nullable=False)
 	head_sha = db.Column(db.String(40), nullable=False)
-	created_at = db.Column(db.DateTime, nullable=False)
-	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
-	comment_count = db.Column(db.Integer, nullable=True)
-	commit_count = db.Column(db.Integer, nullable=True)
+	github_api_opened_at = db.Column(db.DateTime, nullable=False)
+	github_api_closed_at = db.Column(db.DateTime, nullable=True)
 	insertions = db.Column(db.Integer, nullable=True)
 	deletions = db.Column(db.Integer, nullable=True)
 	edit_points = db.Column(db.Integer, nullable=True)
@@ -323,15 +323,14 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 class GitHubIssue(db.Model, EnhancedDBModel):
 	__tablename__ = 'github_issues'
 	id = db.Column(db.Integer, primary_key=True)
-	github_api_issue_id = db.Column(db.Integer, nullable=False)
-	github_api_creator_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
-	#State can be "open", "closed" or "all"
-	#https://developer.github.com/v3/issues/#parameters
-	state = db.Column(db.String(10), nullable=True)
-	comment_count = db.Column(db.Integer, nullable=True)
-	creation_impact_score = db.Column(db.Float, nullable=True)
+	github_api_issue_id = db.Column(db.Integer, nullable=False)
+	github_api_creator_id = db.Column(db.Integer, nullable=False)
+	is_open = db.Column(db.Boolean, nullable=True)
+	github_api_opened_at = db.Column(db.DateTime, nullable=False)
+	github_api_closed_at = db.Column(db.DateTime, nullable=True)
+	open_impact_score = db.Column(db.Float, nullable=True)
 	closure_impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
@@ -349,6 +348,8 @@ class GitHubComment(db.Model, EnhancedDBModel):
 	github_api_parent_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
+	github_api_written_at = db.Column(db.DateTime, nullable=False)
+	github_api_edited_at = db.Column(db.DateTime, nullable=False)
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
