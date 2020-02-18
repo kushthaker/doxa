@@ -29,12 +29,13 @@ def upgrade():
     sa.Column('head_sha', sa.String(length=40), nullable=False),
     sa.Column('github_api_opened_at', sa.DateTime(), nullable=False),
     sa.Column('github_api_closed_at', sa.DateTime(), nullable=True),
+    sa.Column('github_api_merged_at', sa.DateTime(), nullable=True),
     sa.Column('insertions', sa.Integer(), nullable=True),
     sa.Column('deletions', sa.Integer(), nullable=True),
     sa.Column('edit_points', sa.Integer(), nullable=True),
     sa.Column('files_changed', sa.Integer(), nullable=True),
-    sa.Column('percent_churn', sa.Float(), nullable=False),
-    sa.Column('is_merged', sa.Boolean(), nullable=False),
+    sa.Column('percent_churn', sa.Float(), nullable=True),
+    sa.Column('status', sa.String(length=10), nullable=True),
     sa.Column('impact_score', sa.Float(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

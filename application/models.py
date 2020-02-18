@@ -309,12 +309,13 @@ class GitHubPullRequest(db.Model, EnhancedDBModel):
 	head_sha = db.Column(db.String(40), nullable=False)
 	github_api_opened_at = db.Column(db.DateTime, nullable=False)
 	github_api_closed_at = db.Column(db.DateTime, nullable=True)
+	github_api_merged_at = db.Column(db.DateTime, nullable=True)
 	insertions = db.Column(db.Integer, nullable=True)
 	deletions = db.Column(db.Integer, nullable=True)
 	edit_points = db.Column(db.Integer, nullable=True)
 	files_changed = db.Column(db.Integer, nullable=True)
-	percent_churn = db.Column(db.Float, nullable=False)
-	is_merged = db.Column(db.Boolean, nullable=False, default=False)
+	percent_churn = db.Column(db.Float, nullable=True)
+	status = db.Column(db.String(10), nullable=True)
 	impact_score = db.Column(db.Float, nullable=True)
 
 	def __repr__(self):
