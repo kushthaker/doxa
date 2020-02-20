@@ -58,7 +58,7 @@ def rounddown_next_5min(event_datetime):
   delta = -math.floor(nsecs / 300) * 300 + nsecs
   return event_datetime - dt.timedelta(seconds=delta)
 
-vector_rounddown_next_5min = np.vectorize(rounddown_next_5min) # allows this function to be called on dataframe column
+vector_rounddown_next_5min = np.vectorize(rounddown_next_5min, otypes=[dt.datetime]) # allows this function to be called on dataframe column
 
 str_index_fnc = lambda real_datetime: str(real_datetime)
 str_index_fnc_vec = np.vectorize(str_index_fnc)
@@ -150,6 +150,12 @@ def google_calendar_event_data(user, start_datetime_utc, end_datetime_utc, df=Fa
   google_calendar_events = GoogleCalendarEvent.query.filter(google_calendar_event_filter).all()
   return google_calendar_events
 
+def is_collaborative_meeting(google_calendar_event):
+  '''
+    This can be used to check whether the meeting is considered "collaborative" - AKA has multiple attendees, is during work hours, etc.
+  '''
+  return True
+
 def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_datetime_utc):
   '''
     user: User model object, from which data will be queried
@@ -172,7 +178,8 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
   slack_user_event_df['rounded_event_datetime'] = vector_rounddown_next_5min(slack_user_event_df['event_datetime'])
   slack_user_event_series = slack_user_event_df.groupby(by=['rounded_event_datetime']).count()['id']
 
-  datetime_index = pd.DatetimeIndex(pd.date_range(start=start_datetime_utc, end=end_datetime_utc, freq='5T'))
+  datetime_index = pd.DatetimeIndex(pd.date_range(start=rounddown_next_5min(start_datetime_utc), \
+                                                  end=rounddown_next_5min(end_datetime_utc), freq='5T'))
   activity_df = pd.DataFrame(datetime_index, index=datetime_index, columns=['datetime_utc'])
   
   activity_df['slack_conversation_read_count'] = slack_conversation_read_series
@@ -182,11 +189,15 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
   activity_df['slack_user_event_count'] = activity_df['slack_user_event_count'].fillna(0)
   
   activity_df['google_calendar_event_id'] = np.nan
-  for event in google_calendar_events:
-    for calendar_event in gce:
+  activity_df['google_calendar_event_count'] = 0
+  for calendar_event in google_calendar_events:
+    if is_collaborative_meeting(calendar_event):
       activity_df.loc[(activity_df.index >= calendar_event.start_time) \
                       & (activity_df.index < calendar_event.end_time), \
                       ['google_calendar_event_id']] = calendar_event.id
+      activity_df.loc[(activity_df.index >= calendar_event.start_time) \
+                      & (activity_df.index < calendar_event.end_time), \
+                      ['google_calendar_event_count']] += 1
   activity_df['in_meeting'] = activity_df['google_calendar_event_id'].notna().astype(int)
   activity_df.name = f'Collaboration data for User {user.id} from f{start_datetime_utc} to f{end_datetime_utc}'
   return activity_df
