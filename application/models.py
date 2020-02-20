@@ -18,7 +18,6 @@ class User(db.Model, UserMixin):
 	password = db.Column(db.String(60), nullable=False)
 	workday_start = db.Column(db.DateTime)
 	workday_end = db.Column(db.DateTime)
-	focus_preference = db.Column(db.String(60))
 	focus_length = db.Column(db.Integer)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	posts = db.relationship('Post', backref='author', lazy=True)
