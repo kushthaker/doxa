@@ -105,7 +105,7 @@ def book_upcoming_week_focus_time():
 
         dates[k].append(dict({'focus_booked': 0}))
 
-  print("Booked focus times for all google users")
+  print("Booked focus times for all google users.")
 
 """
 Utility functions for Google API
@@ -126,15 +126,4 @@ def refresh_google_credentials():
     count += 1
 
   print("Updated auth token for ", count, " GoogleCalendarUsers.")
-
-
-# def get_credentials_dict(user):
-#   return {
-#     'token': user.auth_token,
-#     'refresh_token': user.refresh_token,
-#     'token_uri': 'https://oauth2.googleapis.com/token',
-#     'client_id': GOOGLE_CLIENT_ID,
-#     'client_secret': GOOGLE_CLIENT_SECRET,
-#     'scopes': fix_scopes_string(user.scopes)
-#   }
 
