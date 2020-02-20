@@ -90,7 +90,7 @@ def update_google_calendar_events():
 				to_delete = list(set(db_event_ids).difference(set(res_event_ids)))
 
 				for e_id in to_delete:
-					e = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == e_id)
+					e = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == e_id).first()
 					db.session.delete(e)
 					db.session.commit()
 					deleted_events += 1

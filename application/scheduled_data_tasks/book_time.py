@@ -87,6 +87,11 @@ def book_upcoming_week_focus_time():
         workday_end = pytz.utc.localize(datetime.datetime(k.year, k.month, k.day, g_user.user.workday_end.hour, g_user.user.workday_end.minute))
         day_events = sorted(dates[k], key= lambda i: i['start'])
 
+        if len(day_events) == 0:
+          attempt_booking(workday_start, workday_end, g_user, service)
+          dates[k].append(dict({'focus_booked': 1}))
+          continue
+
         if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
           dates[k].append(dict({'focus_booked': 1}))
           continue
