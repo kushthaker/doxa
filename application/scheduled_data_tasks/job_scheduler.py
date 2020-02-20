@@ -1,4 +1,4 @@
-from application.scheduled_data_tasks import apscheduler_util, slack_activities, google_calendar_activities
+from application.scheduled_data_tasks import apscheduler_util, slack_activities, google_calendar_activities, book_time
 
 JOB_SCHEDULE = [
   {
@@ -19,11 +19,11 @@ JOB_SCHEDULE = [
   },
   {
     'func': google_calendar_activities.update_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(1)
-  },
+    'trigger': apscheduler_util.build_second_trigger(10)
+  },  
   {
-    'func': google_calendar_activities.delete_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'func': book_time.book_upcoming_week_focus_time,
+    'trigger': apscheduler_util.build_second_trigger(10)
   },
   {
     'func': google_calendar_activities.refresh_google_credentials,
