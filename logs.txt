@@ -1,0 +1,532 @@
+Retrieving logs...
+============= i-0bf35b3e4b1602271 ==============
+-------------------------------------
+/var/log/httpd/error_log
+-------------------------------------
+[Thu Feb 20 06:09:56.475340 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:09:56.475385 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:09:59.644804 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:09:59.644847 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:00.360826 2020] [:error] [pid 32452] Added 0 new slack_conversations to DB and updated 30 slack_conversations for the SlackUser with ID: 4
+[Thu Feb 20 06:10:00.551851 2020] [:error] [pid 32452] Added 0 new slack_conversations to DB and updated 29 slack_conversations for the SlackUser with ID: 7
+[Thu Feb 20 06:10:00.733675 2020] [:error] [pid 32452] Added 0 new slack_conversations to DB and updated 31 slack_conversations for the SlackUser with ID: 3
+[Thu Feb 20 06:10:00.976927 2020] [:error] [pid 32452] Added 0 new slack_conversations to DB and updated 31 slack_conversations for the SlackUser with ID: 6
+[Thu Feb 20 06:10:01.207282 2020] [:error] [pid 32452] Added 0 new slack_conversations to DB and updated 35 slack_conversations for the SlackUser with ID: 1
+[Thu Feb 20 06:10:01.336872 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:10 UTC)" raised an exception
+[Thu Feb 20 06:10:01.336897 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:01.336901 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:01.336905 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:01.336908 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:01.336911 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:01.336916 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:01.336921 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:10:03.369050 2020] [:error] [pid 32452] For user w/ ID: 4, 12 new SlackConversationQuery rows were created
+[Thu Feb 20 06:10:03.655884 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:03.655922 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:06.274258 2020] [:error] [pid 32452] For user w/ ID: 7, 12 new SlackConversationQuery rows were created
+[Thu Feb 20 06:10:08.114876 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:08.114928 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:09.444343 2020] [:error] [pid 32452] For user w/ ID: 3, 18 new SlackConversationQuery rows were created
+[Thu Feb 20 06:10:10.144633 2020] [:error] [pid 32452] Execution of job "update_google_calendar_events (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:10 UTC)" skipped: maximum number of running instances reached (1)
+[Thu Feb 20 06:10:11.236823 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:20 UTC)" raised an exception
+[Thu Feb 20 06:10:11.236860 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:11.236864 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:11.236867 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:11.236880 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:11.236883 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:11.236887 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:11.236892 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:10:11.850541 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:11.850580 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:12.812120 2020] [:error] [pid 32452] For user w/ ID: 6, 20 new SlackConversationQuery rows were created
+[Thu Feb 20 06:10:15.789171 2020] [:error] [pid 32452] For user w/ ID: 1, 23 new SlackConversationQuery rows were created
+[Thu Feb 20 06:10:21.032049 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:30 UTC)" raised an exception
+[Thu Feb 20 06:10:21.032127 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:21.032799 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:21.032806 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:21.032809 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:21.032813 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:21.032819 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:21.032826 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:10:22.962910 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:22.962952 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:26.687446 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:26.687490 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:29.735950 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:29.735990 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:31.120319 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:40 UTC)" raised an exception
+[Thu Feb 20 06:10:31.120346 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:31.120350 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:31.120354 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:31.120357 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:31.120360 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:31.120364 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:31.120370 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:10:32.571590 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:32.571704 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:35.803327 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:35.803368 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:38.410625 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:38.410724 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:41.402540 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:50 UTC)" raised an exception
+[Thu Feb 20 06:10:41.402566 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:41.402570 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:41.402573 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:41.402576 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:41.402579 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:41.402584 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:41.402589 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:10:43.485380 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:43.485473 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:47.146810 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:47.146850 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:50.092922 2020] [:error] [pid 32452] Execution of job "update_google_calendar_events (trigger: cron[second='*/10'], next run at: 2020-02-20 06:10:50 UTC)" skipped: maximum number of running instances reached (1)
+[Thu Feb 20 06:10:50.245687 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:10:50.245728 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:10:51.232894 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:11:00 UTC)" raised an exception
+[Thu Feb 20 06:10:51.232919 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:10:51.232923 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:10:51.232926 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:10:51.232929 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:10:51.232933 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:10:51.232949 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:10:51.232955 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:11:01.154322 2020] [:error] [pid 32452] Job "book_upcoming_week_focus_time (trigger: cron[second='*/10'], next run at: 2020-02-20 06:11:10 UTC)" raised an exception
+[Thu Feb 20 06:11:01.154352 2020] [:error] [pid 32452] Traceback (most recent call last):
+[Thu Feb 20 06:11:01.154356 2020] [:error] [pid 32452]   File "/opt/python/run/venv/local/lib/python3.6/site-packages/apscheduler/executors/base.py", line 125, in run_job
+[Thu Feb 20 06:11:01.154360 2020] [:error] [pid 32452]     retval = job.func(*job.args, **job.kwargs)
+[Thu Feb 20 06:11:01.154362 2020] [:error] [pid 32452]   File "/opt/python/current/app/application/scheduled_data_tasks/book_time.py", line 90, in book_upcoming_week_focus_time
+[Thu Feb 20 06:11:01.154366 2020] [:error] [pid 32452]     if attempt_booking(workday_start, day_events[0].get('start'), g_user, service):
+[Thu Feb 20 06:11:01.154371 2020] [:error] [pid 32452] IndexError: list index out of range
+[Thu Feb 20 06:11:01.154388 2020] [:error] [pid 32452] 
+[Thu Feb 20 06:11:03.355970 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:11:03.356016 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+[Thu Feb 20 06:11:07.804032 2020] [:error] [pid 32452] Error with google_calendar_activities.update_google_calendar_events.
+[Thu Feb 20 06:11:07.804071 2020] [:error] [pid 32452] Class 'flask_sqlalchemy.BaseQuery' is not mapped
+
+
+
+-------------------------------------
+/opt/python/log/supervisord.log
+-------------------------------------
+2020-01-08 23:25:57,475 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-08 23:40:16,680 INFO stopped: httpd (exit status 0)
+2020-01-08 23:40:17,686 INFO spawned: 'httpd' with pid 20823
+2020-01-08 23:40:18,740 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-12 06:51:03,306 INFO stopped: httpd (exit status 0)
+2020-01-12 06:51:03,310 INFO spawned: 'httpd' with pid 15833
+2020-01-12 06:51:04,361 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-12 07:00:51,602 INFO stopped: httpd (exit status 0)
+2020-01-12 07:00:52,607 INFO spawned: 'httpd' with pid 16522
+2020-01-12 07:00:53,659 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-17 02:24:56,113 INFO stopped: httpd (exit status 0)
+2020-01-17 02:24:56,117 INFO spawned: 'httpd' with pid 14852
+2020-01-17 02:24:57,167 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-17 02:35:20,899 INFO stopped: httpd (exit status 0)
+2020-01-17 02:35:20,903 INFO spawned: 'httpd' with pid 15530
+2020-01-17 02:35:21,967 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-20 04:56:42,817 INFO stopped: httpd (exit status 0)
+2020-01-20 04:56:42,821 INFO spawned: 'httpd' with pid 31065
+2020-01-20 04:56:43,866 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-20 22:31:27,578 INFO stopped: httpd (exit status 0)
+2020-01-20 22:31:27,581 INFO spawned: 'httpd' with pid 931
+2020-01-20 22:31:28,633 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-21 04:58:44,019 INFO stopped: httpd (exit status 0)
+2020-01-21 04:58:44,022 INFO spawned: 'httpd' with pid 17940
+2020-01-21 04:58:45,072 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-24 21:10:18,297 INFO stopped: httpd (exit status 0)
+2020-01-24 21:10:18,301 INFO spawned: 'httpd' with pid 27832
+2020-01-24 21:10:19,358 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-24 21:41:47,310 INFO stopped: httpd (exit status 0)
+2020-01-24 21:41:47,313 INFO spawned: 'httpd' with pid 29154
+2020-01-24 21:41:48,369 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 20:08:49,830 INFO stopped: httpd (exit status 0)
+2020-01-28 20:08:49,834 INFO spawned: 'httpd' with pid 20796
+2020-01-28 20:08:50,883 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 20:28:29,535 INFO stopped: httpd (exit status 0)
+2020-01-28 20:28:29,539 INFO spawned: 'httpd' with pid 21733
+2020-01-28 20:28:30,587 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 20:29:50,355 INFO stopped: httpd (exit status 0)
+2020-01-28 20:29:51,361 INFO spawned: 'httpd' with pid 22072
+2020-01-28 20:29:52,414 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 20:30:34,520 INFO stopped: httpd (exit status 0)
+2020-01-28 20:30:35,525 INFO spawned: 'httpd' with pid 22451
+2020-01-28 20:30:36,564 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 20:32:43,738 INFO stopped: httpd (exit status 0)
+2020-01-28 20:32:44,743 INFO spawned: 'httpd' with pid 22815
+2020-01-28 20:32:45,792 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 22:10:52,632 INFO stopped: httpd (exit status 0)
+2020-01-28 22:10:52,636 INFO spawned: 'httpd' with pid 26327
+2020-01-28 22:10:53,686 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-28 22:16:58,875 INFO stopped: httpd (exit status 0)
+2020-01-28 22:16:58,879 INFO spawned: 'httpd' with pid 26878
+2020-01-28 22:16:59,923 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-31 04:53:08,257 INFO stopped: httpd (exit status 0)
+2020-01-31 04:53:08,261 INFO spawned: 'httpd' with pid 3809
+2020-01-31 04:53:09,320 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-31 23:53:05,951 INFO stopped: httpd (exit status 0)
+2020-01-31 23:53:05,955 INFO spawned: 'httpd' with pid 9452
+2020-01-31 23:53:07,006 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-01-31 23:55:33,288 INFO stopped: httpd (exit status 0)
+2020-01-31 23:55:33,292 INFO spawned: 'httpd' with pid 9858
+2020-01-31 23:55:34,342 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-01 02:32:00,916 INFO stopped: httpd (exit status 0)
+2020-02-01 02:32:00,920 INFO spawned: 'httpd' with pid 15330
+2020-02-01 02:32:01,974 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-01 03:58:37,228 INFO stopped: httpd (exit status 0)
+2020-02-01 03:58:37,231 INFO spawned: 'httpd' with pid 18880
+2020-02-01 03:58:38,281 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-02 03:27:41,448 INFO stopped: httpd (exit status 0)
+2020-02-02 03:27:41,452 INFO spawned: 'httpd' with pid 32359
+2020-02-02 03:27:42,501 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-06 17:47:16,408 INFO stopped: httpd (exit status 0)
+2020-02-06 17:47:16,412 INFO spawned: 'httpd' with pid 4180
+2020-02-06 17:47:17,453 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-06 18:18:49,424 INFO stopped: httpd (exit status 0)
+2020-02-06 18:18:49,428 INFO spawned: 'httpd' with pid 5742
+2020-02-06 18:18:50,478 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-06 18:24:22,042 INFO stopped: httpd (exit status 0)
+2020-02-06 18:24:22,046 INFO spawned: 'httpd' with pid 6225
+2020-02-06 18:24:23,094 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-06 18:38:07,531 INFO stopped: httpd (exit status 0)
+2020-02-06 18:38:07,535 INFO spawned: 'httpd' with pid 7128
+2020-02-06 18:38:08,588 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-06 18:41:22,981 INFO stopped: httpd (exit status 0)
+2020-02-06 18:41:22,985 INFO spawned: 'httpd' with pid 7531
+2020-02-06 18:41:24,043 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-10 03:04:30,504 INFO stopped: httpd (exit status 0)
+2020-02-10 03:04:30,512 INFO spawned: 'httpd' with pid 8174
+2020-02-10 03:04:31,564 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-10 03:32:08,362 INFO stopped: httpd (exit status 0)
+2020-02-10 03:32:08,366 INFO spawned: 'httpd' with pid 9484
+2020-02-10 03:32:09,409 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-10 03:53:27,566 INFO stopped: httpd (exit status 0)
+2020-02-10 03:53:27,570 INFO spawned: 'httpd' with pid 10478
+2020-02-10 03:53:28,629 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-20 05:23:29,402 INFO stopped: httpd (exit status 0)
+2020-02-20 05:23:29,406 INFO spawned: 'httpd' with pid 30675
+2020-02-20 05:23:30,450 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2020-02-20 06:01:09,085 INFO stopped: httpd (exit status 0)
+2020-02-20 06:01:09,089 INFO spawned: 'httpd' with pid 32447
+2020-02-20 06:01:10,145 INFO success: httpd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+
+
+
+-------------------------------------
+/var/log/httpd/access_log
+-------------------------------------
+54.159.57.133 (-) - - [20/Feb/2020:01:41:48 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.86.53.48 (-) - - [20/Feb/2020:01:45:03 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.209.247.251 (-) - - [20/Feb/2020:01:45:54 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.133.155 (-) - - [20/Feb/2020:01:47:07 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.86.53.48 (-) - - [20/Feb/2020:01:47:58 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.85.44.145 (-) - - [20/Feb/2020:01:48:36 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.188.60 (-) - - [20/Feb/2020:01:56:53 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+107.21.80.67 (-) - - [20/Feb/2020:02:21:00 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.188.60 (-) - - [20/Feb/2020:02:41:33 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.91.88.67 (-) - - [20/Feb/2020:02:41:43 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.210.125.134 (-) - - [20/Feb/2020:02:43:04 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+107.21.80.67 (-) - - [20/Feb/2020:02:43:37 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.84.116.19 (-) - - [20/Feb/2020:02:44:39 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.161.73.12 (-) - - [20/Feb/2020:02:48:40 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+34.224.70.177 (-) - - [20/Feb/2020:02:48:55 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+111.7.100.27 (-) - - [20/Feb/2020:03:06:39 +0000] "GET /register HTTP/1.1" 200 4178 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36"
+111.7.100.24 (-) - - [20/Feb/2020:03:07:15 +0000] "GET /register HTTP/1.1" 200 4178 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36"
+111.7.100.24 (-) - - [20/Feb/2020:03:07:20 +0000] "GET /register HTTP/1.1" 200 4178 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36"
+18.234.87.136 (-) - - [20/Feb/2020:03:14:05 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.232.131.174 (-) - - [20/Feb/2020:03:14:11 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.234.87.136 (-) - - [20/Feb/2020:03:14:12 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.108.50 (-) - - [20/Feb/2020:03:16:16 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.209.247.251 (-) - - [20/Feb/2020:03:16:21 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.82.104.34 (-) - - [20/Feb/2020:03:16:27 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.82.216.153 (-) - - [20/Feb/2020:03:16:48 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.81.220.37 (-) - - [20/Feb/2020:03:17:08 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.232.131.174 (-) - - [20/Feb/2020:03:17:13 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.232.131.174 (-) - - [20/Feb/2020:03:17:34 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.210.125.134 (-) - - [20/Feb/2020:03:18:07 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.232.131.174 (-) - - [20/Feb/2020:03:18:22 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.81.220.37 (-) - - [20/Feb/2020:03:18:52 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.93.17.194 (-) - - [20/Feb/2020:03:22:18 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.196.3.246 (-) - - [20/Feb/2020:03:26:48 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.133.155 (-) - - [20/Feb/2020:03:27:29 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.81.220.37 (-) - - [20/Feb/2020:03:27:31 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.82.216.153 (-) - - [20/Feb/2020:03:28:13 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.133.155 (-) - - [20/Feb/2020:03:28:25 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.159.57.133 (-) - - [20/Feb/2020:03:28:45 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.86.53.48 (-) - - [20/Feb/2020:03:29:06 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.82.211.224 (-) - - [20/Feb/2020:03:30:46 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.82.211.224 (-) - - [20/Feb/2020:03:30:46 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+34.233.119.208 (-) - - [20/Feb/2020:03:44:54 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.232.131.174 (-) - - [20/Feb/2020:03:56:45 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.209.247.251 (-) - - [20/Feb/2020:04:28:16 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.212.133.155 (-) - - [20/Feb/2020:04:28:56 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+18.233.150.232 (-) - - [20/Feb/2020:04:29:23 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.93.14.114 (-) - - [20/Feb/2020:04:36:39 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.210.125.134 (-) - - [20/Feb/2020:04:38:57 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+168.194.82.255 (-) - - [20/Feb/2020:04:49:28 +0000] "GET / HTTP/1.1" 200 2655 "-" "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36"
+3.86.53.48 (-) - - [20/Feb/2020:04:57:35 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.159.57.133 (-) - - [20/Feb/2020:04:59:13 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /app HTTP/1.1" 200 609 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /static_files/js/manifest.8f2cf3f7e1447422818e.js HTTP/1.1" 200 857 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /static_files/js/app.b95e6c3979aa8297a815.js HTTP/1.1" 200 20438 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /static_files/css/app.40ffeb71c74e3d3e0a9edb8205577e12.css HTTP/1.1" 200 233763 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /static_files/js/vendor.e993cb8cc579453228ae.js HTTP/1.1" 200 497221 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /static_files/img/logo_transparent.072b69b.png HTTP/1.1" 200 10443 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:32 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:02:33 +0000] "GET /static_files/favicon.png HTTP/1.1" 200 1332 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+18.212.133.155 (-) - - [20/Feb/2020:05:07:09 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.161.73.12 (-) - - [20/Feb/2020:05:07:41 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.161.73.12 (-) - - [20/Feb/2020:05:08:30 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.196.3.246 (-) - - [20/Feb/2020:05:20:55 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.93.14.114 (-) - - [20/Feb/2020:05:21:49 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+127.0.0.1 (-) - - [20/Feb/2020:05:23:32 +0000] "GET / HTTP/1.1" 200 2655 "-" "Python-urllib/2.7"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:13 +0000] "GET / HTTP/1.1" 200 2720 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:13 +0000] "GET / HTTP/1.1" 200 2720 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:13 +0000] "GET /favicon.ico HTTP/1.1" 200 1332 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:19 +0000] "GET /app@ HTTP/1.1" 404 232 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:22 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:22 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:23 +0000] "GET /api/users HTTP/1.1" 200 607 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:26 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:26 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:26 +0000] "GET /api/user_details HTTP/1.1" 200 133 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:28 +0000] "GET /github-auth HTTP/1.1" 302 661 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:28 +0000] "GET /github-callback?code=f3fc0de592b2c07d7a3c HTTP/1.1" 302 257 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:28 +0000] "GET /api/finalize-github-auth HTTP/1.1" 500 290 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:40 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:40 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:40 +0000] "GET /api/user_details HTTP/1.1" 200 133 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:44 +0000] "GET /slack-install HTTP/1.1" 302 935 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:48 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:48 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:48 +0000] "GET /api/user_details HTTP/1.1" 200 133 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:50 +0000] "GET /github-auth HTTP/1.1" 302 661 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:50 +0000] "GET /github-callback?code=ac74ec09833085e90d92 HTTP/1.1" 302 257 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:50 +0000] "GET /api/finalize-github-auth HTTP/1.1" 500 290 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:55 +0000] "GET /api/check-login HTTP/1.1" 200 67 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:55 +0000] "GET /api/get_csrf HTTP/1.1" 200 109 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+129.97.125.3 (-) - - [20/Feb/2020:05:24:55 +0000] "GET /api/user_details HTTP/1.1" 200 133 "http://doxa-staging-new.us-east-1.elasticbeanstalk.com/app" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"
+149.140.156.114 (-) - - [20/Feb/2020:05:37:23 +0000] "GET / HTTP/1.1" 200 2655 "-" "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"
+34.233.119.208 (-) - - [20/Feb/2020:05:43:35 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+54.210.125.134 (-) - - [20/Feb/2020:05:43:39 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+3.93.17.194 (-) - - [20/Feb/2020:05:43:50 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+111.7.100.23 (-) - - [20/Feb/2020:05:50:45 +0000] "GET /about HTTP/1.1" 200 2663 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36"
+18.233.150.232 (-) - - [20/Feb/2020:05:55:29 +0000] "POST /slack-event HTTP/1.1" 200 3 "-" "Slackbot 1.0 (+https://api.slack.com/robots)"
+127.0.0.1 (-) - - [20/Feb/2020:06:01:11 +0000] "GET / HTTP/1.1" 200 2655 "-" "Python-urllib/2.7"
+45.136.108.64 (-) - - [20/Feb/2020:06:01:14 +0000] "\x03" 400 226 "-" "-"
+
+
+
+-------------------------------------
+/var/log/eb-activity.log
+-------------------------------------
+  INFO  [alembic.runtime.migration] Will assume transactional DDL.
+  INFO  [alembic.runtime.migration] Running upgrade bd00f5700734 -> 80aeb500b4fa, empty message
+  USING VARIABLE postgresql://pgmaster:postgres@doxa-database-staging.c8pjbrdeia2z.us-east-1.rds.amazonaws.com:5432/doxa_db_staging
+  
+[2020-02-20T06:01:08.152Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0/EbExtensionPostBuild/Infra-EmbeddedPostBuild/postbuild_0_doxa_shared] : Completed activity.
+[2020-02-20T06:01:08.152Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0/EbExtensionPostBuild/Infra-EmbeddedPostBuild] : Completed activity.
+[2020-02-20T06:01:08.173Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0/EbExtensionPostBuild] : Completed activity.
+[2020-02-20T06:01:08.173Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0/InfraCleanEbextension] : Starting activity...
+[2020-02-20T06:01:08.175Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0/InfraCleanEbextension] : Completed activity. Result:
+  Cleaned ebextensions subdirectories from /opt/python/ondeck/app.
+[2020-02-20T06:01:08.175Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage0] : Completed activity. Result:
+  Application update - Command CMD-AppDeploy stage 0 completed
+[2020-02-20T06:01:08.175Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1] : Starting activity...
+[2020-02-20T06:01:08.175Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook] : Starting activity...
+[2020-02-20T06:01:08.175Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/01flip.py] : Starting activity...
+[2020-02-20T06:01:13.419Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/01flip.py] : Completed activity. Result:
+  httpd: stopped
+  httpd: started
+  httpd                            RUNNING   pid 32447, uptime 0:00:02
+[2020-02-20T06:01:13.419Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/01stop_xray.sh] : Starting activity...
+[2020-02-20T06:01:13.534Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/01stop_xray.sh] : Completed activity. Result:
+  Executing: if ( initctl status xray | grep start ); then initctl stop xray; fi
+  
+[2020-02-20T06:01:13.534Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/02create_pids_for_monitoring.sh] : Starting activity...
+[2020-02-20T06:01:13.638Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/02create_pids_for_monitoring.sh] : Completed activity. Result:
+  + chmod 0755 /var/run/httpd
+  + /opt/elasticbeanstalk/bin/healthd-track-pidfile --proxy httpd
+  + /opt/elasticbeanstalk/bin/healthd-track-pidfile --name application --location /opt/python/run/supervisord.pid
+[2020-02-20T06:01:13.638Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/02start_xray.sh] : Starting activity...
+[2020-02-20T06:01:13.746Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook/02start_xray.sh] : Completed activity.
+[2020-02-20T06:01:13.746Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployEnactHook] : Completed activity. Result:
+  Successfully execute hooks in directory /opt/elasticbeanstalk/hooks/appdeploy/enact.
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployPostHook] : Starting activity...
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1/AppDeployPostHook] : Completed activity. Result:
+  Successfully execute hooks in directory /opt/elasticbeanstalk/hooks/appdeploy/post.
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AppDeployStage1] : Completed activity. Result:
+  Application version switch - Command CMD-AppDeploy stage 1 completed
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter] : Starting activity...
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter/ConfigLogRotation] : Starting activity...
+[2020-02-20T06:01:13.747Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter/ConfigLogRotation/10-config.sh] : Starting activity...
+[2020-02-20T06:01:13.829Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter/ConfigLogRotation/10-config.sh] : Completed activity. Result:
+  Disabled forced hourly log rotation.
+[2020-02-20T06:01:13.829Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter/ConfigLogRotation] : Completed activity. Result:
+  Successfully execute hooks in directory /opt/elasticbeanstalk/addons/logpublish/hooks/config.
+[2020-02-20T06:01:13.829Z] INFO  [32177] - [Application update app-a406-200220_005948@127/AddonsAfter] : Completed activity.
+[2020-02-20T06:01:13.829Z] INFO  [32177] - [Application update app-a406-200220_005948@127] : Completed activity. Result:
+  Application update - Command CMD-AppDeploy succeeded
+[2020-02-20T06:03:04.490Z] INFO  [32629] - [CMD-TailLogs] : Starting activity...
+[2020-02-20T06:03:04.490Z] INFO  [32629] - [CMD-TailLogs/AddonsBefore] : Starting activity...
+[2020-02-20T06:03:04.490Z] INFO  [32629] - [CMD-TailLogs/AddonsBefore] : Completed activity.
+[2020-02-20T06:03:04.492Z] INFO  [32629] - [CMD-TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:03:04.492Z] INFO  [32629] - [CMD-TailLogs/TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:03:04.822Z] INFO  [32629] - [CMD-TailLogs/TailLogs/TailLogs] : Completed activity.
+[2020-02-20T06:03:04.823Z] INFO  [32629] - [CMD-TailLogs/TailLogs] : Completed activity. Result:
+  CMD-TailLogs - stage 0 - Command CMD-TailLogs stage 0 completed
+[2020-02-20T06:03:04.823Z] INFO  [32629] - [CMD-TailLogs/AddonsAfter] : Starting activity...
+[2020-02-20T06:03:04.823Z] INFO  [32629] - [CMD-TailLogs/AddonsAfter] : Completed activity.
+[2020-02-20T06:03:04.823Z] INFO  [32629] - [CMD-TailLogs] : Completed activity. Result:
+  CMD-TailLogs - Command CMD-TailLogs succeeded
+[2020-02-20T06:03:47.022Z] INFO  [32652] - [CMD-TailLogs] : Starting activity...
+[2020-02-20T06:03:47.022Z] INFO  [32652] - [CMD-TailLogs/AddonsBefore] : Starting activity...
+[2020-02-20T06:03:47.022Z] INFO  [32652] - [CMD-TailLogs/AddonsBefore] : Completed activity.
+[2020-02-20T06:03:47.022Z] INFO  [32652] - [CMD-TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:03:47.022Z] INFO  [32652] - [CMD-TailLogs/TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:03:47.271Z] INFO  [32652] - [CMD-TailLogs/TailLogs/TailLogs] : Completed activity.
+[2020-02-20T06:03:47.272Z] INFO  [32652] - [CMD-TailLogs/TailLogs] : Completed activity. Result:
+  CMD-TailLogs - stage 0 - Command CMD-TailLogs stage 0 completed
+[2020-02-20T06:03:47.272Z] INFO  [32652] - [CMD-TailLogs/AddonsAfter] : Starting activity...
+[2020-02-20T06:03:47.272Z] INFO  [32652] - [CMD-TailLogs/AddonsAfter] : Completed activity.
+[2020-02-20T06:03:47.272Z] INFO  [32652] - [CMD-TailLogs] : Completed activity. Result:
+  CMD-TailLogs - Command CMD-TailLogs succeeded
+[2020-02-20T06:05:16.400Z] INFO  [32731] - [CMD-TailLogs] : Starting activity...
+[2020-02-20T06:05:16.400Z] INFO  [32731] - [CMD-TailLogs/AddonsBefore] : Starting activity...
+[2020-02-20T06:05:16.400Z] INFO  [32731] - [CMD-TailLogs/AddonsBefore] : Completed activity.
+[2020-02-20T06:05:16.400Z] INFO  [32731] - [CMD-TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:05:16.400Z] INFO  [32731] - [CMD-TailLogs/TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:05:16.653Z] INFO  [32731] - [CMD-TailLogs/TailLogs/TailLogs] : Completed activity.
+[2020-02-20T06:05:16.653Z] INFO  [32731] - [CMD-TailLogs/TailLogs] : Completed activity. Result:
+  CMD-TailLogs - stage 0 - Command CMD-TailLogs stage 0 completed
+[2020-02-20T06:05:16.653Z] INFO  [32731] - [CMD-TailLogs/AddonsAfter] : Starting activity...
+[2020-02-20T06:05:16.653Z] INFO  [32731] - [CMD-TailLogs/AddonsAfter] : Completed activity.
+[2020-02-20T06:05:16.653Z] INFO  [32731] - [CMD-TailLogs] : Completed activity. Result:
+  CMD-TailLogs - Command CMD-TailLogs succeeded
+[2020-02-20T06:06:35.132Z] INFO  [310]   - [CMD-TailLogs] : Starting activity...
+[2020-02-20T06:06:35.132Z] INFO  [310]   - [CMD-TailLogs/AddonsBefore] : Starting activity...
+[2020-02-20T06:06:35.132Z] INFO  [310]   - [CMD-TailLogs/AddonsBefore] : Completed activity.
+[2020-02-20T06:06:35.132Z] INFO  [310]   - [CMD-TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:06:35.132Z] INFO  [310]   - [CMD-TailLogs/TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:06:35.391Z] INFO  [310]   - [CMD-TailLogs/TailLogs/TailLogs] : Completed activity.
+[2020-02-20T06:06:35.391Z] INFO  [310]   - [CMD-TailLogs/TailLogs] : Completed activity. Result:
+  CMD-TailLogs - stage 0 - Command CMD-TailLogs stage 0 completed
+[2020-02-20T06:06:35.391Z] INFO  [310]   - [CMD-TailLogs/AddonsAfter] : Starting activity...
+[2020-02-20T06:06:35.391Z] INFO  [310]   - [CMD-TailLogs/AddonsAfter] : Completed activity.
+[2020-02-20T06:06:35.392Z] INFO  [310]   - [CMD-TailLogs] : Completed activity. Result:
+  CMD-TailLogs - Command CMD-TailLogs succeeded
+[2020-02-20T06:11:08.049Z] INFO  [474]   - [CMD-TailLogs] : Starting activity...
+[2020-02-20T06:11:08.049Z] INFO  [474]   - [CMD-TailLogs/AddonsBefore] : Starting activity...
+[2020-02-20T06:11:08.049Z] INFO  [474]   - [CMD-TailLogs/AddonsBefore] : Completed activity.
+[2020-02-20T06:11:08.049Z] INFO  [474]   - [CMD-TailLogs/TailLogs] : Starting activity...
+[2020-02-20T06:11:08.049Z] INFO  [474]   - [CMD-TailLogs/TailLogs/TailLogs] : Starting activity...
+
+
+
+-------------------------------------
+/var/log/eb-commandprocessor.log
+-------------------------------------
+[2020-02-20T06:03:47.022Z] DEBUG [32652] : Loaded definition of Command CMD-TailLogs.
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Executing CMD-TailLogs
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Executing command: CMD-TailLogs...
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Executing command CMD-TailLogs activities...
+[2020-02-20T06:03:47.022Z] DEBUG [32652] : Setting environment variables..
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Running AddonsBefore for command CMD-TailLogs...
+[2020-02-20T06:03:47.022Z] DEBUG [32652] : Running stages of Command CMD-TailLogs from stage 0 to stage 0...
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Running stage 0 of command CMD-TailLogs...
+[2020-02-20T06:03:47.022Z] DEBUG [32652] : Loaded 1 actions for stage 0.
+[2020-02-20T06:03:47.022Z] INFO  [32652] : Running 1 of 1 actions: TailLogs...
+[2020-02-20T06:03:47.272Z] INFO  [32652] : Running AddonsAfter for command CMD-TailLogs...
+[2020-02-20T06:03:47.272Z] INFO  [32652] : Command CMD-TailLogs succeeded!
+[2020-02-20T06:03:47.272Z] INFO  [32652] : Command processor returning results: 
+{"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"","returncode":0,"events":[{"msg":"[Instance: i-0bf35b3e4b1602271] Successfully finished tailing 5 log(s)","severity":"INFO","timestamp":1582178627272}]}]}
+[2020-02-20T06:05:16.392Z] DEBUG [32731] : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:05:16.393Z] DEBUG [32731] : Checking if the command processor should execute...
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Checking whether the command is applicable to instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:05:16.396Z] INFO  [32731] : Command is applicable to this instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Checking if the received command stage is valid..
+[2020-02-20T06:05:16.396Z] INFO  [32731] : No stage_num in command. Valid stage..
+[2020-02-20T06:05:16.396Z] INFO  [32731] : Received command CMD-TailLogs: {"execution_data"=>"*", "instance_ids"=>["i-0bf35b3e4b1602271"], "data"=>"cb1cab17-cb77-43b2-8ee0-01b47e85dad8", "command_name"=>"CMD-TailLogs", "api_version"=>"1.0", "resource_name"=>"AWSEBAutoScalingGroup", "request_id"=>"cb1cab17-cb77-43b2-8ee0-01b47e85dad8"}
+[2020-02-20T06:05:16.396Z] INFO  [32731] : Command processor should execute command.
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Storing current stage..
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Stage_num does not exist. Not saving null stage. Returning..
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:05:16.396Z] DEBUG [32731] : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_ContainerConfigFileContent||commands..
+[2020-02-20T06:05:16.397Z] DEBUG [32731] : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_API||_Commands..
+[2020-02-20T06:05:16.397Z] INFO  [32731] : Found enabled addons: ["logpublish", "logstreaming"].
+[2020-02-20T06:05:16.398Z] INFO  [32731] : Updating Command definition of addon logpublish.
+[2020-02-20T06:05:16.398Z] INFO  [32731] : Updating Command definition of addon logstreaming.
+[2020-02-20T06:05:16.398Z] DEBUG [32731] : Loaded definition of Command CMD-TailLogs.
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Executing CMD-TailLogs
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Executing command: CMD-TailLogs...
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Executing command CMD-TailLogs activities...
+[2020-02-20T06:05:16.400Z] DEBUG [32731] : Setting environment variables..
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Running AddonsBefore for command CMD-TailLogs...
+[2020-02-20T06:05:16.400Z] DEBUG [32731] : Running stages of Command CMD-TailLogs from stage 0 to stage 0...
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Running stage 0 of command CMD-TailLogs...
+[2020-02-20T06:05:16.400Z] DEBUG [32731] : Loaded 1 actions for stage 0.
+[2020-02-20T06:05:16.400Z] INFO  [32731] : Running 1 of 1 actions: TailLogs...
+[2020-02-20T06:05:16.653Z] INFO  [32731] : Running AddonsAfter for command CMD-TailLogs...
+[2020-02-20T06:05:16.653Z] INFO  [32731] : Command CMD-TailLogs succeeded!
+[2020-02-20T06:05:16.654Z] INFO  [32731] : Command processor returning results: 
+{"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"","returncode":0,"events":[{"msg":"[Instance: i-0bf35b3e4b1602271] Successfully finished tailing 5 log(s)","severity":"INFO","timestamp":1582178716654}]}]}
+[2020-02-20T06:06:35.124Z] DEBUG [310]   : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:06:35.125Z] DEBUG [310]   : Checking if the command processor should execute...
+[2020-02-20T06:06:35.128Z] DEBUG [310]   : Checking whether the command is applicable to instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:06:35.129Z] INFO  [310]   : Command is applicable to this instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Checking if the received command stage is valid..
+[2020-02-20T06:06:35.129Z] INFO  [310]   : No stage_num in command. Valid stage..
+[2020-02-20T06:06:35.129Z] INFO  [310]   : Received command CMD-TailLogs: {"execution_data"=>"*", "instance_ids"=>["i-0bf35b3e4b1602271"], "data"=>"e653e517-c040-4786-ace7-aee15ad89770", "command_name"=>"CMD-TailLogs", "api_version"=>"1.0", "resource_name"=>"AWSEBAutoScalingGroup", "request_id"=>"e653e517-c040-4786-ace7-aee15ad89770"}
+[2020-02-20T06:06:35.129Z] INFO  [310]   : Command processor should execute command.
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Storing current stage..
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Stage_num does not exist. Not saving null stage. Returning..
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_ContainerConfigFileContent||commands..
+[2020-02-20T06:06:35.129Z] DEBUG [310]   : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_API||_Commands..
+[2020-02-20T06:06:35.130Z] INFO  [310]   : Found enabled addons: ["logpublish", "logstreaming"].
+[2020-02-20T06:06:35.131Z] INFO  [310]   : Updating Command definition of addon logpublish.
+[2020-02-20T06:06:35.131Z] INFO  [310]   : Updating Command definition of addon logstreaming.
+[2020-02-20T06:06:35.131Z] DEBUG [310]   : Loaded definition of Command CMD-TailLogs.
+[2020-02-20T06:06:35.131Z] INFO  [310]   : Executing CMD-TailLogs
+[2020-02-20T06:06:35.132Z] INFO  [310]   : Executing command: CMD-TailLogs...
+[2020-02-20T06:06:35.132Z] INFO  [310]   : Executing command CMD-TailLogs activities...
+[2020-02-20T06:06:35.132Z] DEBUG [310]   : Setting environment variables..
+[2020-02-20T06:06:35.132Z] INFO  [310]   : Running AddonsBefore for command CMD-TailLogs...
+[2020-02-20T06:06:35.132Z] DEBUG [310]   : Running stages of Command CMD-TailLogs from stage 0 to stage 0...
+[2020-02-20T06:06:35.132Z] INFO  [310]   : Running stage 0 of command CMD-TailLogs...
+[2020-02-20T06:06:35.132Z] DEBUG [310]   : Loaded 1 actions for stage 0.
+[2020-02-20T06:06:35.132Z] INFO  [310]   : Running 1 of 1 actions: TailLogs...
+[2020-02-20T06:06:35.391Z] INFO  [310]   : Running AddonsAfter for command CMD-TailLogs...
+[2020-02-20T06:06:35.391Z] INFO  [310]   : Command CMD-TailLogs succeeded!
+[2020-02-20T06:06:35.392Z] INFO  [310]   : Command processor returning results: 
+{"status":"SUCCESS","api_version":"1.0","results":[{"status":"SUCCESS","msg":"","returncode":0,"events":[{"msg":"[Instance: i-0bf35b3e4b1602271] Successfully finished tailing 5 log(s)","severity":"INFO","timestamp":1582178795392}]}]}
+[2020-02-20T06:11:08.043Z] DEBUG [474]   : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:11:08.043Z] DEBUG [474]   : Checking if the command processor should execute...
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Checking whether the command is applicable to instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:11:08.046Z] INFO  [474]   : Command is applicable to this instance (i-0bf35b3e4b1602271)..
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Checking if the received command stage is valid..
+[2020-02-20T06:11:08.046Z] INFO  [474]   : No stage_num in command. Valid stage..
+[2020-02-20T06:11:08.046Z] INFO  [474]   : Received command CMD-TailLogs: {"execution_data"=>"*", "instance_ids"=>["i-0bf35b3e4b1602271"], "data"=>"8fa6e87f-28a0-412f-8ba5-52ac576608fe", "command_name"=>"CMD-TailLogs", "api_version"=>"1.0", "resource_name"=>"AWSEBAutoScalingGroup", "request_id"=>"8fa6e87f-28a0-412f-8ba5-52ac576608fe"}
+[2020-02-20T06:11:08.046Z] INFO  [474]   : Command processor should execute command.
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Storing current stage..
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Stage_num does not exist. Not saving null stage. Returning..
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Reading config file: /etc/elasticbeanstalk/.aws-eb-stack.properties
+[2020-02-20T06:11:08.046Z] DEBUG [474]   : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_ContainerConfigFileContent||commands..
+[2020-02-20T06:11:08.047Z] DEBUG [474]   : Retrieving metadata for key: AWS::ElasticBeanstalk::Ext||_API||_Commands..
+[2020-02-20T06:11:08.047Z] INFO  [474]   : Found enabled addons: ["logpublish", "logstreaming"].
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Updating Command definition of addon logpublish.
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Updating Command definition of addon logstreaming.
+[2020-02-20T06:11:08.049Z] DEBUG [474]   : Loaded definition of Command CMD-TailLogs.
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Executing CMD-TailLogs
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Executing command: CMD-TailLogs...
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Executing command CMD-TailLogs activities...
+[2020-02-20T06:11:08.049Z] DEBUG [474]   : Setting environment variables..
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Running AddonsBefore for command CMD-TailLogs...
+[2020-02-20T06:11:08.049Z] DEBUG [474]   : Running stages of Command CMD-TailLogs from stage 0 to stage 0...
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Running stage 0 of command CMD-TailLogs...
+[2020-02-20T06:11:08.049Z] DEBUG [474]   : Loaded 1 actions for stage 0.
+[2020-02-20T06:11:08.049Z] INFO  [474]   : Running 1 of 1 actions: TailLogs...
+
+
+
