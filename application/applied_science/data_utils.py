@@ -198,8 +198,8 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
       activity_df.loc[(activity_df.index >= calendar_event.start_time) \
                       & (activity_df.index < calendar_event.end_time), \
                       ['google_calendar_event_count']] += 1
-  activity_df['in_meeting'] = activity_df['google_calendar_event_id'].notna().astype(int)
   activity_df.name = f'Collaboration data for User {user.id} from f{start_datetime_utc} to f{end_datetime_utc}'
+  activity_df['user_id'] = user.id
   return activity_df
 
 def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2):
@@ -244,7 +244,6 @@ def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interrupt
         streak[final_period] = streak_start
     
   roll(df, REQ_STREAK_LENGTH_PERIODS).apply(get_streak)
-
   return streak
 
 # can likely change these arguments to kwargs later to make this stuff more generalizable

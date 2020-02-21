@@ -4,6 +4,8 @@ from application.initialize.db_init import db
 from flask_login import UserMixin
 from datetime import datetime
 import slack
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import Index
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -37,6 +39,9 @@ class User(db.Model, UserMixin):
 		            google_calendar_user_id=self.google_calendar_user.id if self.google_calendar_user else None, \
 		            slack_user_id=self.slack_user.id if self.slack_user else None)
 		# GCal user may be null, so we need to account for this. username, email, id are req'd fields
+	@hybrid_property
+	def fully_authenticated(self):
+		return (self.google_calendar_user != None) & (self.slack_user != None)
 
 class Post(db.Model):
 	__tablename__ = 'posts' # follows general table name paradigm in database (plural)
@@ -358,3 +363,19 @@ class GitHubComment(db.Model, EnhancedDBModel):
 
 	def __repr__(self):
 		return 'GitHubComment(%s, %s, %s, %s, %s, %s)' % (self.id, self.github_api_comment_id, self.github_api_author_id, self.comment_type, self.github_api_parent_id, self.impact_score)
+
+class ActivityReportRow(db.Model):
+	__tablename__ = 'activity_report_rows'
+	id = db.Column(db.Integer, primary_key=True)
+	datetime_utc = db.Column(db.DateTime, nullable=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+	slack_conversation_read_count = db.Column(db.Integer, nullable=True)
+	slack_user_event_count = db.Column(db.Integer, nullable=True)
+	google_calendar_event_id = db.Column(db.Integer, db.ForeignKey('google_calendar_events.id'), nullable=True)
+	google_calendar_event_count = db.Column(db.Integer, nullable=True)
+	__table_args__ = ( \
+	                  Index('activity_report_unique_user_datetime', 'user_id', \
+	                        'datetime_utc', unique=True),)
+	def __repr__(self):
+		return f'ActivityReportRow({self.id}, {self.datetime_utc}, {self.user_id})'
+
