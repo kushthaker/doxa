@@ -4,6 +4,7 @@ import datetime as dt
 from application.initialize.db_init import db
 
 def update_user_activity_data_rows():
+  print('IN update_user_activity_data_rows')
   start_time_utc = du.rounddown_next_5min(dt.datetime.now() - dt.timedelta(days=5))
   end_time_utc = du.rounddown_next_5min(dt.datetime.now() + dt.timedelta(days=5))
   users = User.query.filter(User.fully_authenticated == True).all()
@@ -17,7 +18,5 @@ def update_user_activity_data_rows():
     # I don't know if a bulk update would be better given the form of the data ¯\_(ツ)_/¯ 
     print(f'activity DF info for {user.email}:')
     user_activity_df.info()
-    
-    
     user_activity_df.to_sql('activity_report_rows', db.engine, index=False, if_exists='append', method='multi')
-    print('updated activity')
+    print(f'updated activity for user {user.email}')
