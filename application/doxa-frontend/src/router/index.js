@@ -6,6 +6,7 @@ import Register from '@/components/Register'
 import Login from '@/components/Login'
 import Settings from '@/components/Settings'
 import ChangePassword from '@/components/ChangePassword'
+import Dashboard from '@/components/Dashboard'
 import store from '@/store'
 
 Vue.use(Router)
@@ -64,7 +65,6 @@ const router = new Router({
       name: 'Login',
       component: Login,
       beforeEnter: (to, from, next) => {
-        debugger
         store.dispatch('clearFormErrors')
         const isAuthed = store.getters.isLoggedIn;
         if(isAuthed) {
@@ -111,6 +111,21 @@ const router = new Router({
         store.dispatch('clearFormErrors')
         loginRequired(next, store)
       }
+    },
+    {
+      path: '/fulfilled-dashboard',
+      name: 'Fulfilled.ai - Focused Time',
+      component: Dashboard,
+      beforeEnter: (to, from, next) => {
+        const startTime = to.params.start_time
+        const endTime = to.params.end_time
+
+        store.dispatch('clearFormErrors')
+        store.dispatch('loadActivity', startTime, endTime)
+        loginRequired(next, store)
+
+      }
+
     }
   ]
 })

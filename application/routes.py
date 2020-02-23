@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_from_directory
+from flask import render_template, url_for, flash, redirect, request, abort, jsonify, send_from_directory, Response
 from application.initialize.bcrypt_init import bcrypt
 from application.initialize.db_init import db
 from application.initialize.scheduler_jobstore_init import scheduler as apscheduler
@@ -17,6 +17,7 @@ from flask_wtf import csrf
 import jwt
 from flask import session
 from datetime import datetime, timedelta
+from application.applied_science.data_annotation import labelled_focus_time_df
 
 # this should eventually be replaced by a CDN
 @application.route('/app', methods=['GET'])
@@ -137,6 +138,14 @@ def api_register():
 	response = user.to_dict()
 	response['errors'] = form.errors
 	return jsonify(response), 401
+
+@application.route('/api/activity-data', methods=['GET'])
+@login_required
+def activity_data():
+	# can build the _collaborative activity_ calculation, streaks, etc. on top of this
+	activity_df = labelled_focus_time_df(current_user)
+	return Response(activity_df.to_json(orient='records', date_format='iso'), mimetype='application/json')
+	# return jsonify([data.to_json() for data in current_user.activity_report_data][:20])
 
 @application.route("/")
 def home():
