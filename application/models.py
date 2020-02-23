@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
 	google_calendar_user = db.relationship('GoogleCalendarUser', backref='user', uselist=False)
 	slack_user = db.relationship('SlackUser', backref='user', uselist=False)
 	github_user = db.relationship('GitHubUser', backref='user', uselist=False)
+	activity_report_data = db.relationship('ActivityReportRow', backref='user', uselist=True)
 
 	def __repr__(self):
 		return "User('%s','%s','%s')" % (self.username, self.email, self.image_file)
@@ -42,6 +43,10 @@ class User(db.Model, UserMixin):
 	@hybrid_property
 	def fully_authenticated(self):
 		return (self.google_calendar_user != None) & (self.slack_user != None)
+
+	@hybrid_property
+	def timezone_offset_hours(self):
+		return self.slack_user.slack_timezone_offset / 3600
 
 class Post(db.Model):
 	__tablename__ = 'posts' # follows general table name paradigm in database (plural)
@@ -379,3 +384,8 @@ class ActivityReportRow(db.Model):
 	def __repr__(self):
 		return f'ActivityReportRow({self.id}, {self.datetime_utc}, {self.user_id})'
 
+	def to_json(self):
+		props = self.__dict__
+		props.pop('_sa_instance_state')
+		props['datetime_utc'] = props['datetime_utc'].isoformat()
+		return props

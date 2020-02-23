@@ -6,6 +6,12 @@ import numpy as np
 from sqlalchemy import any_
 import math
 
+WEEKDAY_OFFSET = 1
+SLACK_CONVERSATION_READ_COLUMN_NAME = 'slack_conversation_read_count'
+SLACK_USER_EVENT_COLUMN_NAME = 'slack_user_event_count'
+GOOGLE_CALENDAR_EVENT_ID_COLUMN_NAME = 'google_calendar_event_id'
+GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME = 'google_calendar_event_count'
+
 def roll(df, w, **kwargs):
   # returns iterable of DataFrames each having some length (for window-type functions)
   v = df.values
@@ -182,27 +188,28 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
                                                   end=rounddown_next_5min(end_datetime_utc), freq='5T'))
   activity_df = pd.DataFrame(datetime_index, index=datetime_index, columns=['datetime_utc'])
   
-  activity_df['slack_conversation_read_count'] = slack_conversation_read_series
-  activity_df['slack_conversation_read_count'] = activity_df['slack_conversation_read_count'].fillna(0)
+  activity_df[SLACK_CONVERSATION_READ_COLUMN_NAME] = slack_conversation_read_series
+  activity_df[SLACK_CONVERSATION_READ_COLUMN_NAME] = activity_df[SLACK_CONVERSATION_READ_COLUMN_NAME].fillna(0)
   
-  activity_df['slack_user_event_count'] = slack_user_event_series
-  activity_df['slack_user_event_count'] = activity_df['slack_user_event_count'].fillna(0)
+  activity_df[SLACK_USER_EVENT_COLUMN_NAME] = slack_user_event_series
+  activity_df[SLACK_USER_EVENT_COLUMN_NAME] = activity_df[SLACK_USER_EVENT_COLUMN_NAME].fillna(0)
   
-  activity_df['google_calendar_event_id'] = np.nan
-  activity_df['google_calendar_event_count'] = 0
+  activity_df[GOOGLE_CALENDAR_EVENT_ID_COLUMN_NAME] = np.nan
+  activity_df[GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME] = 0
   for calendar_event in google_calendar_events:
     if is_collaborative_meeting(calendar_event):
       activity_df.loc[(activity_df.index >= calendar_event.start_time) \
                       & (activity_df.index < calendar_event.end_time), \
-                      ['google_calendar_event_id']] = calendar_event.id
+                      [GOOGLE_CALENDAR_EVENT_ID_COLUMN_NAME]] = calendar_event.id
       activity_df.loc[(activity_df.index >= calendar_event.start_time) \
                       & (activity_df.index < calendar_event.end_time), \
-                      ['google_calendar_event_count']] += 1
+                      [GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME]] += 1
   activity_df.name = f'Collaboration data for User {user.id} from f{start_datetime_utc} to f{end_datetime_utc}'
   activity_df['user_id'] = user.id
   return activity_df
 
-def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2):
+def focused_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2,
+                               min_interrupt_read_amount=1, min_interrupt_send_amount=1):
   '''
     df: pandas Dataframe with datetime index. The index should have
       periods which have an even separation (standard is five minutes)
@@ -246,23 +253,39 @@ def deepwork_streak_calculation(df, collab_func=None, streak_length=3, interrupt
   roll(df, REQ_STREAK_LENGTH_PERIODS).apply(get_streak)
   return streak
 
-# can likely change these arguments to kwargs later to make this stuff more generalizable
-def is_collaborative_time(df, min_interrupt_len=None, \
-  min_interrupt_read_amount=1, min_interrupt_send_amount=1):
-  '''
-    df: a short period pandas Dataframe which can be looked at to determine whether
-      this period contains collaborative time.
-    min_interrupt_len: the minimum interrupt length required to determine
-      whether an interruption to focused work time
-    min_interrupt_read_amount: the minimum number of reads which must occur in a period to determine
-      whether message reads make the period "collaborative"
-    min_interrupt_send_amount: the minimum number of sends which must occur in a period to determine
-      whether message sends make the period "collaborative"
-  '''
-  if not min_interrupt_len:
-    min_interrupt_len = len(df)
-  read_interruptions = df[SLACK_CONVERSATION_READ_COLUMN_NAME] >= min_interrupt_read_amount
-  user_event_interruptions = df[SLACK_USER_EVENT_COLUMN_NAME] >= min_interrupt_send_amount
-  if len(df.loc[read_interruptions | user_event_interruptions]) >= min_interrupt_len:
-    return True
-  return False
+def current_user_week_limits(user, return_utc=True):
+  user_tz_conversion_function = convert_to_user_timezone_function(user.slack_user.slack_timezone_offset)
+  utc_tz_conversion_function = convert_to_utc_timezone_function(user.slack_user.slack_timezone_offset)
+
+  current_user_local_time = user_tz_conversion_function(dt.datetime.utcnow())
+
+  # finding Sunday before current time
+  start_week_local_time = current_user_local_time - \
+            dt.timedelta(days=current_user_local_time.weekday() + WEEKDAY_OFFSET)
+  start_week_local_time = dt.datetime(
+                            year = start_week_local_time.year,
+                            month = start_week_local_time.month,
+                            day = start_week_local_time.day,
+                            hour = 0,
+                            minute = 0,
+                            second = 0,
+                            microsecond = 0)
+
+  # finding Saturday after current time
+  end_week_local_time = current_user_local_time + \
+              dt.timedelta(days=(7 - current_user_local_time.weekday() - WEEKDAY_OFFSET))
+  end_week_local_time = dt.datetime(
+                          year = end_week_local_time.year,
+                          month = end_week_local_time.month,
+                          day = end_week_local_time.day,
+                          hour = 23,
+                          minute = 59,
+                          second = 59,
+                          microsecond = 999999)
+
+  if not return_utc:
+    return (start_week_local_time, end_week_local_time)
+
+  start_week_utc_time = utc_tz_conversion_function(start_week_local_time)
+  end_week_utc_time = utc_tz_conversion_function(end_week_local_time)
+  return (start_week_utc_time, end_week_utc_time)
