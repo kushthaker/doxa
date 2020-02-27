@@ -94,7 +94,7 @@ def finalize_slack_auth():
                               )
     new_slack_user.save() # will want to then send them an email to get them onboarded or something
 
-  return redirect('/app#/settings')
+  return redirect('/#/settings')
 
 @application.route(SLACK_INSTALL_ROUTE)
 def slack_install_route():
