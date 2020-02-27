@@ -20,11 +20,11 @@ JOB_SCHEDULE = [
   },
   {
     'func': google_calendar_activities.update_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(5)
+    'trigger': apscheduler_util.build_hour_trigger(1)
   },  
   {
     'func': book_time.book_upcoming_week_focus_time,
-    'trigger': apscheduler_util.build_hour_trigger(5)
+    'trigger': apscheduler_util.fridays_at_9AM_EST()
   },
   {
     'func': google_calendar_activities.refresh_google_credentials,
