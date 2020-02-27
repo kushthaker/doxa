@@ -20,6 +20,7 @@ def update_google_calendar_events():
 
 	updated_events = 0
 	added_events = 0
+	deleted_events = 0
 
 	for g_user in g_users:
 		credentials = Credentials(**get_credentials_dict(g_user))
@@ -83,52 +84,42 @@ def update_google_calendar_events():
 				"""
 				Delete events recently stored in DB no longer in API response.
 				"""
-				deleted_events = 0
 
-				db_event_ids = get_recently_updated_events()
+				db_event_ids = get_recently_updated_events(g_user)
 				res_event_ids = [e.get('id') for e in get_upcoming_events(service)]
 				to_delete = list(set(db_event_ids).difference(set(res_event_ids)))
 
 				for e_id in to_delete:
-					e = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == e_id)
+					e = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_id == e_id).first()
 					db.session.delete(e)
 					db.session.commit()
 					deleted_events += 1
 
-				print("Inserted ", added_events, \
-				" and updated ", updated_events, \
-				" GoogleCalendarEvents for ", len(g_users), \
-				" users.")	
-
-				print("Deleted ", deleted_events, \
-				" GoogleCalendarEvents for ", len(g_users), \
-				" users.")
-
 			except RefreshError as e:
 				print("Error with google_calendar_activities.update_google_calendar_events.")
 				print(e)
+				db.session.rollback()
 				continue
 			except Exception as e:
 				print("Error with google_calendar_activities.update_google_calendar_events.")
 				print(e)
+				db.session.rollback()
 				continue
+
+	print("Inserted ", added_events, \
+	" and updated ", updated_events, \
+	" GoogleCalendarEvents for ", len(g_users), \
+	" users.")	
+
+	print("Deleted ", deleted_events, \
+	" GoogleCalendarEvents for ", len(g_users), \
+	" users.")
 	return
 
-def get_recently_updated_events():
+def get_recently_updated_events(g_user):
 	last_updated_event_ids = []
-	events = GoogleCalendarEvent.query.all()
-
-	# Get list of GoogleCalendarEvent.google_id for events updated in the last 12 hours (previous job) 
+	events = GoogleCalendarEvent.query.filter(GoogleCalendarEvent.google_calendar_user_id == g_user.id).all()
 	for event in events:
-		dt_c = pytz.UTC.localize(event.created_at)
-		if event.updated_at:
-			dt_u = pytz.UTC.localize(event.updated_at)
-		else:
-			dt_u = pytz.UTC.localize(datetime.datetime.utcnow())
-
-		dt_now = pytz.UTC.localize(datetime.datetime.utcnow())
-		
-		if ((dt_now - dt_c).seconds/3600 < 12) or ((dt_now - dt_u).seconds/3600 < 12):
 			last_updated_event_ids.append(event.google_id)
 	return last_updated_event_ids
 

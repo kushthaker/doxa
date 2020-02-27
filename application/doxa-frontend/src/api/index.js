@@ -47,3 +47,11 @@ export function passwordChange(passwordForm, user) {
 export function logoutUser(user) {
   return axios.get('/api/logout')
 }
+
+export function fetchActivityData(user, startTime, endTime) {
+  const params = {
+    start_time: startTime,
+    end_time: endTime
+  }
+  return axios.get('/api/activity-data', { params: params })
+}

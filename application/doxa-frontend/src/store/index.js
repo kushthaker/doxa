@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
-  checkLogin, getUserDetails, passwordChange, loginUser, logoutUser } from '@/api'
+  checkLogin, getUserDetails, passwordChange, loginUser, logoutUser,
+  fetchActivityData } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -25,10 +26,17 @@ const state = {
   changePasswordSuccess: false,
   authCode: null,
   isLoggedIn: false,
+  activityData: []
 }
 
 const actions = {
   // asynchronous operations
+  loadActivity(context, data) {
+    return fetchActivityData()
+      .then((response) => {
+        return context.commit('setActivityData', { time: response.data })
+      })
+  },
   loadUsers(context) {
     return fetchUsers()
       .then((response) => context.commit('setUsers', { users: response.data }))
@@ -178,6 +186,9 @@ const mutations = {
   },
   clearCurrentUser(state, payload) {
     state.currentUser = null
+  },
+  setActivityData(state, payload) {
+    state.activityData = payload.time
   }
 }
 

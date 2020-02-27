@@ -54,3 +54,6 @@ def build_hour_trigger(hours):
 def build_second_trigger(seconds):
   trigger = CronTrigger(second='*/%s' % seconds)
   return trigger
+
+def fridays_at_9AM_EST():
+   return CronTrigger(day_of_week='fri', hour=14)
