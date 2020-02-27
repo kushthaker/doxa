@@ -59,7 +59,4 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  #collaboration-pie {
-    font-size: 14px;
-  }
 </style>
