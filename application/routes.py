@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from application.applied_science.data_annotation import labelled_focus_time_df
 
 # this should eventually be replaced by a CDN
-@application.route('/app', methods=['GET'])
+@application.route('/', methods=['GET'])
 def app():
 	return send_from_directory('doxa-frontend/dist/', 'index.html')
 

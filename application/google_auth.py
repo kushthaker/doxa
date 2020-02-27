@@ -127,7 +127,7 @@ def finalize_google_auth():
 	else:
 		return flask.jsonify({ 'errors': auth_form.errors })
 
-	return flask.redirect('/app#/settings')
+	return flask.redirect('/#/settings')
 
 def credentials_to_dict(credentials):
 	return {

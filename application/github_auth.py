@@ -72,8 +72,8 @@ def finalize_github_auth():
       github_email_address=gitUserData.email, \
       is_authenticated = True, \
       is_deleted_on_github=False, \
-      created_at=datetime.utcnow, \
-      updated_at=datetime.utcnow, \
+      created_at=datetime.datetime.utcnow(), \
+      updated_at=datetime.datetime.utcnow(), \
       user_id = current_user.id)
 
   else:
@@ -83,11 +83,11 @@ def finalize_github_auth():
     gitUser.github_email_address = gitUserData.email
     gitUser.is_authenticated = True
     gitUser.is_deleted_on_github = False
-    gitUser.updated_at = datetime.utcnow
+    gitUser.updated_at = datetime.datetime.utcnow()
     db.session.add(gitUser)
 
   db.session.add(gitUser)
   db.session.commit()
 
   #Update the user's access token in the database
-  return redirect('/app#/settings')
+  return redirect('/#/settings')

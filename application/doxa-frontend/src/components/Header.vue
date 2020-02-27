@@ -11,8 +11,7 @@
         <b-navbar-nav class="ml-auto">
           <template v-if="isAuthenticated">
             <b-nav-item-dropdown :text='currentUser.email' right>
-              <b-dropdown-item to="/focus-plan">Dashboard</b-dropdown-item>
-              <b-dropdown-item to="/focus-plan">Focus Plan</b-dropdown-item>
+              <b-dropdown-item to="/fulfilled-dashboard">Dashboard</b-dropdown-item>
               <b-dropdown-item to="/settings">Settings</b-dropdown-item>
               <b-dropdown-item to="/logout">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
