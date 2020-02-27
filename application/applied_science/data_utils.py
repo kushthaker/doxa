@@ -73,25 +73,33 @@ def add_time_delta_to_time(time, delta):
   new_datetime = dt.date(1996, 2, 7)
   return (dt.datetime.combine(new_datetime, time) + delta).time()
 
-def workday_time_filter(df, local_start_time=(8, 30), local_end_time=(17, 30), hour_timezone_offset=-5):
+def workday_time_filter(df, local_start_time=(8, 30), local_end_time=(17, 30), hour_timezone_offset=-5, return_filter=False):
   '''
     df: activity dataframe with datetime index
     local_start_time: user's hours / minutes for their day start, in a tuple
     local_start_time: user's hours / minutes for their day end, in a tuple
     hour_timezone_offset: user's timezone offset from UTC, in hours. Defaults to -5: (ET)
+    return_filter: whether the filtered DataFrame or the filter itself should be returned (default False)
   '''
-  start_time_utc = add_time_delta_to_time(dt.time(*local_start_time), dt.timedelta(hours=hour_timezone_offset))
-  end_time_utc = add_time_delta_to_time(dt.time(*local_end_time), dt.timedelta(hours=hour_timezone_offset))
-  return df.loc[(df.index.time >= start_time_utc) & (df.index.time < end_time_utc)]
+  start_time_utc = add_time_delta_to_time(dt.time(*local_start_time), dt.timedelta(hours=-hour_timezone_offset))
+  end_time_utc = add_time_delta_to_time(dt.time(*local_end_time), dt.timedelta(hours=-hour_timezone_offset))
+  df_filter = (df.index.time >= start_time_utc) & (df.index.time < end_time_utc)
+  if return_filter:
+    return df_filter
+  return df.loc[df_filter]
 
-def workday_weekend_filter(df, weekend_days=(5, 6), hour_timezone_offset=-5):
+def workday_weekend_filter(df, weekend_days=(5, 6), hour_timezone_offset=-5, return_filter=False):
   '''
     df: activity dataframe with datetime index
     weekend_days: tuple or list with day numbers corresponding to weekend days. Defaults to (5, 6) (Saturday / Sunday)
     hour_timezone_offset: user's timezone offset from UTC, in hours. Defaults to -5: (ET)
+    return_filter: whether the filtered DataFrame or the filter itself should be returned (default False)
   '''
   weekend_days = set(weekend_days)
-  return df.loc[(df.index + dt.timedelta(hours=hour_timezone_offset)).weekday.isin(weekend_days) == False]
+  df_filter = (df.index + dt.timedelta(hours=hour_timezone_offset)).weekday.isin(weekend_days) == False
+  if return_filter:
+    return df_filter
+  return df.loc[df_filter]
 
 def is_collaborative_naive(df, min_interrupt_len=1):
   '''
@@ -273,7 +281,7 @@ def current_user_week_limits(user, return_utc=True):
 
   # finding Saturday after current time
   end_week_local_time = current_user_local_time + \
-              dt.timedelta(days=(7 - current_user_local_time.weekday() - WEEKDAY_OFFSET))
+              dt.timedelta(days=(6 - current_user_local_time.weekday() - WEEKDAY_OFFSET))
   end_week_local_time = dt.datetime(
                           year = end_week_local_time.year,
                           month = end_week_local_time.month,

@@ -1,18 +1,15 @@
 <template>
-  <div>
-
-
-      <h4>Collaboration / Independent Time Score</h4>
-      <donut 
-        id="collaboration-pie"
-        :data="donutData"
-        :colors="graphColors"
-        resize="True"
-        :formatter="this.percentFunc"
-      >
-      </donut>
-
-  </div>
+  <span>
+    <h3 class="text-center">Collaboration / Independent Time Score</h3>
+    <donut 
+      :id="name"
+      :data="donutData"
+      :colors="graphColors"
+      resize="True"
+      :formatter="this.percentFunc"
+    >
+    </donut>
+  </span>
 </template>
 
 <script>
@@ -36,6 +33,10 @@
       activity: {
         default: Array(),
         type: Array
+      },
+      number: {
+        default: 1,
+        type: Number
       }
     },
     computed: {
@@ -43,19 +44,24 @@
         var totalCollaborative = 0
         var totalIndependent = 0
         var totalRefocusing = 0
+        var totalWorkHours = 0
         // loop through collaborative, independent
         // Need to only add values which are > 0
         var activity = this.activity
         activity.forEach(function(act) {
-          if (act.is_collaborative) totalCollaborative += 1
-          else if (act.is_focused) totalIndependent += 1
-          else if (act.is_refocusing) totalRefocusing += 1
-          else console.log('Not categorized')
+          if (!act.is_off_hours) {
+            totalWorkHours += 1
+            if (act.is_collaborative) totalCollaborative += 1
+            else if (act.is_focused) totalIndependent += 1
+            else if (act.is_refocusing) totalRefocusing += 1
+            else console.log('Not categorized')  
+          }
         })
-
-        var cP = (100.0*(totalCollaborative/activity.length)).toFixed(2)
-        var iP = (100.0*(totalIndependent/activity.length)).toFixed(2)
-        var rP = (100.0*(totalRefocusing/activity.length)).toFixed(2)
+        console.log("totalCollaborative " + totalCollaborative)
+        console.log("totalWorkHours " + totalWorkHours)
+        var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(2)
+        var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(2)
+        var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(2)
 
         var valuesList = [
           { label: 'Collaborative Time', value: cP },
@@ -82,6 +88,9 @@
           colorsList.push(colorDict[data.label])
         })
         return '[' + colorsList.join() + ']'
+      },
+      name: function() {
+        return 'collaboration-pie' + this.number
       }
     },
   }

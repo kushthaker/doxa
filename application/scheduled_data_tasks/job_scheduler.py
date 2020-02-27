@@ -1,7 +1,8 @@
 from application.scheduled_data_tasks import apscheduler_util, slack_activities, \
             google_calendar_activities, book_time, activity_summary
 
-JOB_SCHEDULE = [
+JOB_SCHEDULE = []
+a = [
   {
     'func': slack_activities.capture_slack_activites_from_stored_raw_json,
     'trigger': apscheduler_util.build_hour_trigger(1)

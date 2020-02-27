@@ -2,15 +2,14 @@
   <div>
     <b-container>
       <h1>How you spend your time</h1>
-      <div v-if="formErrors" class="error-messages">
-        <b-alert v-for="error in formErrors" show variant="warning" v-bind:key="error">
-          {{error}}
-        </b-alert>
-      </div>
-      <div>
-        <pie v-bind:activity="this.activityData"></pie>
-        <!-- {{activityData}} -->
-
+      
+      <div class="row">
+        <div class="col-md-6">
+          <pie v-bind:activity="this.activityData" :number="1"></pie>
+        </div>
+        <div class="col-md-6">
+          <disconnect v-bind:activity="this.activityData"></disconnect>
+        </div>
       </div>
     </b-container>
   </div>
@@ -19,9 +18,11 @@
 <script>
   import { mapState, mapActions } from 'vuex'
   import CollaborationPieChart from '@/components/CollaborationPieChart'
+  import DisconnectedTime from '@/components/DisconnectedTime'
   export default {
     components: {
-      'pie': CollaborationPieChart
+      'pie': CollaborationPieChart,
+      'disconnect': DisconnectedTime
     },
     computed: mapState({
       activityData: function(state) {
