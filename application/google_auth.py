@@ -27,6 +27,8 @@ GOOGLE_CALENDAR_INITIAL_AUTHENTICATION_ROUTE = 'google-auth'
 GOOGLE_CALENDAR_AUTH_ROUTE = 'build_google_calendar_auth_request'
 GOOGLE_CALENDAR_CALLBACK_ROUTE = 'google_calendar_oauth2callback'
 
+HTTP_SCHEME = Config.HTTP_SCHEME
+
 API_SERVICE_NAME = 'calendar'
 API_VERSION = 'v3'
 
@@ -79,7 +81,7 @@ def request_google_calendar_api():
 			return flask.redirect(GOOGLE_CALENDAR_AUTH_ROUTE)
 	else:
 		flask.flash('Google account is not authorized.', 'danger')
-		return flask.redirect(flask.url_for('home'))
+		return flask.redirect(flask.url_for('home', _scheme=HTTP_SCHEME))
 	
 	if current_user.google_calendar_user:
 		existing_user = GoogleCalendarUser.query.filter(GoogleCalendarUser.id == current_user.google_calendar_user.id).one_or_none()
@@ -92,7 +94,7 @@ def request_google_calendar_api():
 @application.route('/%s' % GOOGLE_CALENDAR_AUTH_ROUTE)
 def build_google_calendar_auth_request():
 		flow = Flow.from_client_config(CLIENT_JSON, scopes=SCOPES)
-		flow.redirect_uri = flask.url_for("finalize_google_auth", _external=True)
+		flow.redirect_uri = flask.url_for("finalize_google_auth", _external=True, _scheme=HTTP_SCHEME)
 		flow.autogenerate_code_verifier = True
 		authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true', prompt='consent')
 		flask.session['state'] = state
@@ -110,7 +112,7 @@ def finalize_google_auth():
 
 	if (code is not None) & (code_verifier is not None):
 		flow = Flow.from_client_config(CLIENT_JSON, scopes=SCOPES, state=state)
-		flow.redirect_uri = flask.url_for('finalize_google_auth', _external=True)
+		flow.redirect_uri = flask.url_for('finalize_google_auth', _external=True, _scheme=HTTP_SCHEME)
 		flow.fetch_token(code=code, code_verifier=code_verifier)
 
 		credentials = flow.credentials
