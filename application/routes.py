@@ -18,6 +18,14 @@ import jwt
 from flask import session
 from datetime import datetime, timedelta
 from application.applied_science.data_annotation import labelled_focus_time_df
+from application.initialize.config import Config
+
+@application.before_request
+def before_request():
+	if ((Config.HTTP_SCHEME == 'https') and request.url.startswith('http://')):
+		url = request.url.replace('http://', 'https://', 1)
+		code = 301
+		return redirect(url, code=code)
 
 # this should eventually be replaced by a CDN
 @application.route('/', methods=['GET'])
