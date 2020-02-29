@@ -1,21 +1,22 @@
 <template>
   <div>
+
     <b-container>
 
       <b-row class="text-center">
-        <b-col></b-col>
+        <b-col cols="1"></b-col>
         <b-col cols="10">
-          <h2>Settings</h2>
+          <h1>Settings</h1>
         </b-col>
-        <b-col></b-col>
-       </b-row>
-
+        <b-col cols="1"></b-col>
+      </b-row>
+      <b-row><br></b-row>
       <b-row class="text-center">
-        <b-col></b-col>
+        <b-col cols="1"></b-col>
         <b-col cols="10">
           <h4>Your details</h4>
         </b-col>
-        <b-col></b-col>
+        <b-col cols="1"></b-col>
       </b-row>
 
       <b-form @submit="">
@@ -62,15 +63,16 @@
 
         <b-button type="submit" variant="primary">Submit</b-button>
       </b-form>
-
-       <b-row class="text-center">
-        <b-col></b-col>
-        <b-col cols="10">
-          <h4>Your integrations</h4>
-        </b-col>
-        <b-col></b-col>
-       </b-row>
-      
+      <b-row><br></b-row>
+      <b-row><br></b-row>
+      <b-row class="text-center">
+      <b-col cols="1"></b-col>
+      <b-col cols="10">
+        <h4>Your integrations</h4>
+      </b-col>
+      <b-col cols="1"></b-col>
+     </b-row>
+      <b-row><br></b-row>
       <b-row v-if="userData.slack_user_id">
         <b-col></b-col>
         <b-col cols="4" class="text-center">Slack has been integrated</b-col>
@@ -134,6 +136,8 @@
         </b-col>
         <b-col></b-col>
       </b-row>
+      <b-row><br></b-row>
+      <b-row><br></b-row>
     </b-container>
   </div>
 </template>
