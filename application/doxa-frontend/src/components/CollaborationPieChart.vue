@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div class="container">
     <h3 class="text-center">Collaboration / Independent Time Score</h3>
     <donut 
       :id="name"
@@ -9,18 +9,11 @@
       :formatter="this.percentFunc"
     >
     </donut>
-  </span>
+  </div>
 </template>
-
 <script>
-
   import { DonutChart } from 'vue-morris'
   export default {
-    // data: function() {
-    //   return {
-    //     activity: []
-    //   }
-    // },
     methods: {
       percentFunc: function(string) {
         return string + "%"

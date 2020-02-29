@@ -1,8 +1,10 @@
 <template>  
   <div>
     <b-container>
-      <h1>How you spend your time</h1>
-      
+      <div class="row text-center">
+
+        <h1>How you spend your time</h1>
+      </div>
       <div class="row">
         <div class="col-md-6">
           <pie v-bind:activity="this.activityData" :number="1"></pie>
@@ -11,6 +13,7 @@
           <disconnect v-bind:activity="this.activityData"></disconnect>
         </div>
       </div>
+      <b-row><br></b-row>
     </b-container>
   </div>
 </template>
