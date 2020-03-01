@@ -73,7 +73,6 @@ def authorized(oauth_token):
     gitUser.is_authenticated = True
     gitUser.is_deleted_on_github = False
     gitUser.updated_at = datetime.utcnow()
-    db.session.add(gitUser)
 
   db.session.add(gitUser)
   db.session.commit()
