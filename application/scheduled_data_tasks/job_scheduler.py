@@ -1,5 +1,5 @@
 from application.scheduled_data_tasks import apscheduler_util, slack_activities, \
-            google_calendar_activities, book_time, activity_summary
+            google_calendar_activities, github_activites, book_time, activity_summary
 
 JOB_SCHEDULE = [
   {
@@ -38,6 +38,31 @@ JOB_SCHEDULE = [
     # this may be split into an infrequent, long time period job, and a more frequent, short time period job
     'func': activity_summary.update_user_activity_data_rows,
     'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    'func': github_activities.capture_github_repos,
+    'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    'func': github_activities.capture_github_commits,
+    'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    'func': github_activities.capture_github_prs_opened,
+    'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    'func': github_activities.capture_github_issues,
+    'trigger': apscheduler_util.build_hour_trigger(12)
+  },
+  {
+    #Comments captured more frequently to better track edits
+    'func': github_activities.capture_github_issue_comments,
+    'trigger': apscheduler_util.build_minute_trigger(30)
+  },
+  {
+    'func': github_activities.capture_github_pr_comments,
+    'trigger': apscheduler_util.build_minute_trigger(30)
   }
 ]
 
