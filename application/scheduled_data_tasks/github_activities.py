@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 from github import Github
 from datetime import datetime
 
-def capture_github_repos():
-  #For each user, get and store all repos a user contributes to
-  github_users = GitHubUser.query.all()
+def capture_github_repos(user_id=None):
+  #For each user, or a given user, get and store all repos a user contributes to
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   total_new_repos = 0
   total_updated_repos = 0
   for user in github_users:
@@ -42,7 +42,7 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
   '''For a given github user and time period, get all commits
      If no time range is provided, will obtain all commits since the beginning of time.
      user_id is the id row value in the github_users table. If none, will perform for all users.'''
-  github_users = GitHubRepo.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   new_commits = 0
   updated_commits = 0
   for user in github_users:
@@ -87,22 +87,19 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
   return
 
 #We have a function to capture opened PRs.
-#At some point, might be worth creating one to capture closed/merged PRs as well (as additional contributions by a user)
-def capture_github_PRs_opened(startDate=datetime.min, endDate=datetime.utcnow(), user_id=None):
+#At some point, might be worth capturing closed/merged PRs as well (as additional contributions by a user)
+def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(), user_id=None):
   '''For a given github user and time period, get all PRs the user has opened
      If no time range is provided, will obtain all PRs since the beginning of time.
      user_id is the id row value in the github_users table. If none, will perform for all users.'''
-  github_users = GitHubRepo.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   new_PRs = 0
   updated_PRs = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    gitUserObject = g.get_user()
-    for repo in gitUserObject.get_repos():
-      existing_repo = GitHubRepo.query.filter_by(github_api_repo_id=repo.id).one_or_none()
-
-      if(existing_repo):
-  	  userPRs = repo.get_pulls(user=gitUserObject)
+    g_user = g.get_user()
+    for repo in g_user.get_repos():
+  	  userPRs = repo.get_pulls(user=g_user)
   	  for pr in userPRs:
   	  	if(pr.created_at < startDate || pr.created_at > endDate):
   	  	  continue
@@ -118,7 +115,7 @@ def capture_github_PRs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
   		    github_api_author_id=commit.author.id, \
   		    base_sha=pr.base.sha, \
   		    head_sha=pr.head.sha, \
-  		    github_api_opened_at = pr.date, \
+  		    github_api_opened_at = pr.created_at, \
   		    insertions=pr.additions, \
   		    deletions=pr.deletions, \
   		    files_changed=changed_files, \
@@ -147,10 +144,119 @@ def capture_github_PRs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
     print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for github user %s' % (new_PRS, updated_PRs, user_id))
   return
 
-def capture_github_issues():
-  #TODO: For each user, get or update all a user’s open issues
+def capture_github_issues(startDate=datetime.min, user_id=None):
+  #For each user, or for a single specified user, get or update all issues the user has opened or closed
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
+  total_new_issues = 0
+  total_updated_issues = 0
+  for user in github_users:
+    g = Github(user.github_oauth_access_token)
+    g_user = g.get_user()
+    for repo in g_user.get_repos():
+      #Step 1: issues opened by user
+      for issue in repo.get_issues(since=startDate)
+        issue_open = True if issue.state == "closed" else False
+        #Only add issues to the databse if the current user either created or closed the issue
+        if(issue.creator.id != g_user.id && (issue_open || issue.closed_by.id != g_user.id)):
+          continue
+        gitIssue = GitHubIssue.query.filter_by(github_api_issue_id=issue.id).first()      
+        if(gitIssue is None):
+  	      gitIssue = GitHubIssue(
+  		    created_at=datetime.utcnow(), \
+  		    updated_at=datetime.utcnow(), \
+  		    github_api_issue_id=issue.id, \
+  		    github_api_creator_id = issue.creator.id, \
+  		    github_api_opened_at=issue.created_at, \
+  		    is_open=issue_open)
+  		  total_new_issues += 1
+        else:
+      	  gitIssue.is_open = issue_open
+      	  gitIssue.updated_at = datetime.utcnow()
+  		  total_updated_issues += 1
+        if(issue.state == "closed"):
+      	  gitIssue.github_api_closed_at = issue.closed_at
+      	  gitIssue.github_api_closer_id = issue.closed_by.id
+      	#TODO: calculate and update impact score of opening and closing
+        db.session.add(gitIssue)
+
+  db.session.commit()
+  print('Added %s new github_issues to DB and updated %s github_issues' % (total_new_issues, total_updated_issues))
   return
 
-def capture_github_comments():
-  #TODO: For each user, get all comments (and edits?) within a given time period
+def capture_github_issue_comments(startDate=datetime.min, user_id=None):
+  #TODO: For each user, get all issue comments within a given time period
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
+  total_new_comments = 0
+  total_updated_comments = 0
+  for user in github_users:
+    g = Github(user.github_oauth_access_token)
+    g_user = g.get_user()
+    for repo in g_user.get_repos():
+      #Step 1: issues opened by user
+      for issue in repo.get_issues()
+        #could have comments on older issues
+        for comment in issue.get_comments(since=startDate):
+          #only update comments written by the user
+          if(comment.user.id != g_user.id):
+          	continue
+          gitComment = GitHubComment.query.filter_by(github_api_comment_id=comment.id).first()
+          if(gitComment is None):
+  	        gitComment = GitHubComment(
+  		      created_at=datetime.utcnow(), \
+  		      updated_at=datetime.utcnow(), \
+  		      comment_type="issue", \
+  		      github_api_comment_id=comment.id, \
+  		      github_api_author_id=comment.user.id, \
+  		      github_api_parent_id=issue.id, \
+  		      github_api_written_at=comment.created_at, \
+  		      github_api_edited_at=comment.updated_at, \
+  		      )
+  		    total_new_comments += 1
+          else:
+      	    gitComment.github_api_edited_at = comment.updated_at
+      	    gitComment.updated_at = datetime.utcnow()
+  		    total_updated_comments += 1
+      	  #TODO: calculate and update impact score of comment
+          db.session.add(gitComment)
+
+  db.session.commit()
+  print('Added %s new (issue) comments to DB and updated %s (issue) comments' % (total_new_comments, total_new_comments))
+  return
+
+def capture_github_pr_comments(startDate=datetime.min, user_id=None):
+  #TODO: For each user, get all PR comments within a given time period
+  github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
+  total_new_comments = 0
+  total_updated_comments = 0
+  for user in github_users:
+    g = Github(user.github_oauth_access_token)
+    g_user = g.get_user()
+    for repo in g_user.get_repos():
+  	  for pr in repo.get_pulls():
+        for comment in pr.get_comments(since=startDate):
+          #only update comments written by the user
+          if(comment.user.id != g_user.id):
+          	continue
+          gitComment = GitHubComment.query.filter_by(github_api_comment_id=comment.id).first()
+          if(gitComment is None):
+  	        gitComment = GitHubComment(
+  		      created_at=datetime.utcnow(), \
+  		      updated_at=datetime.utcnow(), \
+  		      comment_type="PR", \
+  		      github_api_comment_id=comment.id, \
+  		      github_api_author_id=comment.user.id, \
+  		      github_api_parent_id=pr.id, \
+  		      github_api_written_at=comment.created_at, \
+  		      github_api_edited_at=comment.updated_at, \
+  		      )
+  		    total_new_comments += 1
+          else:
+      	    gitComment.github_api_edited_at = comment.updated_at
+      	    gitComment.updated_at = datetime.utcnow()
+  		    total_updated_comments += 1
+      	  #TODO: calculate and update impact score of comment
+          db.session.add(gitComment)
+
+  db.session.commit()
+  print('Added %s new (PR) comments to DB and updated %s (PR) comments' % (total_new_comments, total_new_comments))
   return
