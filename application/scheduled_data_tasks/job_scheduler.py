@@ -1,5 +1,5 @@
 from application.scheduled_data_tasks import apscheduler_util, slack_activities, \
-            google_calendar_activities, github_activites, book_time, activity_summary
+            google_calendar_activities, github_activities, book_time, activity_summary
 
 JOB_SCHEDULE = [
   {
