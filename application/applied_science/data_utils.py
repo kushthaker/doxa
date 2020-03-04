@@ -168,7 +168,7 @@ def is_collaborative_meeting(google_calendar_event):
   '''
     This can be used to check whether the meeting is considered "collaborative" - AKA has multiple attendees, is during work hours, etc.
   '''
-  return True
+  return google_calendar_event.marked_busy & (not google_calendar_event.is_focus_time_event)
 
 def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_datetime_utc):
   '''

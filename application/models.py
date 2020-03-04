@@ -6,6 +6,7 @@ from datetime import datetime
 import slack
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import Index
+import json
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -248,6 +249,19 @@ class GoogleCalendarEvent(db.Model, EnhancedDBModel):
 	created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 	google_calendar_user_id = db.Column(db.Integer, db.ForeignKey('google_calendar_users.id'))
+	FOCUS_TIME_EVENT_SUMMARY_NAME = 'Focus Time'
+
+	@hybrid_property
+	def marked_busy(self):
+		if (not self.json_data): return False
+		json_data = json.loads(self.json_data) if type(self.json_data) == str else self.json_data
+		if bool(json_data.get('transparency')) & (json_data.get('transparency') == 'transparent'):
+			return False
+		return True
+
+	@hybrid_property
+	def is_focus_time_event(self):
+		return self.summary == self.FOCUS_TIME_EVENT_SUMMARY_NAME
 
 	def __repr__(self):
 		return "GoogleCalendarEvent('%s','%s','%s','%s')" % (self.organizer_email, self.start_time, self.end_time, self.google_calendar_user_id)

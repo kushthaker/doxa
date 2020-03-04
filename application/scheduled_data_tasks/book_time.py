@@ -39,7 +39,7 @@ def attempt_booking(start, end, g_user, service):
   
   if end - start >= datetime.timedelta(hours=focus_length):
     event = {
-    'summary': 'Focus Time',
+    'summary': GoogleCalendarEvent.FOCUS_TIME_EVENT_SUMMARY_NAME,
     'location': 'Desk',
     'description': 'Uninterrupted time for your most important work.',
     'start': {

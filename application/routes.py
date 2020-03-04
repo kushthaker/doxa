@@ -145,4 +145,3 @@ def activity_data():
 	# can build the _collaborative activity_ calculation, streaks, etc. on top of this
 	activity_df = labelled_focus_time_df(current_user)
 	return Response(activity_df.to_json(orient='records', date_format='iso'), mimetype='application/json')
-	# return jsonify([data.to_json() for data in current_user.activity_report_data][:20])

@@ -50,7 +50,7 @@
             value=""
             type="text"
             required
-            placeholder="realdonaldtrump"
+            placeholder="Feridan_UW_Hamdallahpur"
           ></b-form-input>
         
         <!-- Change password (not implemented) -->
