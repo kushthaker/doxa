@@ -1,8 +1,9 @@
 import pandas as pd
 import application.applied_science.data_utils as du
 from application.models import ActivityReportRow
+import datetime as dt
 
-def labelled_focus_time_df(user, start_datetime=None, end_datetime=None, work_hours_only=True):
+def labelled_focus_time_df(user, start_datetime=None, end_datetime=None):
   '''
     Core method to deliver reliable, annotated data to users
   '''
@@ -17,8 +18,8 @@ def labelled_focus_time_df(user, start_datetime=None, end_datetime=None, work_ho
  
   activity_df = label_focus_time(activity_df)
   activity_df = apply_work_hours_label(activity_df, hour_timezone_offset)
-  activity_df.index += du.dt.timedelta(hours=hour_timezone_offset)
-  activity_df.datetime_utc = activity_df.index
+  activity_df.index += dt.timedelta(hours=hour_timezone_offset)
+  activity_df['datetime_local'] = activity_df.index
   return activity_df
 
 def label_focus_time(df):
