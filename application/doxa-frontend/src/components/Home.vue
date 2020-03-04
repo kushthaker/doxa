@@ -1,23 +1,43 @@
 <template>
   <div>
     <section class="hero is-primary">
-      <div class="hero-body">
         <div class="container">
-          <h2 class="title">List of users</h2>
-        </div>
-      </div>
-    </section>
-    <section class="section">
-      <div class="container">
-        <div class="card" v-for="user in users" v-bind:key="user.id">
-          <div class="card-content">
-            <div v-if="user">
-              <p class="title">Name: {{ user.username}}; Email: {{user.email}}</p>
-              <p class="detail">See this <router-link :to="`maestro/${user.id}`">maestro</router-link> </p>
+          <div class="row hero-section">
+            <div>
+              <h1>Find focus at work with Fulfilled.</h1>
+              <h4>Developers use Fulfilled to focus on their craft, collaborate smarter, and disconnect after work.</h4>
+              <button>Try it free</button>
+            </div>
+          </div>
+          <div class="row hero-section">
+            <div class="col-md-6">
+              <h3>See your collaboration trends</h3>
+            </div>
+            <div class="col-md-6">
+            </div>
+          </div>          
+          <div class="row hero-section">
+            <div class="col-md-6">
+            </div>
+            <div class="col-md-6">
+              <h3>Book time to work deeply everyday</h3>
+            </div>
+          </div>
+          <div class="row hero-section">
+            <div class="col-md-6">
+              <h3>Estimate impact of code changes</h3>
+            </div>
+            <div class="col-md-6">
+            </div>
+          </div>          
+          <div class="row hero-section">
+            <div class="col-md-6">
+            </div>
+            <div class="col-md-6">
+              <h3>Reflect weekly on your work patterns</h3>
             </div>
           </div>
         </div>
-      </div>
     </section>
   </div>
 </template>
@@ -36,12 +56,34 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
+h1 {
+  font-weight: 700;
+  padding-bottom: 2%;
 }
+
+h3 {
+  font-weight: 700;
+  padding-bottom: 2%;
+}
+
+h4 {
+  padding-bottom: 2%;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.hero-section {
+  margin-bottom: 10%;
+}
+
 ul {
   list-style-type: none;
-  padding: 0;
 }
 li {
   display: inline-block;
