@@ -4,11 +4,11 @@ from application.scheduled_data_tasks import apscheduler_util, slack_activities,
 JOB_SCHEDULE = [
   {
     'func': slack_activities.capture_slack_activites_from_stored_raw_json,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
     'func': slack_activities.capture_slack_conversation_reads,
-    'trigger': apscheduler_util.build_minute_trigger(30)
+    'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
     'func': slack_activities.capture_slack_conversations,
