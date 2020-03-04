@@ -33,10 +33,6 @@ def apply_work_hours_label(df, hour_timezone_offset):
   df['not_work_hours'] = ((weekend_filter) & (workday_filter == False)) | (weekend_filter == False)
   return df
 
-def apply_UTN_label(df):
-  utn_time = dt.datetime.utcnow()
-  return df.loc[(df.index <= utn_time) & (df['created_at'] <= utn_time)]
-
 # Naive focused time calculation
 NAIVE_STREAK_LENGTH = 1
 MINIMUM_INTERRUPTION_LENGTH = 1
