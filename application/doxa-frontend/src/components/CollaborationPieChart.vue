@@ -75,12 +75,6 @@
             returnArray.push(val)
           }
         })
-        if(returnArray == []) {
-          this.isReady = false
-        }
-        else {
-          this.isReady = true
-        }
         return returnArray
       },
     

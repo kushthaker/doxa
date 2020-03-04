@@ -10,13 +10,6 @@
       <b class="text-center">Loading data...</b>
     </div>
   </div>
-<!--   <div v-else>
-    <h3 class="text-center">Disconnecting after hours</h3>
-    <br>
-    <div class="text-center">
-      <b class="text-center">Loading data...</b>
-    </div>
-  </div> -->
 </template>
 
 <script>
