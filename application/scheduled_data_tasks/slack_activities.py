@@ -6,7 +6,12 @@ from datetime import datetime, timedelta
 from slack.errors import SlackApiError
 
 def capture_slack_activites_from_stored_raw_json():
-  raw_slack_events = RawSlackEvent.query.all()
+  max_id_event = RawSlackEvent.query.order_by(RawSlackEvent.id.desc()).first()
+  if max_id_event:
+    max_id = max_id_event.id - 400
+  else:
+    max_id = 0
+  raw_slack_events = RawSlackEvent.query.filter(RawSlackEvent.id > max_id).all()
   raw_slack_event_count = len(raw_slack_events)
   total_new_slack_events = 0
   for event in raw_slack_events:
@@ -18,7 +23,7 @@ def capture_slack_activites_from_stored_raw_json():
       slack_user_api_id = raw_event_json.get('event').get('user')
       slack_event_api_id = raw_event_json.get('event_id')
       slack_user = SlackUser.query.filter_by(slack_user_api_id=slack_user_api_id).one_or_none()
-      slack_event = SlackUserEvent.query.filter_by(slack_event_api_id=slack_event_api_id).one_or_none()
+      slack_event = SlackUserEvent.query.filter_by(slack_event_api_id=slack_event_api_id).first()
       if slack_user and (not slack_event):
         # creating object, adding to DB session. (then all objects get saved at once, at the bottom)
         slack_user_id = slack_user.id
