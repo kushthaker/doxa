@@ -12,11 +12,11 @@
         </div>
         <div class="col-md-6 text-center">
         </div>
-
       </div>
       <br>
       <div class="row text-center">
-        <h1>How you have spent your time so far</h1>
+        <h1>How you spend your time from</h1>
+        <p>{{this.dateRange.startDate}} - {{this.dateRange.endDate}}</p>
       </div>
       <div class="row">
         <div class="col-md-6">
@@ -62,6 +62,14 @@
       },
       changePasswordSuccess: (state) => {
         return state.changePasswordSuccess
+      },
+      dateRange: function(state) {
+        if(state.activityData.length == 0) {
+          return {}
+        }
+        var startDate = new Date(state.activityData[0].datetime_utc).toDateString()
+        var endDate = new Date(state.activityData[state.activityData.length-1].datetime_utc).toDateString()
+        return { startDate, endDate }
       }
     })
   }
