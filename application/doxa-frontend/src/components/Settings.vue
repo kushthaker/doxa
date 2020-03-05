@@ -19,6 +19,7 @@
         <b-col cols="1"></b-col>
       </b-row>
 
+      <!-- User Workday Preferences -->
       <b-form @submit="">
         <!-- Workday start -->
 
@@ -28,7 +29,12 @@
           description="Usual time that your workday starts (e.g. 9:30am)"
           row
         >
-        <b-form-select v-model="selected" :options="options"></b-form-select>
+        <b-form-select v-model="selected" :options="options">
+            <option disabled value="">Please select one</option>
+            <option>min 6 am</option>
+            <option>list(numpy.arange(6,15,0.5))</option>
+            <option>max 3 pm</option>
+        </b-form-select>
         </b-form-group>
 
         <!-- Workday end -->
@@ -39,7 +45,12 @@
           description="Usual time that your workday ends. (e.g. 5:30pm)"
           row
         >
-        <b-form-select v-model="selected" :options="options"></b-form-select>
+        <b-form-select v-model="selected" :options="options">
+            <option disabled value="">Please select one</option>
+            <option>min 3 pm</option>
+            <option>list(numpy.arange(15,23,0.5))</option>
+            <option>max 11 pm</option>
+        </b-form-select>
         </b-form-group>
 
         <!-- Focus length -->
@@ -50,12 +61,19 @@
           description="How long you want to focus per day (e.g. 2 hours)"
           row
         >
-        <b-form-select v-model="selected" :options="options"></b-form-select>
+        <b-form-select v-model="selected" :options="options">
+            <option disabled value="">Please select one</option>
+            <option>min 0.5</option>
+            <option>list(numpy.arange(0.5,3,0.5))</option>
+            <option>max 3</option>
+        </b-form-select>
         </b-form-group>
-      
-
+    
         <b-button type="submit" variant="primary">Submit</b-button>
       </b-form>
+
+      <!-- Integrations -->
+
       <b-row><br></b-row>
       <b-row><br></b-row>
       <b-row class="text-center">
