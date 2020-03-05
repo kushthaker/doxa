@@ -16,7 +16,7 @@
         >
           <b-form-input
             v-model="newUser.username"
-            placeholder="realdonaldtrump"
+            placeholder="Feridan_UW_Hamdallahpur"
             required
             id="input-1"
             type="text"

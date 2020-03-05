@@ -10,7 +10,7 @@ class Config:
 
   GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID') # stored in EB config
   GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET') # stored in EB config
-
+  
   GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID') # stored in EB config
   GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET') # stored in EB config
 
@@ -33,3 +33,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = True
   else:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+  # Needs to be set to 'https' in AWS configuration settings for HTTP_SCHEME for deployments w/ SSL.
+  HTTP_SCHEME = os.environ.get('HTTP_SCHEME')
+  if (HTTP_SCHEME is None):
+    HTTP_SCHEME = 'http'

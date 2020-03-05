@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <div v-if="this.isReady" class="container">
     <h3 class="text-center">Collaboration / Independent Time Score</h3>
     <donut 
       :id="name"
@@ -9,18 +9,17 @@
       :formatter="this.percentFunc"
     >
     </donut>
-  </span>
+  </div>
+  <div v-else class="container text-center">
+    <h3 class="text-center">Collaboration / Independent Time Score</h3>
+    <br>
+    <b class="text-center">Loading data...</b>
+  </div>
+  </div>
 </template>
-
 <script>
-
   import { DonutChart } from 'vue-morris'
   export default {
-    // data: function() {
-    //   return {
-    //     activity: []
-    //   }
-    // },
     methods: {
       percentFunc: function(string) {
         return string + "%"
@@ -37,6 +36,10 @@
       number: {
         default: 1,
         type: Number
+      },
+      isReady: {
+        default: false,
+        type: Boolean
       }
     },
     computed: {
@@ -57,8 +60,6 @@
             else console.log('Not categorized')  
           }
         })
-        console.log("totalCollaborative " + totalCollaborative)
-        console.log("totalWorkHours " + totalWorkHours)
         var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(2)
         var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(2)
         var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(2)

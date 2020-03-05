@@ -140,9 +140,12 @@ def refresh_google_credentials():
 	print("Updated auth token for ", count, " GoogleCalendarUsers.")
 
 def get_upcoming_events(service):
-	maxTime = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-	minTime = (pytz.UTC.localize(datetime.datetime.utcnow()) - datetime.timedelta(days=200)).isoformat() 
+	maxTime = (datetime.datetime.utcnow() + datetime.timedelta(days=200)).isoformat() + 'Z' # 'Z' indicates UTC time
+	minTime = (pytz.UTC.localize(datetime.datetime.utcnow()) - datetime.timedelta(days=200)).isoformat()
+	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+
 	events_result = service.events().list(calendarId='primary', timeMin=minTime, timeMax=maxTime, singleEvents=True, orderBy='startTime').execute()
+
 	events = events_result.get('items', [])
 
 	if not events:

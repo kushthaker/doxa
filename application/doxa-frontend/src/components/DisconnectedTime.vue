@@ -1,11 +1,15 @@
 <template>
-  <span>
+  <div>
     <h3 class="text-center">Disconnecting after hours</h3>
-    <row>
+    <br>
+    <div v-if="this.isReady" class="row text-center">
       <h4> You have disconnected {{collaborativeDayCounts.disconnectedDays}} out of {{collaborativeDayCounts.totalDays}} potential days.
       </h4>
-    </row>
-  </span>
+    </div>
+    <div v-else class="row text-center">
+      <b class="text-center">Loading data...</b>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -14,7 +18,8 @@
       activity: {
         default: Array(),
         type: Array
-      }
+      },
+      isReady: { default: false, type: Boolean }
     },
     computed: {
       collaborativeDayCounts: function () {

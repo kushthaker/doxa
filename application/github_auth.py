@@ -78,4 +78,4 @@ def authorized(oauth_token):
   db.session.commit()
 
   #Update the user's access token in the database
-  return redirect('/app#/settings')
+  return redirect('/#/settings')

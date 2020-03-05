@@ -4,11 +4,11 @@ from application.scheduled_data_tasks import apscheduler_util, slack_activities,
 JOB_SCHEDULE = [
   {
     'func': slack_activities.capture_slack_activites_from_stored_raw_json,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
     'func': slack_activities.capture_slack_conversation_reads,
-    'trigger': apscheduler_util.build_minute_trigger(30)
+    'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
     'func': slack_activities.capture_slack_conversations,
@@ -20,7 +20,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': google_calendar_activities.update_google_calendar_events,
-    'trigger': apscheduler_util.build_hour_trigger(1)
+    'trigger': apscheduler_util.build_minute_trigger(15)
   },  
   {
     'func': book_time.book_upcoming_week_focus_time,
@@ -37,7 +37,7 @@ JOB_SCHEDULE = [
   {
     # this may be split into an infrequent, long time period job, and a more frequent, short time period job
     'func': activity_summary.update_user_activity_data_rows,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
     'func': github_activities.capture_github_repos,

@@ -21,7 +21,9 @@ def set_utc_tz(event):
   elif event.get('start').get('date'):
     s_dt = dateutil.parser.parse(event.get('start').get('date'))
     e_dt = dateutil.parser.parse(event.get('end').get('date'))
-  event_id = event.get('id')
+    s_dt = s_dt.replace(tzinfo=pytz.UTC)
+    e_dt = e_dt.replace(tzinfo=pytz.UTC)
+  event_id = event.get('summary')
   return dict({'start':s_dt,'end':e_dt,'event_id':event_id})
 
 def get_upcoming_events(service):
@@ -35,9 +37,9 @@ def get_upcoming_events(service):
 def attempt_booking(start, end, g_user, service):
   focus_length = g_user.user.focus_length
   
-  if end - start > datetime.timedelta(hours=focus_length):
+  if end - start >= datetime.timedelta(hours=focus_length):
     event = {
-    'summary': 'Focus Time',
+    'summary': GoogleCalendarEvent.FOCUS_TIME_EVENT_SUMMARY_NAME,
     'location': 'Desk',
     'description': 'Uninterrupted time for your most important work.',
     'start': {
@@ -61,6 +63,15 @@ def attempt_booking(start, end, g_user, service):
   else:
     return False
 
+def get_user_service(g_user):
+  credentials = Credentials(**get_credentials_dict(g_user))
+  if credentials.expired is False and credentials.valid is True: ## other checks here?
+    service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    if service:
+      return service
+    else:
+      return False
+
 def book_upcoming_week_focus_time():
   """
   Book time into first delta > g_user.user.focus_length over user's next 7 weekdays.
@@ -69,14 +80,14 @@ def book_upcoming_week_focus_time():
   g_users = GoogleCalendarUser.query.all()
 
   for g_user in g_users:
-    credentials = Credentials(**get_credentials_dict(g_user))
-    if credentials.expired is False and credentials.valid is True: ## other checks here?
-      service = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
-      events = get_upcoming_events(service)
+      service = get_user_service(g_user)
+      if service:
+        events = get_upcoming_events(service)
+      
       utc_events = [set_utc_tz(e) for e in events]
       
       dates = []
-      for i in range(1,10):
+      for i in range(1,8):
         dates.append(datetime.datetime.utcnow().date() + datetime.timedelta(days=i))
       dates = dict.fromkeys([e for e in dates if e.weekday() not in [5,6]])
       for k,v in dates.items():
@@ -85,7 +96,8 @@ def book_upcoming_week_focus_time():
       for k,v in dates.items():
         workday_start =  pytz.utc.localize(datetime.datetime(k.year, k.month, k.day, g_user.user.workday_start.hour, g_user.user.workday_start.minute))
         workday_end = pytz.utc.localize(datetime.datetime(k.year, k.month, k.day, g_user.user.workday_end.hour, g_user.user.workday_end.minute))
-        day_events = sorted(dates[k], key= lambda i: i['start'])
+        day_events = sorted(dates[k], key= lambda i: i.get('start'))
+        day_events = [d for d in day_events if (d.get('end').time() > workday_start.time()) and (d.get('start').time() < workday_end.time())]
 
         if len(day_events) == 0:
           attempt_booking(workday_start, workday_end, g_user, service)
@@ -96,11 +108,12 @@ def book_upcoming_week_focus_time():
           dates[k].append(dict({'focus_booked': 1}))
           continue
           
-        for i in range(len(day_events)-1):
-          if attempt_booking(day_events[i].get('end'),day_events[i+1].get('start'), g_user, service):
-            dates[k].append(dict({'focus_booked': 1}))
+        for i in range(0, len(day_events)):
+          if (i+1 < len(day_events)):
+            if attempt_booking(day_events[i].get('end'),day_events[i+1].get('start'), g_user, service):
+              dates[k].append(dict({'focus_booked': 1}))
             break
-        
+
         if dates[k][-1].get('focus_booked'):
           continue
         else:
@@ -108,27 +121,6 @@ def book_upcoming_week_focus_time():
             dates[k].append(dict({'focus_booked': 1}))
             continue
 
-        dates[k].append(dict({'focus_booked': 0}))
+        # logic to double book if one day too busy for focus (dates where dates[k][-1].get('focus_booked') == 0)
 
   print("Booked focus times for all google users.")
-
-"""
-Utility functions for Google API
-"""
-
-def refresh_google_credentials():
-  users = GoogleCalendarUser.query.all()
-  count = 0
-
-  for user in users:
-    creds_dict = get_credentials_dict(user)
-    credentials = Credentials(**creds_dict)
-    rq = google_auth_httplib2.Request(httplib2.Http())
-    credentials.refresh(rq)
-    user.auth_token = credentials.token
-    db.session.add(user)
-    db.session.commit()
-    count += 1
-
-  print("Updated auth token for ", count, " GoogleCalendarUsers.")
-
