@@ -38,6 +38,8 @@ def capture_github_repos(user_id=None):
   print('Added %s new github_repos to DB and updated %s github_repos' % (total_new_repos, total_updated_repos))
   return
 
+
+
 def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), user_id=None):
   '''For a given github user and time period, get all commits
      If no time range is provided, will obtain all commits since the beginning of time.
@@ -78,13 +80,24 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
       #TODO: calculate edit points and impact score here      
         db.session.add(gitCommit)
 
-
   db.session.commit()
   if(user_id is None):
     print('Added %s new github_commits to DB and updated %s github_commits for %s github_users' % (new_commits, updated_commits, len(github_users)))
   else:
     print('Added %s new github_commits to DB and updated %s github_commits for github user %s' % (new_commits, updated_commits, user_id))
   return
+
+#For regular updates (1min grace to avoid missing data)
+def capture_gitcommits_10min():
+  nowtime = datetime.utcnow()
+  capture_github_commits(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow()):
+
+#Less frequent lookback job to check for rewrites or missed data
+def capture_gitcommits_history():
+  nowtime = datetime.utcnow()
+  capture_github_commits(startDate=nowtime-datetime.timedelta(days=30), endDate=datetime.utcnow(), None):  
+
+
 
 #We have a function to capture opened PRs.
 #At some point, might be worth capturing closed/merged PRs as well (as additional contributions by a user)
@@ -144,6 +157,17 @@ def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
     print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for github user %s' % (new_PRS, updated_PRs, user_id))
   return
 
+#For regular updates (1min grace to avoid missing data)
+def capture_opened_prs_10min():
+  nowtime = datetime.utcnow()
+  capture_github_prs_opened(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow()):
+
+#Less frequent lookback job to check for rewrites or missed data
+def capture_opened_prs_history():
+  capture_github_prs_opened():
+
+
+
 def capture_github_issues(startDate=datetime.min, user_id=None):
   #For each user, or for a single specified user, get or update all issues the user has opened or closed
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
@@ -183,6 +207,17 @@ def capture_github_issues(startDate=datetime.min, user_id=None):
   db.session.commit()
   print('Added %s new github_issues to DB and updated %s github_issues' % (total_new_issues, total_updated_issues))
   return
+
+#For regular updates (1min grace to avoid missing data)
+def capture_gitissues_10min():
+  nowtime = datetime.utcnow()
+  capture_github_issues(startDate=nowtime-datetime.timedelta(minutes=10))
+
+#Less frequent lookback job to check for rewrites or missed data
+def capture_gitissues_history():
+  capture_github_issues()
+
+
 
 def capture_github_issue_comments(startDate=datetime.min, user_id=None):
   #TODO: For each user, get all issue comments within a given time period
@@ -224,6 +259,17 @@ def capture_github_issue_comments(startDate=datetime.min, user_id=None):
   print('Added %s new (issue) comments to DB and updated %s (issue) comments' % (total_new_comments, total_new_comments))
   return
 
+#For regular updates (1min grace to avoid missing data)
+def capture_gitIssueComments_10min():
+  nowtime = datetime.utcnow()
+  capture_github_issue_comments(startDate=nowtime-datetime.timedelta(minutes=11))
+
+#Less frequent lookback job to check for rewrites or missed data
+def capture_gitIssueComments_history():
+  capture_github_issue_comments()
+
+
+
 def capture_github_pr_comments(startDate=datetime.min, user_id=None):
   #TODO: For each user, get all PR comments within a given time period
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
@@ -261,3 +307,12 @@ def capture_github_pr_comments(startDate=datetime.min, user_id=None):
   db.session.commit()
   print('Added %s new (PR) comments to DB and updated %s (PR) comments' % (total_new_comments, total_new_comments))
   return
+
+#For regular updates (1min grace to avoid missing data)
+def capture_gitPRComments_10min():
+  nowtime = datetime.utcnow()
+  capture_github_pr_comments(startDate=nowtime-datetime.timedelta(minutes=11))
+
+#Less frequent lookback job to check for rewrites or missed data
+def capture_gitPRComments_history():
+  capture_github_pr_comments()
