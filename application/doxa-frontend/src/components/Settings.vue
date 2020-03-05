@@ -14,52 +14,45 @@
       <b-row class="text-center">
         <b-col cols="1"></b-col>
         <b-col cols="10">
-          <h4>Your details</h4>
+          <h4>Update your details</h4>
         </b-col>
         <b-col cols="1"></b-col>
       </b-row>
 
       <b-form @submit="">
-        <!-- Email address -->
+        <!-- Workday start -->
 
         <b-form-group
-          label="Email address"
-          label-for="input-1"
-          description="We'll never share your email with anyone else."
-          row
-        >
-          <b-form-input
-            id="input-1"
-            value=""
-            type="email"
-            required
-            placeholder="Your email"
-          ></b-form-input>
-        </b-form-group>
-
-        <!-- Username -->
-
-        <b-form-group
-          label="Username"
+          label="Workday Start"
           label-for="input-2"
-          description="Your Fulfilled.ai username"
+          description="Usual time that your workday starts (e.g. 9:30am)"
           row
         >
-          <b-form-input
-            id="input-2"
-            value=""
-            type="text"
-            required
-            placeholder="Feridan_UW_Hamdallahpur"
-          ></b-form-input>
-        
-        <!-- Change password (not implemented) -->
+        <b-form-select v-model="selected" :options="options"></b-form-select>
         </b-form-group>
+
+        <!-- Workday end -->
+
         <b-form-group
-          label=""
+          label="Workday End"
+          label-for="input-3"
+          description="Usual time that your workday ends. (e.g. 5:30pm)"
+          row
         >
-        <b-button variant="outline-info" to="change-password">Change your password</b-button>
+        <b-form-select v-model="selected" :options="options"></b-form-select>
         </b-form-group>
+
+        <!-- Focus length -->
+
+        <b-form-group
+          label="Focus Time Length"
+          label-for="input-3"
+          description="How long you want to focus per day (e.g. 2 hours)"
+          row
+        >
+        <b-form-select v-model="selected" :options="options"></b-form-select>
+        </b-form-group>
+      
 
         <b-button type="submit" variant="primary">Submit</b-button>
       </b-form>
@@ -139,6 +132,15 @@
       <b-row><br></b-row>
       <b-row><br></b-row>
     </b-container>
+
+    <!-- Change password (not implemented) -->
+    </b-form-group>
+    <b-form-group
+      label=""
+    >
+    <b-button variant="outline-info" to="change-password">Change your password</b-button>
+    </b-form-group>
+
   </div>
 </template>
 
