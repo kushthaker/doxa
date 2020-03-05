@@ -90,12 +90,12 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
 #For regular updates (1min grace to avoid missing data)
 def capture_gitcommits_10min():
   nowtime = datetime.utcnow()
-  capture_github_commits(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow()):
+  capture_github_commits(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_gitcommits_history():
   nowtime = datetime.utcnow()
-  capture_github_commits(startDate=nowtime-datetime.timedelta(days=30), endDate=datetime.utcnow(), None):  
+  capture_github_commits(startDate=nowtime-datetime.timedelta(days=30), endDate=datetime.utcnow())  
 
 
 
@@ -160,11 +160,11 @@ def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
 #For regular updates (1min grace to avoid missing data)
 def capture_opened_prs_10min():
   nowtime = datetime.utcnow()
-  capture_github_prs_opened(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow()):
+  capture_github_prs_opened(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_opened_prs_history():
-  capture_github_prs_opened():
+  capture_github_prs_opened()
 
 
 
