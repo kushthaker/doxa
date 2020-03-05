@@ -41,28 +41,47 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_github_repos,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'trigger': apscheduler_util.build_hour_trigger(1)
   },
   {
-    'func': github_activities.capture_github_commits,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'func': github_activities.capture_gitcommits_10min,
+    'trigger': apscheduler_util.build_minute_trigger(10)
   },
   {
-    'func': github_activities.capture_github_prs_opened,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'func': github_activities.capture_gitcommits_history,
+    'trigger': apscheduler_util.build_hour_trigger(24)
   },
   {
-    'func': github_activities.capture_github_issues,
-    'trigger': apscheduler_util.build_hour_trigger(12)
+    'func': github_activities.capture_opened_prs_10min,
+    'trigger': apscheduler_util.build_minute_trigger(10)
   },
   {
-    #Comments captured more frequently to better track edits
-    'func': github_activities.capture_github_issue_comments,
-    'trigger': apscheduler_util.build_minute_trigger(30)
+    'func': github_activities.capture_opened_prs_history,
+    'trigger': apscheduler_util.build_hour_trigger(24)
   },
   {
-    'func': github_activities.capture_github_pr_comments,
-    'trigger': apscheduler_util.build_minute_trigger(30)
+    'func': github_activities.capture_gitissues_10min,
+    'trigger': apscheduler_util.build_minute_trigger(10)
+  },
+  {
+    'func': github_activities.capture_gitissues_history,
+    'trigger': apscheduler_util.build_hour_trigger(24)
+  },
+  {
+    'func': github_activities.capture_gitIssueComments_10min,
+    'trigger': apscheduler_util.build_minute_trigger(10)
+  },
+  {
+    'func': github_activities.capture_gitIssueComments_history,
+    'trigger': apscheduler_util.build_hour_trigger(24)
+  },
+  {
+    'func': github_activities.capture_gitPRComments_10min,
+    'trigger': apscheduler_util.build_minute_trigger(10)
+  },
+  {
+    'func': github_activities.capture_gitPRComments_history,
+    'trigger': apscheduler_util.build_hour_trigger(24)
   }
 ]
 
