@@ -89,23 +89,32 @@ def capture_slack_conversations():
 def capture_slack_conversation_queries():
   slack_teams = SlackTeam.query.all()
   for slack_team in slack_teams:
-    slack_conversations = slack_team.slack_conversations()
     slack_users = slack_team.slack_users()
     for slack_user in slack_users:
       new_conversation_query_count = 0
       slack_conversation_query_run = SlackConversationQueryRun(query_start_time=datetime.utcnow(), slack_user_id=slack_user.id)
       slack_conversation_query_run.save()
       slack_client = slack_user.slack_client()
+      convos_list = _capture_raw_slack_user_conversations(slack_client)
+      slack_conversations = [c for c in convos_list if(((c.get('is_mpim')) or (c.get('is_im'))\
+                                             or (c.get('is_member')) or (c.get('is_group'))\
+                                             and c.get('is_private')) and (not c.get('is_archived')))]
       for slack_conversation in slack_conversations:
         try:
-          conversation_info = slack_client.conversations_info(channel=slack_conversation.slack_conversation_api_id).data.get('channel')
+          slack_conversation_api_id = slack_conversation.get('id')
+          conversation_info = slack_client.conversations_info(channel=slack_conversation_api_id).data.get('channel')
           if conversation_info.get('is_member') or conversation_info.get('last_read'):
+            fulfilled_ai_slack_conversation = SlackConversation.query.filter(SlackConversation.slack_conversation_api_id == slack_conversation_api_id).first()
+            if not fulfilled_ai_slack_conversation:
+              fulfilled_ai_slack_conversation = _create_slack_conversation(slack_conversation, slack_team.id)
+              db.session.add(fulfilled_ai_slack_conversation)
+              db.session.commit()
+
             last_read_string = conversation_info.get('last_read')
             last_read = datetime.utcfromtimestamp(int(float(last_read_string))) if last_read_string else None
-
             new_conversation_query = SlackConversationQuery(
               slack_user_id=slack_user.id,
-              slack_conversation_id=slack_conversation.id,
+              slack_conversation_id=fulfilled_ai_slack_conversation.id,
               query_datetime=datetime.utcnow(),
               last_read_datetime=last_read,
               last_updated=datetime.utcnow(),
@@ -114,6 +123,8 @@ def capture_slack_conversation_queries():
             db.session.add(new_conversation_query)
             new_conversation_query_count += 1
         except SlackApiError as e:
+          print('Excepted SlackApiError:')
+          print(e)
           continue
       slack_conversation_query_run.query_end_time=datetime.utcnow()
       db.session.commit()
@@ -205,4 +216,15 @@ def _get_slack_user_information(slack_user):
   except SlackApiError:
     print('API info query failed for SlackUser id %s' % slack_user.id)
     return None
-    return slack_user_info
+  return slack_user_info
+
+def _create_slack_conversation(slack_conversation_json, slack_team_id):
+  new_conversation = SlackConversation(
+    slack_conversation_api_id=slack_conversation_json.get('id'), \
+    conversation_type=_get_conversation_type_from_raw_slack_conversation(slack_conversation_json), \
+    conversation_name=slack_conversation_json.get('name'), \
+    is_deleted=slack_conversation_json.get('is_archived'),
+    slack_team_id=slack_team_id,
+    last_updated=datetime.utcnow()
+  )
+  return new_conversation
