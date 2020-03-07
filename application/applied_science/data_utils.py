@@ -216,51 +216,6 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
   activity_df['user_id'] = user.id
   return activity_df
 
-def focused_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2,
-                               min_interrupt_read_amount=1, min_interrupt_send_amount=1):
-  '''
-    df: pandas Dataframe with datetime index. The index should have
-      periods which have an even separation (standard is five minutes)
-    streak_length: the minimum number of periods without collaborative time determining whether focused work has begun
-    collab_func: the function which gets passed a set of periods to determine whether collaborative time has occurred
-    interruption_period_length: the number of periods required for a period of focused work time to be considered 
-    "interrupted".
-    A streak is assumed to occur if collaborative time has not occurred for the minimum streak length
-  '''
-
-  # periods are 5 minutes each
-  REQ_STREAK_LENGTH_PERIODS = streak_length
-  INTERRUPTION_PERIOD_LENGTH = interruption_period_length
-  PERIOD_LENGTH = dt.timedelta(minutes=5)
-  
-  # keeping track of state across looks
-  streak = pd.Series(index=df.index) # needs to be pandas._libs.tslibs.timestamps.Timestamp series
-  dumb = pd.Series([1, 2, 3])
-  streak_start = None
-  in_streak = False
-  final_period = df.index[-1]
-  def get_streak(mini_df):
-    nonlocal streak, streak_start, in_streak, final_period
-    interrupt_index = mini_df.index[-INTERRUPTION_PERIOD_LENGTH:]
-    final_index = mini_df.index[-1][0] + PERIOD_LENGTH*(REQ_STREAK_LENGTH_PERIODS - 1)
-    
-    if collab_func(mini_df.loc[interrupt_index], min_interrupt_len=INTERRUPTION_PERIOD_LENGTH):
-      if in_streak:
-        streak[final_index] = streak_start
-        in_streak = False
-        streak_start = None
-    else:
-      if not in_streak:
-        # checking fully uninterrupted time
-        if not collab_func(mini_df, min_interrupt_len=INTERRUPTION_PERIOD_LENGTH):
-          in_streak = True
-          streak_start = mini_df.index[0][0]
-      if (final_index == final_period) & in_streak:
-        streak[final_period] = streak_start
-    
-  roll(df, REQ_STREAK_LENGTH_PERIODS).apply(get_streak)
-  return streak
-
 def current_user_week_limits(user, return_utc=True):
   user_tz_conversion_function = convert_to_user_timezone_function(user.slack_user.slack_timezone_offset)
   utc_tz_conversion_function = convert_to_utc_timezone_function(user.slack_user.slack_timezone_offset)
