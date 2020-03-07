@@ -5,8 +5,8 @@ from application.initialize.db_init import db
 
 def update_user_activity_data_rows():
   print('IN update_user_activity_data_rows')
-  start_time_utc = du.rounddown_next_5min(dt.datetime.now() - dt.timedelta(days=5))
-  end_time_utc = du.rounddown_next_5min(dt.datetime.now() + dt.timedelta(days=5))
+  start_time_utc = du.rounddown_next_5min(dt.datetime.utcnow() - dt.timedelta(days=100))
+  end_time_utc = du.rounddown_next_5min(dt.datetime.utcnow() + dt.timedelta(days=100))
   users = User.query.filter(User.fully_authenticated == True).all()
 
   for user in users:
