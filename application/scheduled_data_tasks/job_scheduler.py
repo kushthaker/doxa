@@ -41,7 +41,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_github_repos,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   },
   {
     'func': github_activities.capture_gitcommits_1hr,
@@ -49,7 +49,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_gitcommits_history,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   },
   {
     'func': github_activities.capture_opened_prs_1hr,
@@ -57,7 +57,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_opened_prs_history,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   },
   {
     'func': github_activities.capture_gitissues_1hr,
@@ -65,7 +65,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_gitissues_history,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   },
   {
     'func': github_activities.capture_gitIssueComments_1hr,
@@ -73,7 +73,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_gitIssueComments_history,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   },
   {
     'func': github_activities.capture_gitPRComments_1hr,
@@ -81,7 +81,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': github_activities.capture_gitPRComments_history,
-    'trigger': apscheduler_util.build_minute_trigger(10)
+    'trigger': apscheduler_util.build_minute_trigger(2)
   }
 ]
 

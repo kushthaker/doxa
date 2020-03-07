@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 from github import Github, GithubException
 from datetime import datetime, timedelta
 
+#Used to control API request speed and avoid rate limiting problems
+from time import sleep
+
 def capture_github_repos(user_id=None):
   #For each user, or a given user, get and store all repos a user contributes to
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
@@ -13,10 +16,10 @@ def capture_github_repos(user_id=None):
   total_updated_repos = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    g_user = g.get_user()
-    for repo in g_user.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
       org = repo.organization
-      orgName = org.name if org is not None else "none" 
+      org_name = org.name if org is not None else "none" 
       gitRepo = GitHubRepo.query.filter_by(github_api_repo_id=repo.id).first()
       if(gitRepo is None):
         gitRepo = GitHubRepo(
@@ -25,13 +28,13 @@ def capture_github_repos(user_id=None):
         created_at=datetime.utcnow(), \
         updated_at=datetime.utcnow(), \
         github_api_owner_id = repo.owner.id, \
-        organization=orgName,
+        organization=org_name,
         is_private=repo.private)
         total_new_repos += 1
       else:
         gitRepo.name = repo.name
         gitRepo.github_api_owner_id = repo.owner.id
-        gitRepo.organization = orgName
+        gitRepo.organization = org_name
         gitRepo.is_private = repo.private
         gitRepo.updated_at = datetime.utcnow()
         total_updated_repos += 1
@@ -52,10 +55,11 @@ def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow
   updated_commits = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    gitUserObject = g.get_user()
-    for repo in gitUserObject.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
+      sleep(2.5)
       try:
-        userCommits = repo.get_commits(since=startDate, until=endDate, author=gitUserObject.name)
+        userCommits = repo.get_commits(since=startDate, until=endDate, author=gitUser.name)
         print('Adding commits for repo ')
         print(repo.name)
         for commit in userCommits:
@@ -120,15 +124,17 @@ def capture_github_prs_opened(startDate=datetime(2008,1,1), endDate=datetime.utc
   updated_PRs = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    g_user = g.get_user()
-    for repo in g_user.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
+      sleep(2.5)      
       userPRs = repo.get_pulls()
       for pr in userPRs:
         if (pr.created_at < startDate or pr.created_at > endDate):
           continue
-        if(pr.user.id != g_user.id):
+        if(pr.user.id != gitUser.id):
           continue
         gitPR = GitHubPullRequest.query.filter_by(github_api_pr_id=pr.id).first()
+        sleep(2.5)
         gitPR_files = pr.get_files()
         #TODO: calculate impact score as well
         if(gitPR is None):
@@ -188,15 +194,18 @@ def capture_github_issues(startDate=datetime(2008,1,1), user_id=None):
   total_updated_issues = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    g_user = g.get_user()
-    for repo in g_user.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
       #Step 1: issues opened by user
+      sleep(2.5)      
       for issue in repo.get_issues(since=startDate):
         if(issue is None):
           continue
         issue_open = True if issue.state == "closed" else False
         #Only add issues to the databse if the current user either created or closed the issue
-        if (issue.user.id != g_user.id and (issue_open or issue.closed_by.id != g_user.id)):
+        print(issue.issue.user.id)
+        print(issue.user.id)
+        if (issue.user.id != gitUser.id and (issue_open or issue.closed_by.id != gitUser.id)):
           continue
         gitIssue = GitHubIssue.query.filter_by(github_api_issue_id=issue.id).first()      
         if(gitIssue is None):
@@ -242,14 +251,16 @@ def capture_github_issue_comments(startDate=datetime(2008,1,1), user_id=None):
   total_updated_comments = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    g_user = g.get_user()
-    for repo in g_user.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
       #Step 1: issues opened by user
+      sleep(2.5)      
       for issue in repo.get_issues():
         #could have comments on older issues
+        sleep(2.5)      
         for comment in issue.get_comments(since=startDate):
           #only update comments written by the user
-          if(comment.user.id != g_user.id):
+          if(comment.user.id != gitUser.id):
             continue
           gitComment = GitHubComment.query.filter_by(github_api_comment_id=comment.id).first()
           if(gitComment is None):
@@ -294,12 +305,13 @@ def capture_github_pr_comments(startDate=datetime(2008,1,1), user_id=None):
   total_updated_comments = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    g_user = g.get_user()
-    for repo in g_user.get_repos():
+    gitUser = g.get_user()
+    for repo in gitUser.get_repos():
+      sleep(2.5)            
       for pr in repo.get_pulls():
         for comment in pr.get_review_comments(since=startDate):
           #only update comments written by the user
-          if(comment.user.id != g_user.id):
+          if(comment.user.id != gitUser.id):
             continue
           gitComment = GitHubComment.query.filter_by(github_api_comment_id=comment.id).first()
           if(gitComment is None):
