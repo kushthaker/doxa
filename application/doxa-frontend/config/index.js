@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/': {
-        target: 'http://localhost:8080',
+        target: 'http://doxa-staging-new.us-east-1.elasticbeanstalk.com/',
         changeOrigin: true
       }
     },

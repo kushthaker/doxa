@@ -1,23 +1,50 @@
 <template>  
   <div>
     <b-container>
-      <div class="row text-center">
-        <h1>Potential time to focus</h1>
+      <div class="row greeting">
+        <div>
+          <h5>Good Afternoon, Laurier.</h5>
+        </div>
       </div>
-      <div class="row">
-        <div class="col-md-6 text-center">
-          <h4 v-if="this.activityDataIsReady">You have <b>{{this.remainingFocusHours}}</b> remaining free hours for focused work this week.</h4>
-          <b v-else class="text-center">Loading data...</b>
+      <div class="row suggestions">
+        <h5 class="alert alert-warning">Spend less time on Slack this week. <a href="">Set Do Not Disturb</a></h5>
+        <h5 class="alert alert-warning">Need to attend all meetings this week? <a href="">See Calendar</a></h5>
+        <h5 class="alert alert-warning">Have you disconnected after work this week? <a href="">Set Do Not Disturb</a></h5>
+      </div>
+      <div class="row current-week">
+        <div>
+          <h3>
+            <b v-if="this.activityDataIsReady">{{this.remainingFocusHours}}/40</b> 
+            <b v-else class="text-center">-/40</b>
+            hours remain to focus this week.
+          </h3>
+          <p>Current week from 
+            <b v-if="this.activityDataIsReady">{{this.dateRange.startDate}}</b>
+            <b v-else="">-</b>
+            to
+            <b v-if="this.activityDataIsReady">{{this.dateRange.endDate}}</b>
+            <b v-else="">-</b>
+          </p>
+          <p>Next focus session [tomorrow at 9:30am]</p>
+        </div>
+      </div>
 
-        </div>
-        <div class="col-md-6 text-center">
+
+      <div class="row previous-week">
+        <div>
+          <h3>Previous week's trends</h3>
+          <p>Previous week from 
+            <b v-if="this.activityDataIsReady">{{this.dateRange.startDate}}</b>
+            <b v-else="">-</b>
+            to
+            <b v-if="this.activityDataIsReady">{{this.dateRange.endDate}}</b>
+            <b v-else="">-</b>
+          </p>
         </div>
       </div>
+
       <br>
-      <div class="row text-center">
-        <h1>How you spend your time from</h1>
-        <p>{{this.dateRange.startDate}} - {{this.dateRange.endDate}}</p>
-      </div>
+
       <div class="row">
         <div class="col-md-6">
           <pie v-bind:activity="this.activityData" :number="1" :isReady="this.activityDataIsReady"></pie>
@@ -74,3 +101,21 @@
     })
   }
 </script>
+
+<style>
+  .greeting {
+    margin-bottom: 2%;
+  }
+
+  .current-week {
+    margin-bottom: 5%;
+  }
+
+  .suggestions {
+    margin-bottom: 5%;
+  }
+
+  .suggestions a {
+    text-decoration: underline;
+  }
+</style>

@@ -1,13 +1,18 @@
 <template>
-  <div>
-    <h3 class="text-center">Disconnecting after hours</h3>
+  <div class="text-center">
+    <h5>Disconnected After-Hours</h5>
+    <div>
+      All-time average <b>2.7</b> days per week.
+    </div>
     <br>
-    <div v-if="this.isReady" class="row text-center">
-      <h4> You have disconnected {{collaborativeDayCounts.disconnectedDays}} out of {{collaborativeDayCounts.totalDays}} potential days.
-      </h4>
+    <br>
+    <div v-if="this.isReady" class="text-center">
+      <h2>You turned off work</h2>
+      <h2 class="disconnected-days">{{collaborativeDayCounts.disconnectedDays}} / {{collaborativeDayCounts.totalDays}}</h2>
+      <h2>days last week.</h2>
     </div>
     <div v-else class="row text-center">
-      <b class="text-center">Loading data...</b>
+      <b class="text-center">Loading...</b>
     </div>
   </div>
 </template>
@@ -64,4 +69,10 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.disconnected-days {
+    font-size: 4em;
+    font-weight: 900;
+}
+
 </style>
