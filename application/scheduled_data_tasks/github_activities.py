@@ -236,16 +236,15 @@ def capture_github_issues(startDate=datetime(2008,1,1), user_id=None):
     for repo in gitUser.get_repos():
       #Step 1: issues opened by user
       sleep(2.5)      
-      for issue in repo.get_issues(since=startDate):
+      for issue in repo.get_issues(since=startDate, creator=gitUser.name):
         try:
           if(issue is None):
             continue
           if(issue.user is None):
             continue
           issue_open = True if issue.state == "closed" else False
-          #Only add issues to the databse if the current user either created or closed the issue
-          print(issue.user.id)
-          if (issue.user.id != gitUser.id and (issue_open or issue.closed_by.id != gitUser.id)):
+          #Only add issues to the databse if the current user created the issue
+          if (issue.user.id != gitUser.id):
             continue
           gitIssue = GitHubIssue.query.filter_by(github_api_issue_id=issue.id).first()      
           if(gitIssue is None):
@@ -304,8 +303,9 @@ def capture_github_issue_comments(startDate=datetime(2008,1,1), user_id=None):
     for repo in gitUser.get_repos():
       #Step 1: issues opened by user
       sleep(2.5)      
-      for issue in repo.get_issues():
+      for issue in repo.get_issues(since=startDate):
         #could have comments on older issues
+        print('getting issue in repo ' + repo.name)
         sleep(2.5)      
         for comment in issue.get_comments(since=startDate):
           try:
