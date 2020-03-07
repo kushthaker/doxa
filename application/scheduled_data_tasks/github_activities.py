@@ -3,8 +3,8 @@ from application.models import GitHubUser, GitHubRepo, \
 from application.initialize.db_init import db
 from datetime import datetime, timedelta
 
-from github import Github
-from datetime import datetime
+from github import Github, GithubException
+from datetime import datetime, timedelta
 
 def capture_github_repos(user_id=None):
   #For each user, or a given user, get and store all repos a user contributes to
@@ -13,7 +13,10 @@ def capture_github_repos(user_id=None):
   total_updated_repos = 0
   for user in github_users:
     g = Github(user.github_oauth_access_token)
-    for repo in g.get_user().get_repos():
+    g_user = g.get_user()
+    for repo in g_user.get_repos():
+      org = repo.organization
+      orgName = org.name if org is not None else "none" 
       gitRepo = GitHubRepo.query.filter_by(github_api_repo_id=repo.id).first()
       if(gitRepo is None):
         gitRepo = GitHubRepo(
@@ -22,13 +25,13 @@ def capture_github_repos(user_id=None):
         created_at=datetime.utcnow(), \
         updated_at=datetime.utcnow(), \
         github_api_owner_id = repo.owner.id, \
-        organization=repo.organization.name,
+        organization=orgName,
         is_private=repo.private)
         total_new_repos += 1
       else:
         gitRepo.name = repo.name
         gitRepo.github_api_owner_id = repo.owner.id
-        gitRepo.organization = repo.organization.name
+        gitRepo.organization = orgName
         gitRepo.is_private = repo.private
         gitRepo.updated_at = datetime.utcnow()
         total_updated_repos += 1
@@ -40,7 +43,7 @@ def capture_github_repos(user_id=None):
 
 
 
-def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), user_id=None):
+def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow(), user_id=None):
   '''For a given github user and time period, get all commits
      If no time range is provided, will obtain all commits since the beginning of time.
      user_id is the id row value in the github_users table. If none, will perform for all users.'''
@@ -51,34 +54,41 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
     g = Github(user.github_oauth_access_token)
     gitUserObject = g.get_user()
     for repo in gitUserObject.get_repos():
-      userCommits = repo.get_commits(since=startDate, until=endDate, author=gitUserObject)
-      for commit in userCommits:
-        gitCommit = GitHubCommit.query.filter_by(sha=commit.sha).first()
-        #TODO: calculate impact score as well
-        if(gitCommit is None):
-          gitCommit = GitHubCommit(
-            created_at=datetime.utcnow(), \
-            updated_at=datetime.utcnow(), \
-            github_api_repo_id=repo.id, \
-            github_api_author_id=commit.author.id, \
-            github_api_committer_id=commit.committer.id, \
-            sha=commit.sha, \
-            github_api_committed_at = commit.author.date, \
-            insertions=commit.stats.insertions, \
-            deletions = commit.author.deletions, \
-            files_changed = len(commit.files)
+      try:
+        userCommits = repo.get_commits(since=startDate, until=endDate, author=gitUserObject.name)
+        print('Adding commits for repo ')
+        print(repo.name)
+        for commit in userCommits:
+          gitCommit = GitHubCommit.query.filter_by(sha=commit.commit.sha).first()
+          print('commit found')
+          #TODO: calculate impact score as well
+          if(gitCommit is None):
+            gitCommit = GitHubCommit(
+              created_at=datetime.utcnow(), \
+              updated_at=datetime.utcnow(), \
+              github_api_repo_id=repo.id, \
+              github_api_author_id=commit.commit.author.id, \
+              github_api_committer_id=commit.commit.committer.id, \
+              sha=commit.commit.sha, \
+              github_api_committed_at = commit.commit.author.date, \
+              insertions=commit.commit.stats.insertions, \
+              deletions = commit.commit.author.deletions, \
+              files_changed = len(commit.commit.files)
             )
-          new_commits += 1
-        else:
-          gitCommit.github_api_author_id = commit.author.id
-          gitCommit.github_api_committer_id = commit.committer.id
-          gitCommit.github_api_committed_at = commit.author.date
-          gitCommit.insersions = commit.stats.insertions
-          gitCommit.deletions = commit.author.deletions
-          gitCommit.updated_at = datetime.utcnow()
-          updated_commits += 1
-      #TODO: calculate edit points and impact score here      
-        db.session.add(gitCommit)
+            new_commits += 1
+          else:
+            gitCommit.github_api_author_id = commit.commit.author.id
+            gitCommit.github_api_committer_id = commit.commit.committer.id
+            gitCommit.github_api_committed_at = commit.commit.author.date
+            gitCommit.insersions = commit.commit.stats.insertions
+            gitCommit.deletions = commit.commit.author.deletions
+            gitCommit.updated_at = datetime.utcnow()
+            updated_commits += 1
+          #TODO: calculate edit points and impact score here      
+          db.session.add(gitCommit)
+      except GithubException as e:
+        print(e.args[1]['message'] + " Skipping.")
+        continue
 
   db.session.commit()
   if(user_id is None):
@@ -88,20 +98,20 @@ def capture_github_commits(startDate=datetime.min, endDate=datetime.utcnow(), us
   return
 
 #For regular updates (1min grace to avoid missing data)
-def capture_gitcommits_10min():
+def capture_gitcommits_1hr():
   nowtime = datetime.utcnow()
-  capture_github_commits(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow())
+  capture_github_commits(startDate=nowtime-timedelta(hours=2), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_gitcommits_history():
   nowtime = datetime.utcnow()
-  capture_github_commits(startDate=nowtime-datetime.timedelta(days=30), endDate=datetime.utcnow())  
+  capture_github_commits(startDate=nowtime-timedelta(days=30), endDate=datetime.utcnow())  
 
 
 
 #We have a function to capture opened PRs.
 #At some point, might be worth capturing closed/merged PRs as well (as additional contributions by a user)
-def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(), user_id=None):
+def capture_github_prs_opened(startDate=datetime(2008,1,1), endDate=datetime.utcnow(), user_id=None):
   '''For a given github user and time period, get all PRs the user has opened
      If no time range is provided, will obtain all PRs since the beginning of time.
      user_id is the id row value in the github_users table. If none, will perform for all users.'''
@@ -112,20 +122,22 @@ def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
     g = Github(user.github_oauth_access_token)
     g_user = g.get_user()
     for repo in g_user.get_repos():
-      userPRs = repo.get_pulls(user=g_user)
+      userPRs = repo.get_pulls()
       for pr in userPRs:
         if (pr.created_at < startDate or pr.created_at > endDate):
+          continue
+        if(pr.user.id != g_user.id):
           continue
         gitPR = GitHubPullRequest.query.filter_by(github_api_pr_id=pr.id).first()
         gitPR_files = pr.get_files()
         #TODO: calculate impact score as well
         if(gitPR is None):
-          gitPR = GitHubCommit(
+          gitPR = GitHubPullRequest(
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
             github_api_pr_id=pr.id,
             github_api_repo_id=repo.id,
-            github_api_author_id=commit.author.id,
+            github_api_author_id=pr.user.id,
             base_sha=pr.base.sha,
             head_sha=pr.head.sha,
             github_api_opened_at = pr.created_at,
@@ -143,32 +155,33 @@ def capture_github_prs_opened(startDate=datetime.min, endDate=datetime.utcnow(),
           gitPR.status = pr.state
           gitPR.updated_at = datetime.utcnow()
           updated_PRs += 1
-      if(pr.state == "closed"):
-        gitPR.github_api_closed_at = pr.closed_at
-      if(pr.merged):
-        gitPR.github_api_merged_at = pr.merged_at
-      #TODO: calculate edit points, churn percentage and impact score here
+        if(pr.state == "closed"):
+          gitPR.github_api_closed_at = pr.closed_at
+        if(pr.merged):
+          gitPR.github_api_merged_at = pr.merged_at
+        #TODO: calculate edit points, churn percentage and impact score here
         db.session.add(gitPR)
 
   db.session.commit()
   if(user_id is None):
-    print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for %s github_users' % (new_PRS, updated_PRs, len(github_users)))
+    print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for %s github_users' % (new_PRs, updated_PRs, len(github_users)))
   else:
-    print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for github user %s' % (new_PRS, updated_PRs, user_id))
+    print('Added %s new github_pull_requests to DB and updated %s github_pull_requests for github user %s' % (new_PRs, updated_PRs, user_id))
   return
 
 #For regular updates (1min grace to avoid missing data)
-def capture_opened_prs_10min():
+def capture_opened_prs_1hr():
   nowtime = datetime.utcnow()
-  capture_github_prs_opened(startDate=nowtime-datetime.timedelta(minutes=11), endDate=datetime.utcnow())
+  capture_github_prs_opened(startDate=nowtime-timedelta(hours=2), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_opened_prs_history():
-  capture_github_prs_opened()
+  nowtime = datetime.utcnow()
+  capture_github_prs_opened(startDate=nowtime-timedelta(days=30))
 
 
 
-def capture_github_issues(startDate=datetime.min, user_id=None):
+def capture_github_issues(startDate=datetime(2008,1,1), user_id=None):
   #For each user, or for a single specified user, get or update all issues the user has opened or closed
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   total_new_issues = 0
@@ -179,9 +192,11 @@ def capture_github_issues(startDate=datetime.min, user_id=None):
     for repo in g_user.get_repos():
       #Step 1: issues opened by user
       for issue in repo.get_issues(since=startDate):
+        if(issue is None):
+          continue
         issue_open = True if issue.state == "closed" else False
         #Only add issues to the databse if the current user either created or closed the issue
-        if (issue.creator.id != g_user.id and (issue_open or issue.closed_by.id != g_user.id)):
+        if (issue.user.id != g_user.id and (issue_open or issue.closed_by.id != g_user.id)):
           continue
         gitIssue = GitHubIssue.query.filter_by(github_api_issue_id=issue.id).first()      
         if(gitIssue is None):
@@ -189,7 +204,7 @@ def capture_github_issues(startDate=datetime.min, user_id=None):
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
             github_api_issue_id=issue.id,
-            github_api_creator_id = issue.creator.id,
+            github_api_creator_id = issue.user.id,
             github_api_opened_at=issue.created_at,
             is_open=issue_open
           )
@@ -209,17 +224,18 @@ def capture_github_issues(startDate=datetime.min, user_id=None):
   return
 
 #For regular updates (1min grace to avoid missing data)
-def capture_gitissues_10min():
+def capture_gitissues_1hr():
   nowtime = datetime.utcnow()
-  capture_github_issues(startDate=nowtime-datetime.timedelta(minutes=10))
+  capture_github_issues(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_gitissues_history():
-  capture_github_issues()
+  nowtime = datetime.utcnow()
+  capture_github_issues(startDate=nowtime-timedelta(days=30))
 
 
 
-def capture_github_issue_comments(startDate=datetime.min, user_id=None):
+def capture_github_issue_comments(startDate=datetime(2008,1,1), user_id=None):
   #TODO: For each user, get all issue comments within a given time period
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   total_new_comments = 0
@@ -260,17 +276,18 @@ def capture_github_issue_comments(startDate=datetime.min, user_id=None):
   return
 
 #For regular updates (1min grace to avoid missing data)
-def capture_gitIssueComments_10min():
+def capture_gitIssueComments_1hr():
   nowtime = datetime.utcnow()
-  capture_github_issue_comments(startDate=nowtime-datetime.timedelta(minutes=11))
+  capture_github_issue_comments(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_gitIssueComments_history():
-  capture_github_issue_comments()
+  nowtime = datetime.utcnow()
+  capture_github_issue_comments(startDate=nowtime-timedelta(days=30))
 
 
 
-def capture_github_pr_comments(startDate=datetime.min, user_id=None):
+def capture_github_pr_comments(startDate=datetime(2008,1,1), user_id=None):
   #TODO: For each user, get all PR comments within a given time period
   github_users = GitHubUser.query.all() if user_id is None else GitHubUser.query.filter_by(id=user_id)
   total_new_comments = 0
@@ -280,7 +297,7 @@ def capture_github_pr_comments(startDate=datetime.min, user_id=None):
     g_user = g.get_user()
     for repo in g_user.get_repos():
       for pr in repo.get_pulls():
-        for comment in pr.get_comments(since=startDate):
+        for comment in pr.get_review_comments(since=startDate):
           #only update comments written by the user
           if(comment.user.id != g_user.id):
             continue
@@ -309,10 +326,11 @@ def capture_github_pr_comments(startDate=datetime.min, user_id=None):
   return
 
 #For regular updates (1min grace to avoid missing data)
-def capture_gitPRComments_10min():
+def capture_gitPRComments_1hr():
   nowtime = datetime.utcnow()
-  capture_github_pr_comments(startDate=nowtime-datetime.timedelta(minutes=11))
+  capture_github_pr_comments(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
 def capture_gitPRComments_history():
-  capture_github_pr_comments()
+  nowtime = datetime.utcnow()
+  capture_github_pr_comments(startDate=nowtime-timedelta(days=30))
