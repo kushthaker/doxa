@@ -64,9 +64,9 @@
             else console.log('Not categorized')  
           }
         })
-        var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(2)
-        var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(2)
-        var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(2)
+        var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(0)
+        var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(0)
+        var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(0)
 
         var valuesList = [
           { label: 'Collaborative Time', value: cP },

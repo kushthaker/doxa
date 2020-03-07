@@ -82,7 +82,7 @@
           var activityUTCDatetime = new Date(act.datetime_utc)
           return (activityUTCDatetime > now) & (!act.not_work_hours) & (act.google_calendar_event_count === 0)
         }).length * PERIOD_LENGTH
-        return remainingHours.toFixed(1)
+        return remainingHours.toFixed(0)
       },
       formErrors: function(state) {
         return state.formErrors
