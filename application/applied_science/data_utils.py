@@ -225,8 +225,11 @@ def current_user_week_limits(user, return_utc=True):
   current_user_local_time = user_tz_conversion_function(dt.datetime.utcnow())
 
   # finding Sunday before current time
-  start_week_local_time = current_user_local_time - \
-            dt.timedelta(days=current_user_local_time.weekday() + WEEKDAY_OFFSET)
+  sunday_offset = (current_user_local_time.weekday() + 1) % 7
+  start_week_local_time = current_user_local_time - dt.timedelta(days=sunday_offset)
+  # start_week_local_time = start_week_local_time.replace(hour=0, minute=0, second=0, microsecond=0)
+  # start_week_local_time = current_user_local_time - \
+  #           dt.timedelta(days=current_user_local_time.weekday() + WEEKDAY_OFFSET)
   start_week_local_time = dt.datetime(
                             year = start_week_local_time.year,
                             month = start_week_local_time.month,
@@ -237,8 +240,8 @@ def current_user_week_limits(user, return_utc=True):
                             microsecond = 0)
 
   # finding Saturday after current time
-  end_week_local_time = current_user_local_time + \
-              dt.timedelta(days=(6 - current_user_local_time.weekday() - WEEKDAY_OFFSET))
+  saturday_offset = (5 - current_user_local_time.weekday()) % 7
+  end_week_local_time = current_user_local_time + dt.timedelta(days=saturday_offset)
   end_week_local_time = dt.datetime(
                           year = end_week_local_time.year,
                           month = end_week_local_time.month,
@@ -247,7 +250,6 @@ def current_user_week_limits(user, return_utc=True):
                           minute = 59,
                           second = 59,
                           microsecond = 999999)
-
   if not return_utc:
     return (start_week_local_time, end_week_local_time)
 

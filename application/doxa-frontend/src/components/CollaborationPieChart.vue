@@ -102,6 +102,9 @@
       },
       name: function() {
         return 'collaboration-pie' + this.number
+      },
+      noData: function() {
+        return (this.activity.length > 0) & (this.donutData.length == 0)
       }
     },
   }
