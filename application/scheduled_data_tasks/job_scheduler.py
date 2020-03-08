@@ -51,14 +51,14 @@ JOB_SCHEDULE = [
     'func': github_activities.capture_gitcommits_30day,
     'trigger': apscheduler_util.nightly_midnight_EST()
   },
-  {
-    'func': github_activities.capture_opened_prs_1hr,
-    'trigger': apscheduler_util.build_hour_trigger(1)
-  },
-  {
-    'func': github_activities.capture_opened_prs_30day,
-    'trigger': apscheduler_util.nightly_midnight_EST()
-  },
+  # {
+  #   'func': github_activities.capture_opened_prs_1hr,
+  #   'trigger': apscheduler_util.build_hour_trigger(1)
+  # },
+  # {
+  #   'func': github_activities.capture_opened_prs_30day,
+  #   'trigger': apscheduler_util.nightly_midnight_EST()
+  # },
   {
     'func': github_activities.capture_gitissues_1hr,
     'trigger': apscheduler_util.build_hour_trigger(1)
@@ -74,14 +74,14 @@ JOB_SCHEDULE = [
   {
     'func': github_activities.capture_gitIssueComments_30day,
     'trigger': apscheduler_util.nightly_midnight_EST()
-  },
-  {
-    'func': github_activities.capture_gitPRComments_1hr,
-    'trigger': apscheduler_util.build_hour_trigger(1)
-  },
-  {
-    'func': github_activities.capture_gitPRComments_30day,
-    'trigger': apscheduler_util.nightly_midnight_EST()
+  # }
+  # {
+  #   'func': github_activities.capture_gitPRComments_1hr,
+  #   'trigger': apscheduler_util.build_hour_trigger(1)
+  # },
+  # {
+  #   'func': github_activities.capture_gitPRComments_30day,
+  #   'trigger': apscheduler_util.nightly_midnight_EST()
   }
 ]
 
