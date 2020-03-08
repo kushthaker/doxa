@@ -11,6 +11,7 @@ SLACK_CONVERSATION_READ_COLUMN_NAME = 'slack_conversation_read_count'
 SLACK_USER_EVENT_COLUMN_NAME = 'slack_user_event_count'
 GOOGLE_CALENDAR_EVENT_ID_COLUMN_NAME = 'google_calendar_event_id'
 GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME = 'google_calendar_event_count'
+MONDAY_TO_FRIDAY = [0, 1, 2, 3, 4]
 
 def roll(df, w, **kwargs):
   # returns iterable of DataFrames each having some length (for window-type functions)
@@ -19,7 +20,8 @@ def roll(df, w, **kwargs):
   s0, s1 = v.strides
 
   a = stride(v, (d0 - (w - 1), w, d1), (s0, s0, s1))
-
+  if len(a) == 0:
+    return np.array([])
   rolled_df = pd.concat({
       row: pd.DataFrame(values, columns=df.columns)
       for row, values in zip(df.index, a)

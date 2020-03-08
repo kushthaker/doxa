@@ -1,6 +1,7 @@
 <template>  
   <div>
     <b-container>
+<<<<<<< HEAD
       <div class="row greeting">
         <div>
           <h5>Good Afternoon, Laurier.</h5>
@@ -80,7 +81,7 @@
         var now = new Date()
         var remainingHours = activity.filter(function(act) {
           var activityUTCDatetime = new Date(act.datetime_utc)
-          return (activityUTCDatetime > now) & (!act.not_work_hours) & (act.google_calendar_event_count === 0)
+          return (activityUTCDatetime > now) & (act.is_workday_time) & (! act.is_collaborative_time) & (! act.is_refocus_time)
         }).length * PERIOD_LENGTH
         return remainingHours.toFixed(0)
       },
@@ -98,6 +99,14 @@
         var endDate = new Date(state.activityData[state.activityData.length-1].datetime_utc).toDateString()
         return { startDate, endDate }
       }
+      // fullDateRange: function(state) {
+      //   if(state.activityData.length == 0) {
+      //     return {}
+      //   }
+      //   var startDate = new Date(state.activityData[0].datetime_utc)
+      //   var endDate = new Date(state.activityData[state.activityData.length-1].datetime_utc)
+      //   return { startDate, endDate }
+      // },
     })
   }
 </script>

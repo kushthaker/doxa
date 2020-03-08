@@ -7,11 +7,10 @@ def labelled_focus_time_df(user, start_datetime=None, end_datetime=None):
   '''
     Core method to deliver reliable, annotated data to users
   '''
+  hour_timezone_offset = user.timezone_offset_hours
   activity_df = get_activity_report_df(user, start_datetime=None, end_datetime=None)
   activity_df.index = activity_df.datetime_utc
  
-  activity_df = label_focus_time(activity_df)
-  activity_df = apply_work_hours_label(activity_df, hour_timezone_offset)
   activity_df.index += dt.timedelta(hours=hour_timezone_offset)
   activity_df['datetime_local'] = activity_df.index
   return activity_df
@@ -88,7 +87,7 @@ def sample_collab_func(mini_df, pfr=1, ipl=1, misa=1, mira=1):
     refocus_dt = None
   return interruption_dt, refocus_dt
 
-# applied like activity_df['focused_work_period_start'] = da.focused_work_calculation(activity_df, gloria_mark, df_size=5)
+# applied like activity_df['focused_work_period_start_utc'] = da.focused_work_calculation(activity_df, gloria_mark, df_size=5)
 
 def focused_work_calculation(df, collab_func=None, df_size=None, **kwargs):  
   # keeping track of state across looks
@@ -113,14 +112,16 @@ def focused_work_calculation(df, collab_func=None, df_size=None, **kwargs):
     elif (mini_df.datetime_utc[-1] == df.datetime_utc[-1]) \
       & (streak_start is not None) & (refocus is not None):
       streak[mini_df.datetime_utc[-1]] = streak_start
-    
-  du.roll(df, df_size).apply(get_streak)
+
+  if df.shape[0] > 1: du.roll(df, df_size).apply(get_streak)
   return pd.to_datetime(streak)
 
 def gloria_mark(mini_df, pfr=5, ipl=2, mira=2, misa=1):
-  # refocus is 5 periods (25 minutes)
-  # interruption period is 2 (need to get interrupted 10 minutes in a row)
-  # slack interruption is reading 2 messages or sending 1 message
+  '''
+  refocus is 5 periods (25 minutes)
+  interruption period is 2 (need to get interrupted 10 minutes in a row)
+  slack interruption is reading 2 messages or sending 1 message
+  '''
   slack_read_col = mini_df[du.SLACK_CONVERSATION_READ_COLUMN_NAME]
   slack_send_col = mini_df[du.SLACK_USER_EVENT_COLUMN_NAME]
   cal_event_count_col = mini_df[du.GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME]
@@ -142,3 +143,71 @@ def gloria_mark(mini_df, pfr=5, ipl=2, mira=2, misa=1):
   else:
     refocus_dt = None
   return interruption_dt, refocus_dt
+
+
+def naive_focus(mini_df, mira=1, misa=1):
+  '''
+  no refocus time (1 single event)
+  slack interruption is reading 1 message or sending 1 message
+  '''
+  ipl = 1 # hardcoded for this model
+  slack_read_col = mini_df[du.SLACK_CONVERSATION_READ_COLUMN_NAME]
+  slack_send_col = mini_df[du.SLACK_USER_EVENT_COLUMN_NAME]
+  cal_event_count_col = mini_df[du.GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME]
+
+  interruptions = mini_df.head(ipl).loc[
+    (slack_read_col.head(1) >= mira)
+    | (slack_send_col.head(1) >= misa)
+    | (cal_event_count_col.head(1) > 0)
+  ]
+  if len(interruptions) >= ipl:
+    interruption_dt = mini_df.head(ipl).datetime_utc[0]
+  else:
+    interruption_dt = None
+  refocus_dt = None
+  if not interruption_dt:
+    refocus_dt = mini_df.head(ipl).datetime_utc[0]
+  return interruption_dt, refocus_dt
+
+# based on something like gloria_mark, needs data to be annotated with `focused_work_period_start`
+# use activity_df['is_refocusing_time'] = da.get_refocus_time(activity_df)
+def get_refocus_times(df):
+  if (not ('focused_work_period_start_utc' in df.columns)) or (not ('datetime_utc' in df.columns)):
+    raise pd.errors.DtypeWarning
+  eofp = df.loc[pd.isnull(df.focused_work_period_start_utc).astype(int) == 0]
+
+  is_refocusing = pd.Series(index=df.index)
+  def refocus_times(mini_df):
+    nonlocal df, is_refocusing
+    conditions = (df.datetime_utc <= mini_df.focused_work_period_start_utc[1]) \
+      & (df.datetime_utc > mini_df.datetime_utc[0]) \
+      & (df.google_calendar_event_count == 0) \
+      & (df.slack_conversation_read_count < 2) \
+      & (df.slack_user_event_count < 1)
+
+    is_refocusing.loc[conditions] = True
+  # only need to apply if we ever are _refocusing_
+  if (eofp.shape[0] > 1):
+    du.roll(eofp, 2).apply(refocus_times)
+  if eofp.shape[0] > 0:
+    first_focus = eofp.focused_work_period_start_utc[0]
+    first_focus_beginning = first_focus - dt.timedelta(minutes=25) # Gloria Mark 25 minutes
+    is_refocusing.loc[(df.datetime_utc < first_focus) & (df.datetime_utc >= first_focus_beginning)] = True
+  return is_refocusing
+
+def get_focus_times(df):
+  if (not ('focused_work_period_start_utc' in df.columns)) or (not ('datetime_utc' in df.columns)):
+    raise pd.errors.DtypeWarning
+  eofp = df.loc[pd.isnull(df.focused_work_period_start_utc).astype(int) == 0]
+  is_focused = pd.Series(index=df.index)
+  def focus_times(mini_df):
+    nonlocal df, is_focused
+    conditions = (df.datetime_utc >= mini_df.focused_work_period_start_utc[0]) \
+      & (df.datetime_utc < mini_df.datetime_utc[0])
+    is_focused.loc[conditions] = True
+  if (eofp.shape[0] > 1): du.roll(eofp, 1).apply(focus_times)
+  return is_focused
+
+def nonwork_collaborative_time(df):
+  # requires df to have 
+  return naive_collaborative_time_series(df)
