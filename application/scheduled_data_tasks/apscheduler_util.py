@@ -57,3 +57,7 @@ def build_second_trigger(seconds):
 
 def fridays_at_9AM_EST():
    return CronTrigger(day_of_week='fri', hour=14)
+
+def nightly_midnight_EST():
+  trigger = CronTrigger(hour=5)
+  return trigger

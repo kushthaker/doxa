@@ -355,6 +355,7 @@ class GitHubIssue(db.Model, EnhancedDBModel):
 	updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow, nullable=False)
 	github_api_issue_id = db.Column(db.Integer, nullable=False)
 	github_api_creator_id = db.Column(db.Integer, nullable=False)
+	github_api_closer_id = db.Column(db.Integer, nullable=True)
 	is_open = db.Column(db.Boolean, nullable=True)
 	github_api_opened_at = db.Column(db.DateTime, nullable=False)
 	github_api_closed_at = db.Column(db.DateTime, nullable=True)
@@ -371,7 +372,7 @@ class GitHubComment(db.Model, EnhancedDBModel):
 	github_api_author_id = db.Column(db.Integer, nullable=False)	
 	#Type distinguishes between "commit", "PR", "issue" etc. comments
 	#Playing it safe with space allocation
-	comment_type = db.Column(db.String(30), primary_key=True)
+	comment_type = db.Column(db.String(30), nullable=False)
 	#ID of the commit, issue, PR or other that this comment was made on
 	github_api_parent_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
