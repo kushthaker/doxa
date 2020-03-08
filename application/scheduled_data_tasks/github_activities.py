@@ -334,6 +334,8 @@ def capture_github_issue_comments(startDate=datetime(2008,1,1), user_id=None):
           except Exception as e:
             print("Error adding (issue) comment with GitHub ID " + str(comment.id) + " to database.\nMessage: ")
             print(e)
+          else:
+            print('comment added')
 
   try:
     db.session.commit()
