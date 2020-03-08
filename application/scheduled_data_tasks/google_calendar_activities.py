@@ -144,7 +144,7 @@ def get_upcoming_events(service):
 	minTime = (pytz.UTC.localize(datetime.datetime.utcnow()) - datetime.timedelta(days=200)).isoformat()
 	now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
 
-	events_result = service.events().list(calendarId='primary', timeMin=minTime, timeMax=maxTime, singleEvents=True, orderBy='startTime').execute()
+	events_result = service.events().list(calendarId='primary', maxResults=1000, timeMin=minTime, timeMax=maxTime, singleEvents=True, orderBy='startTime').execute()
 
 	events = events_result.get('items', [])
 

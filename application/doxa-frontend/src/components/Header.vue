@@ -1,9 +1,8 @@
 <template>
 
-  <b-navbar toggleable="lg" class="center">
-    <div>
+  <b-navbar toggleable="lg">
+    <div class="logo">
       <b-navbar-brand to="/">
-        <br>
         <img class="logo" src="../assets/logo_transparent.png" alt="Fulfilled.ai" width="70" height="70">
       </b-navbar-brand>
     </div>
@@ -11,9 +10,9 @@
     <b-collapse id="nav-collapse" class="mr-auto" is-nav>
       <b-navbar-nav class="ml-auto center">
         <template v-if="isAuthenticated">
-          <b-nav-item to="/fulfilled-dashboard"><h4>Dashboard</h4></b-nav-item>
-          <b-nav-item to="/settings"><h4>Settings</h4></b-nav-item>
-          <b-nav-item to="/Logout"><h4>Logout</h4></b-nav-item>
+          <b-nav-item to="/fulfilled-dashboard">Dashboard</b-nav-item>
+          <b-nav-item to="/settings">Settings</b-nav-item>
+          <b-nav-item to="/Logout">Logout</b-nav-item>
         </template>
         <template v-else>
           <b-nav-item to="/login">Login</b-nav-item>
@@ -56,6 +55,6 @@
 }
 
 .logo {
-  margin: 10px 0px 40px 10px;
+  margin: 10px 0px 40px 0px;
 }
 </style>

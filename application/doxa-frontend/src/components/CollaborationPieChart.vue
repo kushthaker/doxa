@@ -1,6 +1,9 @@
 <template>
-  <div v-if="this.isReady" class="container">
-    <h3 class="text-center">Collaboration / Independent Time Score</h3>
+  <div v-if="this.isReady" class="container text-center">
+    <h5>Collaboration / Independent Time Balance</h5>
+    <div>
+      All-time average <b>35%</b> time in collaboration.
+    </div>
     <donut 
       :id="name"
       :data="donutData"
@@ -11,9 +14,10 @@
     </donut>
   </div>
   <div v-else class="container text-center">
-    <h3 class="text-center">Collaboration / Independent Time Score</h3>
+    <h5 class="text-center">Collaboration / Independent Time Balance</h5>
     <br>
-    <b class="text-center">Loading data...</b>
+    <br>
+    <b class="text-center">Loading...</b>
   </div>
   </div>
 </template>
@@ -60,9 +64,9 @@
             else console.log('Not categorized')  
           }
         })
-        var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(2)
-        var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(2)
-        var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(2)
+        var cP = (100.0*(totalCollaborative/totalWorkHours)).toFixed(0)
+        var iP = (100.0*(totalIndependent/totalWorkHours)).toFixed(0)
+        var rP = (100.0*(totalRefocusing/totalWorkHours)).toFixed(0)
 
         var valuesList = [
           { label: 'Collaborative Time', value: cP },
