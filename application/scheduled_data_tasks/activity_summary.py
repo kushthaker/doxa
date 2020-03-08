@@ -24,7 +24,7 @@ def update_user_activity_rows_workday():
       user_activity_df['is_refocus_time'] = da.get_refocus_times(user_activity_df)
       user_activity_df['is_focus_time'] = da.get_focus_times(user_activity_df)
       user_activity_df['is_collaborative_time'] = user_activity_df.is_focus_time.isnull() \
-        & user_activity_df.is_refocus_time.isnull() & (user_activity_df.datetime_utc < utcnow)
+        & user_activity_df.is_refocus_time.isnull()
       user_activity_df['is_workday_time'] = True
       delete_result = ActivityReportRow.query.filter((ActivityReportRow.datetime_utc >= beginning_of_workday) & (ActivityReportRow.datetime_utc <= now_rounded_up) & (ActivityReportRow.user_id == user.id)).delete()
       print(delete_result)
@@ -81,7 +81,7 @@ def update_user_activity_rows_workday_future():
         user_activity_df['is_refocus_time'] = da.get_refocus_times(user_activity_df)
         user_activity_df['is_focus_time'] = da.get_focus_times(user_activity_df)
         user_activity_df['is_collaborative_time'] = user_activity_df.is_focus_time.isnull() \
-          & user_activity_df.is_refocus_time.isnull() & (user_activity_df.datetime_utc < utcnow)
+          & user_activity_df.is_refocus_time.isnull()
         user_activity_df['is_workday_time'] = True
         delete_result = ActivityReportRow.query.filter((ActivityReportRow.datetime_utc >= start_time_utc) & (ActivityReportRow.datetime_utc <= end_time_utc) & (ActivityReportRow.user_id == user.id)).delete()
         print(delete_result)

@@ -129,7 +129,6 @@ def gloria_mark(mini_df, pfr=5, ipl=2, mira=2, misa=1):
     (slack_read_col.head(ipl) >= mira)
     | (slack_send_col.head(ipl) >= misa)
   ]
-  
   if (len(interruptions) >= ipl) or (cal_event_count_col[0] > 0):
     interruption_dt = mini_df.head(1).datetime_utc[0]
   else:
@@ -206,6 +205,9 @@ def get_focus_times(df):
       & (df.datetime_utc < mini_df.datetime_utc[0])
     is_focused.loc[conditions] = True
   if (eofp.shape[0] > 1): du.roll(eofp, 1).apply(focus_times)
+  elif (eofp.shape[0] == 1):
+    # whole day is focused work except for refocus
+    is_focused = df.datetime_utc >= eofp.focused_work_period_start_utc[0]
   return is_focused
 
 def nonwork_collaborative_time(df):
