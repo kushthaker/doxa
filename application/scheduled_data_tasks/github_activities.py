@@ -134,7 +134,7 @@ def capture_gitcommits_1hr():
   capture_github_commits(startDate=nowtime-timedelta(hours=2), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
-def capture_gitcommits_history():
+def capture_gitcommits_30day():
   nowtime = datetime.utcnow()
   capture_github_commits(startDate=nowtime-timedelta(days=30), endDate=datetime.utcnow())  
 
@@ -219,7 +219,7 @@ def capture_opened_prs_1hr():
   capture_github_prs_opened(startDate=nowtime-timedelta(hours=2), endDate=datetime.utcnow())
 
 #Less frequent lookback job to check for rewrites or missed data
-def capture_opened_prs_history():
+def capture_opened_prs_30day():
   nowtime = datetime.utcnow()
   capture_github_prs_opened(startDate=nowtime-timedelta(days=30))
 
@@ -286,7 +286,7 @@ def capture_gitissues_1hr():
   capture_github_issues(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
-def capture_gitissues_history():
+def capture_gitissues_30day():
   nowtime = datetime.utcnow()
   capture_github_issues(startDate=nowtime-timedelta(days=30))
 
@@ -352,7 +352,7 @@ def capture_gitIssueComments_1hr():
   capture_github_issue_comments(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
-def capture_gitIssueComments_history():
+def capture_gitIssueComments_30day():
   nowtime = datetime.utcnow()
   capture_github_issue_comments(startDate=nowtime-timedelta(days=30))
 
@@ -414,6 +414,6 @@ def capture_gitPRComments_1hr():
   capture_github_pr_comments(startDate=nowtime-timedelta(hours=2))
 
 #Less frequent lookback job to check for rewrites or missed data
-def capture_gitPRComments_history():
+def capture_gitPRComments_30day():
   nowtime = datetime.utcnow()
   capture_github_pr_comments(startDate=nowtime-timedelta(days=30))
