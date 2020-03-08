@@ -372,7 +372,7 @@ class GitHubComment(db.Model, EnhancedDBModel):
 	github_api_author_id = db.Column(db.Integer, nullable=False)	
 	#Type distinguishes between "commit", "PR", "issue" etc. comments
 	#Playing it safe with space allocation
-	comment_type = db.Column(db.String(30), primary_key=True)
+	comment_type = db.Column(db.String(30), nullable=False)
 	#ID of the commit, issue, PR or other that this comment was made on
 	github_api_parent_id = db.Column(db.Integer, nullable=False)
 	created_at = db.Column(db.DateTime, nullable=False)
