@@ -9,7 +9,7 @@ from application.app_setup import application
 from application.initialize.db_init import db
 from application.models import User, GitHubUser #TODO: add GitHub-specific models
 
-from datetime import datetime
+import datetime
 import requests
 
 
@@ -47,6 +47,17 @@ def github_auth_route():
 def authorized(oauth_token):
   if oauth_token is None:
     return flask.jsonify({ 'error: failed to retrieve an oauth token' })
+  session['github_code'] = oauth_token
+  return redirect(FINALIZE_GITHUB_AUTH_ROUTE)
+
+
+@application.route(FINALIZE_GITHUB_AUTH_ROUTE)
+@login_required
+def finalize_github_auth():
+  oauth_token = session['github_code']
+  session['github_code'] = None
+  if oauth_token is None:
+    return flask.jsonify({ 'error: failed to retrieve an oauth token' })
   
   #Retrieve authenticated user information and update/save to the database
   gitUserData = GitHubUserData(oauth_token).get_user()
@@ -61,8 +72,8 @@ def authorized(oauth_token):
       github_email_address=gitUserData.email, \
       is_authenticated = True, \
       is_deleted_on_github=False, \
-      created_at=datetime.utcnow(), \
-      updated_at=datetime.utcnow(), \
+      created_at=datetime.datetime.utcnow(), \
+      updated_at=datetime.datetime.utcnow(), \
       user_id = current_user.id)
 
   else:
@@ -72,7 +83,8 @@ def authorized(oauth_token):
     gitUser.github_email_address = gitUserData.email
     gitUser.is_authenticated = True
     gitUser.is_deleted_on_github = False
-    gitUser.updated_at = datetime.utcnow()
+    gitUser.updated_at = datetime.datetime.utcnow()
+    db.session.add(gitUser)
 
   db.session.add(gitUser)
   db.session.commit()
