@@ -11,6 +11,7 @@ SLACK_CONVERSATION_READ_COLUMN_NAME = 'slack_conversation_read_count'
 SLACK_USER_EVENT_COLUMN_NAME = 'slack_user_event_count'
 GOOGLE_CALENDAR_EVENT_ID_COLUMN_NAME = 'google_calendar_event_id'
 GOOGLE_CALENDAR_EVENT_COUNT_COLUMN_NAME = 'google_calendar_event_count'
+MONDAY_TO_FRIDAY = [0, 1, 2, 3, 4]
 
 def roll(df, w, **kwargs):
   # returns iterable of DataFrames each having some length (for window-type functions)
@@ -19,7 +20,8 @@ def roll(df, w, **kwargs):
   s0, s1 = v.strides
 
   a = stride(v, (d0 - (w - 1), w, d1), (s0, s0, s1))
-
+  if len(a) == 0:
+    return np.array([])
   rolled_df = pd.concat({
       row: pd.DataFrame(values, columns=df.columns)
       for row, values in zip(df.index, a)
@@ -216,51 +218,6 @@ def collaboration_activity_data_for_given_period(user, start_datetime_utc, end_d
   activity_df['user_id'] = user.id
   return activity_df
 
-def focused_streak_calculation(df, collab_func=None, streak_length=3, interruption_period_length=2,
-                               min_interrupt_read_amount=1, min_interrupt_send_amount=1):
-  '''
-    df: pandas Dataframe with datetime index. The index should have
-      periods which have an even separation (standard is five minutes)
-    streak_length: the minimum number of periods without collaborative time determining whether focused work has begun
-    collab_func: the function which gets passed a set of periods to determine whether collaborative time has occurred
-    interruption_period_length: the number of periods required for a period of focused work time to be considered 
-    "interrupted".
-    A streak is assumed to occur if collaborative time has not occurred for the minimum streak length
-  '''
-
-  # periods are 5 minutes each
-  REQ_STREAK_LENGTH_PERIODS = streak_length
-  INTERRUPTION_PERIOD_LENGTH = interruption_period_length
-  PERIOD_LENGTH = dt.timedelta(minutes=5)
-  
-  # keeping track of state across looks
-  streak = pd.Series(index=df.index) # needs to be pandas._libs.tslibs.timestamps.Timestamp series
-  dumb = pd.Series([1, 2, 3])
-  streak_start = None
-  in_streak = False
-  final_period = df.index[-1]
-  def get_streak(mini_df):
-    nonlocal streak, streak_start, in_streak, final_period
-    interrupt_index = mini_df.index[-INTERRUPTION_PERIOD_LENGTH:]
-    final_index = mini_df.index[-1][0] + PERIOD_LENGTH*(REQ_STREAK_LENGTH_PERIODS - 1)
-    
-    if collab_func(mini_df.loc[interrupt_index], min_interrupt_len=INTERRUPTION_PERIOD_LENGTH):
-      if in_streak:
-        streak[final_index] = streak_start
-        in_streak = False
-        streak_start = None
-    else:
-      if not in_streak:
-        # checking fully uninterrupted time
-        if not collab_func(mini_df, min_interrupt_len=INTERRUPTION_PERIOD_LENGTH):
-          in_streak = True
-          streak_start = mini_df.index[0][0]
-      if (final_index == final_period) & in_streak:
-        streak[final_period] = streak_start
-    
-  roll(df, REQ_STREAK_LENGTH_PERIODS).apply(get_streak)
-  return streak
-
 def current_user_week_limits(user, return_utc=True):
   user_tz_conversion_function = convert_to_user_timezone_function(user.slack_user.slack_timezone_offset)
   utc_tz_conversion_function = convert_to_utc_timezone_function(user.slack_user.slack_timezone_offset)
@@ -268,8 +225,11 @@ def current_user_week_limits(user, return_utc=True):
   current_user_local_time = user_tz_conversion_function(dt.datetime.utcnow())
 
   # finding Sunday before current time
-  start_week_local_time = current_user_local_time - \
-            dt.timedelta(days=current_user_local_time.weekday() + WEEKDAY_OFFSET)
+  sunday_offset = (current_user_local_time.weekday() + 1) % 7
+  start_week_local_time = current_user_local_time - dt.timedelta(days=sunday_offset)
+  # start_week_local_time = start_week_local_time.replace(hour=0, minute=0, second=0, microsecond=0)
+  # start_week_local_time = current_user_local_time - \
+  #           dt.timedelta(days=current_user_local_time.weekday() + WEEKDAY_OFFSET)
   start_week_local_time = dt.datetime(
                             year = start_week_local_time.year,
                             month = start_week_local_time.month,
@@ -280,8 +240,8 @@ def current_user_week_limits(user, return_utc=True):
                             microsecond = 0)
 
   # finding Saturday after current time
-  end_week_local_time = current_user_local_time + \
-              dt.timedelta(days=(6 - current_user_local_time.weekday() - WEEKDAY_OFFSET))
+  saturday_offset = (5 - current_user_local_time.weekday()) % 7
+  end_week_local_time = current_user_local_time + dt.timedelta(days=saturday_offset)
   end_week_local_time = dt.datetime(
                           year = end_week_local_time.year,
                           month = end_week_local_time.month,
@@ -290,7 +250,6 @@ def current_user_week_limits(user, return_utc=True):
                           minute = 59,
                           second = 59,
                           microsecond = 999999)
-
   if not return_utc:
     return (start_week_local_time, end_week_local_time)
 

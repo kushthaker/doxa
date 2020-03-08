@@ -19,7 +19,8 @@ class User(db.Model, UserMixin):
 	email = db.Column(db.String(120), unique=True, nullable=False)
 	image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
 	password = db.Column(db.String(60), nullable=False)
-	workday_start = db.Column(db.DateTime, default=datetime(2020, 1, 1, 14, 30))
+	# we will default to workday start of 8:30 to 5:30; 
+	workday_start = db.Column(db.DateTime, default=datetime(2020, 1, 1, 13, 30))
 	workday_end = db.Column(db.DateTime, default=datetime(2020, 1, 1, 22, 30))
 	focus_length = db.Column(db.Integer, default=2)
 	last_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -391,8 +392,15 @@ class ActivityReportRow(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 	slack_conversation_read_count = db.Column(db.Integer, nullable=True)
 	slack_user_event_count = db.Column(db.Integer, nullable=True)
-	google_calendar_event_id = db.Column(db.Integer, db.ForeignKey('google_calendar_events.id'), nullable=True)
+	google_calendar_event_id = db.Column(db.Integer, db.ForeignKey('google_calendar_events.id', \
+	                                                               ondelete='SET NULL'), nullable=True)
 	google_calendar_event_count = db.Column(db.Integer, nullable=True)
+	is_workday_time = db.Column(db.Boolean, nullable=True, default=False)
+	focused_work_period_start_utc = db.Column(db.DateTime, nullable=True)
+	is_focus_time = db.Column(db.Boolean, nullable=True)
+	is_refocus_time = db.Column(db.Boolean, nullable=True)
+	is_collaborative_time = db.Column(db.Boolean, nullable=True)
+
 	__table_args__ = ( \
 	                  Index('activity_report_unique_user_datetime', 'user_id', \
 	                        'datetime_utc', unique=True),)

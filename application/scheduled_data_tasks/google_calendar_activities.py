@@ -50,7 +50,6 @@ def update_google_calendar_events():
 						existing_event.json_data = json.dumps(event)
 						existing_event.updated_at = datetime.datetime.utcnow()
 						existing_event.google_calendar_user_id = g_user.id
-
 						db.session.commit()
 						updated_events += 1
 					else:

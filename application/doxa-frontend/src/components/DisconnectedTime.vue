@@ -31,7 +31,7 @@
         var activity = this.activity
         var disconnectedDays = 0
         var offHourActivities = activity.filter(function(act) {
-          return act.not_work_hours
+          return !act.work
         })
         var uniqueDays = new Set(offHourActivities.map(function(act) {
           return new Date(act.datetime_utc).getUTCDate()
@@ -44,7 +44,7 @@
           }
         })
         offHourActivities.forEach(function(act) {
-          if(act.is_collaborative) {
+          if(act.is_collaborative_time) {
             var day = new Date(act.datetime_utc).getUTCDate()
             if(day in days) {
               days[day] += 1

@@ -35,8 +35,7 @@ JOB_SCHEDULE = [
     'trigger': apscheduler_util.build_hour_trigger(2)
   },
   {
-    # this may be split into an infrequent, long time period job, and a more frequent, short time period job
-    'func': activity_summary.update_user_activity_data_rows,
+    'func': activity_summary.update_user_activity_rows_workday,
     'trigger': apscheduler_util.build_minute_trigger(20)
   },
   {
@@ -51,14 +50,6 @@ JOB_SCHEDULE = [
     'func': github_activities.capture_gitcommits_30day,
     'trigger': apscheduler_util.nightly_midnight_EST()
   },
-  # {
-  #   'func': github_activities.capture_opened_prs_1hr,
-  #   'trigger': apscheduler_util.build_hour_trigger(1)
-  # },
-  # {
-  #   'func': github_activities.capture_opened_prs_30day,
-  #   'trigger': apscheduler_util.nightly_midnight_EST()
-  # },
   {
     'func': github_activities.capture_gitissues_1hr,
     'trigger': apscheduler_util.build_hour_trigger(1)
@@ -74,14 +65,15 @@ JOB_SCHEDULE = [
   {
     'func': github_activities.capture_gitIssueComments_30day,
     'trigger': apscheduler_util.nightly_midnight_EST()
-  # },
-  # {
-  #   'func': github_activities.capture_gitPRComments_1hr,
-  #   'trigger': apscheduler_util.build_hour_trigger(1)
-  # },
-  # {
-  #   'func': github_activities.capture_gitPRComments_30day,
-  #   'trigger': apscheduler_util.nightly_midnight_EST()
+  },
+  {
+
+    'func': activity_summary.update_user_activity_rows_non_workday,
+    'trigger': apscheduler_util.build_hour_trigger(1)
+  },
+  {
+    'func': activity_summary.update_user_activity_rows_workday_future,
+    'trigger': apscheduler_util.build_minute_trigger(15)
   }
 ]
 
