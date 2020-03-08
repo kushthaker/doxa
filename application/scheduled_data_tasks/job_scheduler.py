@@ -73,7 +73,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': activity_summary.update_user_activity_rows_workday_future,
-    'trigger': apscheduler_util.build_hour_trigger(2)
+    'trigger': apscheduler_util.build_minute_trigger(15)
   }
 ]
 

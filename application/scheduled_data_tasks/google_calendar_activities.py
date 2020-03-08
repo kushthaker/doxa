@@ -34,8 +34,8 @@ def update_google_calendar_events():
 						if event.get('start').get('dateTime'):
 							s_dt = parser.parse(event.get('start').get('dateTime'))
 							e_dt = parser.parse(event.get('end').get('dateTime'))
-							s_dt = s_dt + (s_dt - s_dt.replace(tzinfo=pytz.utc))#s_dt.replace(tzinfo=pytz.UTC) - s_dt.utcoffset()
-							e_dt = e_dt + (e_dt - e_dt.replace(tzinfo=pytz.utc))#e_dt.replace(tzinfo=pytz.UTC) - e_dt.utcoffset()
+							s_dt = s_dt.replace(tzinfo=pytz.UTC) - s_dt.utcoffset()
+							e_dt = e_dt.replace(tzinfo=pytz.UTC) - e_dt.utcoffset()
 						elif event.get('start').get('date'):
 							s_dt = parser.parse(event.get('start').get('date'))
 							e_dt = parser.parse(event.get('end').get('date'))
@@ -50,7 +50,6 @@ def update_google_calendar_events():
 						existing_event.json_data = json.dumps(event)
 						existing_event.updated_at = datetime.datetime.utcnow()
 						existing_event.google_calendar_user_id = g_user.id
-
 						db.session.commit()
 						updated_events += 1
 					else:
@@ -61,8 +60,8 @@ def update_google_calendar_events():
 						if event.get('start').get('dateTime'):
 							s_dt = parser.parse(event.get('start').get('dateTime'))
 							e_dt = parser.parse(event.get('end').get('dateTime'))
-							s_dt = s_dt + (s_dt - s_dt.replace(tzinfo=pytz.utc))
-							e_dt = e_dt + (e_dt - e_dt.replace(tzinfo=pytz.utc))
+							s_dt = s_dt.replace(tzinfo=pytz.UTC) - s_dt.utcoffset()
+							e_dt = e_dt.replace(tzinfo=pytz.UTC) - e_dt.utcoffset()
 						elif event.get('start').get('date'):
 							s_dt = parser.parse(event.get('start').get('date'))
 							e_dt = parser.parse(event.get('end').get('date'))
