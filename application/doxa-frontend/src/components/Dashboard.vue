@@ -1,7 +1,6 @@
 <template>  
   <div>
     <b-container>
-<<<<<<< HEAD
       <div class="row greeting">
         <div>
           <h5>Good Afternoon, Laurier.</h5>
