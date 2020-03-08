@@ -397,7 +397,7 @@ def capture_github_pr_comments(startDate=datetime(2008,1,1), user_id=None):
             print("Error adding (PR) comment with GitHub ID " + str(comment.id) + " to database.\nMessage: ")
             print(e)
           else:
-            print('added or updated' + str(total_new_comments + total_updated_comments) ' comments.')
+            print('added or updated' + str(total_new_comments + total_updated_comments) + ' comments.')
 
   try:
     db.session.commit()
