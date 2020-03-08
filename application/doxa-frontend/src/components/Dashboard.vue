@@ -13,7 +13,7 @@
       </div>
       <div class="row current-week">
         <div>
-          <h3>
+          <h3 class="subber">
             <b v-if="this.activityDataIsReady">{{this.remainingFocusHours}}/40</b> 
             <b v-else class="text-center">-/40</b>
             hours remain to focus this week.
@@ -25,14 +25,14 @@
             <b v-if="this.activityDataIsReady">{{this.dateRange.endDate}}</b>
             <b v-else="">-</b>
           </p>
-          <p>Next focus session [tomorrow at 9:30am]</p>
+          <p>Next focus session is <b>tomorrow at 9:30am</b>.</p>
         </div>
       </div>
 
 
       <div class="row previous-week">
         <div>
-          <h3>Previous week's trends</h3>
+          <h3 class="subber">Previous week trends</h3>
           <p>Previous week from 
             <b v-if="this.activityDataIsReady">{{this.dateRange.startDate}}</b>
             <b v-else="">-</b>
@@ -117,5 +117,9 @@
 
   .suggestions a {
     text-decoration: underline;
+  }
+
+  .subber {
+    margin-bottom: 0.5em;
   }
 </style>
