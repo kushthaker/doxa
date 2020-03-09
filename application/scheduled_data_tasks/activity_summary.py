@@ -17,7 +17,7 @@ def update_user_activity_rows_workday():
       now_rounded_up = du.rounddown_next_5min(utcnow) - dt.timedelta(minutes=5)
       if (utcnow.time() > user.workday_end.time()) & \
         ((utcnow - dt.timedelta(hours=1)).time() < user.workday_end.time()):
-        now_rounded_up = utcnow.replace(hour=user.workday_end.hour, minute=user.workday_end.minute, \
+        now_rounded_up = utcnow.replace(hour=user.workday_end.hour, minute=user.workday_end.minute - 5, \
                                         second=0, microsecond=0)
       user_activity_df = du.collaboration_activity_data_for_given_period(user, beginning_of_workday, now_rounded_up)
       user_activity_df['focused_work_period_start_utc'] = da.focused_work_calculation(user_activity_df, da.gloria_mark, df_size=5)
@@ -71,7 +71,7 @@ def update_user_activity_rows_workday_future():
 
       start_time_utc = utcnow.replace(hour=user.workday_start.hour, minute=user.workday_start.minute, \
                                             second=0, microsecond=0) + dt.timedelta(days=day)
-      end_time_utc = utcnow.replace(hour=user.workday_end.hour, minute=user.workday_end.minute, \
+      end_time_utc = utcnow.replace(hour=user.workday_end.hour, minute=user.workday_end.minute-5, \
                                             second=0, microsecond=0) + dt.timedelta(days=day)
       if start_time_utc.weekday() in du.MONDAY_TO_FRIDAY:
 
