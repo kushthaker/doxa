@@ -12,12 +12,12 @@ from flask_login import login_user, current_user, logout_user, login_required
 from application import slack_auth
 from application import google_auth
 from application import github_auth
-from application.scheduled_data_tasks import apscheduler_util
 from flask_wtf import csrf
 import jwt
 from flask import session
 from datetime import datetime, timedelta
 from application.applied_science.data_annotation import labelled_focus_time_df
+from application.scheduled_data_tasks import nudge
 
 # this should eventually be replaced by a CDN
 @application.route('/', methods=['GET'])
@@ -142,6 +142,20 @@ def api_register():
 @application.route('/api/activity-data', methods=['GET'])
 @login_required
 def activity_data():
-	# can build the _collaborative activity_ calculation, streaks, etc. on top of this
-	activity_df = labelled_focus_time_df(current_user)
+	week_offset = request.args.get('week-offset')
+	if week_offset == 'undefined':
+		week_offset = 0
+	week_offset = int(week_offset)
+	activity_df = labelled_focus_time_df(current_user, week_offset=week_offset)
 	return Response(activity_df.to_json(orient='records', date_format='iso'), mimetype='application/json')
+
+@application.route('/api/activate-nudge', methods=['GET'])
+@login_required
+def activate_nudge():
+	nudge_type = request.args.get('nudge_type')
+	return jsonify(nudge.schedule_nudge(nudge_type, user_id=current_user.id)), 200
+
+# @application.route('/api/next-focus', methods=['GET'])
+# @login_required
+# def next_focus_time():
+# 	

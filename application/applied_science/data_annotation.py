@@ -3,12 +3,12 @@ import application.applied_science.data_utils as du
 from application.models import ActivityReportRow
 import datetime as dt
 
-def labelled_focus_time_df(user, start_datetime=None, end_datetime=None):
+def labelled_focus_time_df(user, start_datetime=None, end_datetime=None, week_offset=0):
   '''
     Core method to deliver reliable, annotated data to users
   '''
   hour_timezone_offset = user.timezone_offset_hours
-  activity_df = get_activity_report_df(user, start_datetime=None, end_datetime=None)
+  activity_df = get_activity_report_df(user, start_datetime=None, end_datetime=None, week_offset=week_offset)
   activity_df.index = activity_df.datetime_utc
   activity_df['datetime_local'] = activity_df.datetime_utc + dt.timedelta(hour_timezone_offset)
   return activity_df
@@ -24,8 +24,10 @@ def apply_work_hours_label(df, hour_timezone_offset):
   df['not_work_hours'] = ((weekend_filter) & (workday_filter == False)) | (weekend_filter == False)
   return df
 
-def get_activity_report_df(user, start_datetime=None, end_datetime=None):
+def get_activity_report_df(user, start_datetime=None, end_datetime=None, week_offset=0):
   start_datetime, end_datetime = (start_datetime, end_datetime) if (start_datetime and end_datetime) else du.current_user_week_limits(user)
+  start_datetime += dt.timedelta(days=7*(week_offset))
+  end_datetime += dt.timedelta(days=7*(week_offset))
   hour_timezone_offset = user.timezone_offset_hours
   date_filter = (ActivityReportRow.datetime_utc >= start_datetime) & (ActivityReportRow.datetime_utc < end_datetime)
   user_filter = ActivityReportRow.user_id == user.id

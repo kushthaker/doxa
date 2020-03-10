@@ -18,8 +18,8 @@
             required
             id="input-1"
             type="text"
-          >
-          </b-form-input>
+            >
+            </b-form-input>
         </b-form-group>
         <b-form-group
           label="Password"

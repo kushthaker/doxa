@@ -48,10 +48,12 @@ export function logoutUser(user) {
   return axios.get('/api/logout')
 }
 
-export function fetchActivityData(user, startTime, endTime) {
-  const params = {
-    start_time: startTime,
-    end_time: endTime
-  }
-  return axios.get('/api/activity-data', { params: params })
+export function sendNudgeRequest(payload) {
+  var nudgeType = payload.nudgeType
+  return axios.get(`/api/activate-nudge?nudge_type=${nudgeType}`)
+}
+
+export function fetchActivityData(payload) {
+  var weekOffset = payload.weekOffset
+  return axios.get(`/api/activity-data?week-offset=${weekOffset}`)
 }

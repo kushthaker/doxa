@@ -36,7 +36,7 @@ JOB_SCHEDULE = [
   },
   {
     'func': activity_summary.update_user_activity_rows_workday,
-    'trigger': apscheduler_util.build_minute_trigger(20)
+    'trigger': apscheduler_util.build_minute_trigger(15)
   },
   {
     'func': github_activities.capture_github_repos,
@@ -70,10 +70,6 @@ JOB_SCHEDULE = [
 
     'func': activity_summary.update_user_activity_rows_non_workday,
     'trigger': apscheduler_util.build_hour_trigger(1)
-  },
-  {
-    'func': activity_summary.update_user_activity_rows_workday_future,
-    'trigger': apscheduler_util.build_minute_trigger(15)
   }
 ]
 

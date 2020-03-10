@@ -29,7 +29,6 @@
   export default {
     computed: mapState({
       isAuthenticated: function(state) {
-        console.log(state)
         if(state.currentUser) {
           return true
         }

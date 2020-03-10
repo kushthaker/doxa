@@ -7,7 +7,7 @@ import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
-
+import VueTimepicker from 'vue2-timepicker'
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
