@@ -122,6 +122,7 @@ const router = new Router({
 
         store.dispatch('clearFormErrors')
         store.dispatch('loadActivity', startTime, endTime)
+        store.dispatch('loadPastActivity', startTime, endTime)
         loginRequired(next, store)
 
       }

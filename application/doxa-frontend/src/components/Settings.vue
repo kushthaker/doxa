@@ -29,12 +29,13 @@
           description="Usual time that your workday starts (e.g. 9:30am)"
           row
         >
-        <b-form-select v-model="selected" :options="options">
+          <vue-timepicker class="custom-timepick" :hour-range="[[5, 14]]" :minute-interval="30" hide-disabled-hours format="HH:mm" v-model="workdayStart"></vue-timepicker>
+        <!-- <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
             <option>min 6 am</option>
             <option>list(numpy.arange(6,15,0.5))</option>
             <option>max 3 pm</option>
-        </b-form-select>
+        </b-form-select> -->
         </b-form-group>
 
         <!-- Workday end -->
@@ -45,12 +46,12 @@
           description="Usual time that your workday ends. (e.g. 5:30pm)"
           row
         >
-        <b-form-select v-model="selected" :options="options">
+        <!-- <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
             <option>min 3 pm</option>
             <option>list(numpy.arange(15,23,0.5))</option>
             <option>max 11 pm</option>
-        </b-form-select>
+        </b-form-select> -->
         </b-form-group>
 
         <!-- Focus length -->
@@ -61,12 +62,12 @@
           description="How long you want to focus per day (e.g. 2 hours)"
           row
         >
-        <b-form-select v-model="selected" :options="options">
+        <!-- <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
             <option>min 0.5</option>
             <option>list(numpy.arange(0.5,3,0.5))</option>
             <option>max 3</option>
-        </b-form-select>
+        </b-form-select> -->
         </b-form-group>
     
         <b-button type="submit" variant="primary">Submit</b-button>
@@ -158,20 +159,46 @@
     >
     <b-button variant="outline-info" to="change-password">Change your password</b-button>
     </b-form-group>
-
   </div>
 </template>
 
 <script>
   import { mapState } from 'vuex'
+  import VueTimepicker from 'vue2-timepicker'
   export default {
+    data() {
+      return {
+        workdayStart: {
+          type: Object,
+          default: function() {
+            return ({
+              HH: '9',
+              mm: '30'
+            })
+          }
+        },
+        workdayEnd: {
+          type: Object,
+          default: function() {
+            return ({
+              HH: '5',
+              mm: '30'
+            })
+          }
+        }
+      }
+    },
     computed: mapState({
-      userData: function(state){
+      userData: function(state) {
         return state.userData
       }
-    })
+    }),
+    components: { VueTimepicker }
   }
 </script>
 
-<style>  
+<style scoped>
+  .custom-timepick .active li{
+    background: #007bff;
+  }
 </style>

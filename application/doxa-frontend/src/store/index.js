@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { fetchUsers, fetchUser, fetchCSRF, registerUser, 
   checkLogin, getUserDetails, passwordChange, loginUser, logoutUser,
-  fetchActivityData } from '@/api'
+  fetchActivityData, sendNudgeRequest } from '@/api'
 import VueCookies from 'vue-cookies'
 import { isValidJwt } from '@/utils'
 
@@ -26,15 +26,22 @@ const state = {
   changePasswordSuccess: false,
   authCode: null,
   isLoggedIn: false,
-  activityData: []
+  activityData: [],
+  lastWeekActivityData: []
 }
 
 const actions = {
   // asynchronous operations
   loadActivity(context, data) {
-    return fetchActivityData()
+    return fetchActivityData({})
       .then((response) => {
         return context.commit('setActivityData', { time: response.data })
+      })
+  },
+  loadPastActivity(context) {
+    return fetchActivityData({ weekOffset: -1 })
+      .then((response) => {
+        return context.commit('setLastWeekActivityData', { time: response.data })
       })
   },
   loadUsers(context) {
@@ -142,6 +149,10 @@ const actions = {
   clearPasswordForm(context) {
     context.commit('setChangePasswordStatus', { changePasswordSuccess: false })
     context.commit('setChangePassword', { changePasswordForm: Object.assign({}, NEW_PASSWORD_CHANGE) })
+  },
+  requestNudge(context, payload) {
+    console.log(payload)
+    sendNudgeRequest(payload)
   }
 }
 
@@ -189,7 +200,10 @@ const mutations = {
   },
   setActivityData(state, payload) {
     state.activityData = payload.time
-  }
+  },
+  setLastWeekActivityData(state, payload) {
+    state.lastWeekActivityData = payload.time
+  },
 }
 
 const getters = {

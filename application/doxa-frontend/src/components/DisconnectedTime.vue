@@ -7,7 +7,7 @@
     <br>
     <br>
     <div v-if="this.isReady" class="text-center">
-      <h2>You turned off work</h2>
+      <h2>You disconnected from work after-hours</h2>
       <h2 class="disconnected-days">{{collaborativeDayCounts.disconnectedDays}} / {{collaborativeDayCounts.totalDays}}</h2>
       <h2>days last week.</h2>
     </div>
@@ -59,7 +59,7 @@
           }
         })
         return {
-          totalDays,
+          totalDays: totalDays - 1,
           disconnectedDays
         }
       }

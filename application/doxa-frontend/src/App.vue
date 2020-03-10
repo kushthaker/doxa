@@ -25,6 +25,7 @@
   import Sidebar from '@/components/Sidebar';
   import 'bootstrap/dist/css/bootstrap.css'
   import 'bootstrap-vue/dist/bootstrap-vue.css'
+  import 'vue2-timepicker/dist/VueTimepicker.css'
   // import JQuery from 'jquery'
   // window.$ = JQuery
   import Raphael from 'raphael/raphael'

@@ -2,7 +2,7 @@
   <div v-if="this.isReady" class="container text-center">
     <h5>Collaboration / Independent Time Balance</h5>
     <div>
-      All-time average <b>35%</b> time in collaboration.
+      {{this.collabMessage}}
     </div>
     <donut 
       :id="name"
@@ -58,16 +58,15 @@
         var activity = this.activity
         activity.forEach(function(act) {
           var actDatetime = new Date(act.datetime_utc)
-
-          if (act.is_workday_time && (actDatetime < new Date())) {
+          var now = new Date()
+          if (act.is_workday_time && (actDatetime < now)) {
             totalWorkHours += 1
-            if (act.is_collaborative_time) totalCollaborative += 1
-            else if (act.is_focus_time) totalIndependent += 1
-            else if (act.is_refocus_time) totalRefocusing += 1
+            if (act.is_collaborative_time == true) totalCollaborative += 1
+            else if (act.is_refocus_time == true) { console.log(act.datetime_utc); totalRefocusing += 1 }
+            else if (act.is_focus_time == true) totalIndependent += 1
             else console.log('Not categorized')
           }
         })
-
         var cP = (totalCollaborative*5/60).toFixed(1)
         var iP = (totalIndependent*5/60).toFixed(1)
         var rP = (totalRefocusing*5/60).toFixed(1)
@@ -105,6 +104,21 @@
       },
       noData: function() {
         return (this.activity.length > 0) & (this.donutData.length == 0)
+      },
+      collabMessage: function() {
+        if(this.isReady) {
+          var collaborativeHours = parseFloat(this.donutData.filter(function(d) {return d.label == 'Collaborative Time' })[0].value)
+          const allTimeAverage = 14.5
+          if (collaborativeHours < allTimeAverage) {
+            return `Nice work! Last week you had ${collaborativeHours} collaborative hours, less than your all time average of ${allTimeAverage} hours.`
+          }
+          else {
+            return `Last week you had ${collaborativeHours} collaborative hours, more than your all time average of ${allTimeAverage} hours.`
+          }
+        }
+        else {
+          return ''
+        }
       }
     },
   }
