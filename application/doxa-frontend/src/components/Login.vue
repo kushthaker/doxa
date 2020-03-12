@@ -57,9 +57,7 @@
       submitUser() {
         return this.$store.dispatch('userLogin').then(() => {
           if(!this.formErrors) {
-            var currentUser = this.$store.getters.currentUser
-            return this.$router.push({ name: "Maestro", params: {id: currentUser.id }}, () => {})
-            
+            return this.$router.push({ name: "Dashboard" }, () => {})
           }
         })
       },

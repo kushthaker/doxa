@@ -27,24 +27,7 @@ const router = new Router({
       name: 'Maestro',
       component: Maestro,
       beforeEnter: (to, from, next) => {
-        const isAuthed = store.getters.isLoggedIn;
-        const user = store.getters.currentUser
-        if(isAuthed) {
-          if(user
-          && (to.params.id === String(user.id))) {
-            store.dispatch('loadUser', user).then(() => {
-              next()
-            })
-          }
-          else {
-            store.dispatch('loadUser', user).then(() => {
-              next(`/maestro/${user.id}`)
-            })
-          }
-        }
-        else {
-          next('/login')
-        }
+        next('/fulfilled-dashboard')
       }
     },
     {
@@ -69,7 +52,7 @@ const router = new Router({
         const isAuthed = store.getters.isLoggedIn;
         if(isAuthed) {
           const user = store.getters.currentUser;
-          next(`/maestro/${user.id}`)
+          next('/fulfilled-dashboard')
         }
         else {
           next()   
@@ -114,7 +97,7 @@ const router = new Router({
     },
     {
       path: '/fulfilled-dashboard',
-      name: 'Fulfilled.ai - Focused Time',
+      name: 'Dashboard',
       component: Dashboard,
       beforeEnter: (to, from, next) => {
         const startTime = to.params.start_time
