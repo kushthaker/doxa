@@ -8,7 +8,7 @@
     </div>
     <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
     <b-collapse id="nav-collapse" class="mr-auto" is-nav>
-      <b-navbar-nav class="ml-auto center">
+      <b-navbar-nav class="ml-auto center menu-a-droit">
         <template v-if="isAuthenticated">
           <b-nav-item to="/fulfilled-dashboard">Dashboard</b-nav-item>
           <b-nav-item to="/settings">Settings</b-nav-item>
@@ -55,5 +55,8 @@
 
 .logo {
   margin: 10px 0px 40px 0px;
+}
+.menu-a-droit {
+  text-align: right;
 }
 </style>

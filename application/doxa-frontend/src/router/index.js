@@ -15,12 +15,7 @@ const router = new Router({
     {
       path: '/',
       name: 'Home',
-      component: Home,
-      beforeEnter: (to, from, next) => {
-        store.dispatch('loadUsers').then(() => {
-          next()
-        })
-      }
+      component: Home
     },
     {
       path: '/maestro/:id',
