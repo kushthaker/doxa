@@ -40,7 +40,9 @@ const router = new Router({
           store.dispatch('clearFormErrors')
           next()  
         }
-        
+        else {
+          next('/fulfilled-dashboard')
+        }        
       }
     },
     {
