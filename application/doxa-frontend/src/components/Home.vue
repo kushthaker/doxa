@@ -6,35 +6,31 @@
             <div>
               <h1>Find focus at work with Fulfilled.</h1>
               <h4>Developers use Fulfilled to focus on their craft, collaborate smarter, and disconnect after work.</h4>
-              <button>Try it free</button>
+              <button onclick="window.location.href = 'https://fulfilled.ai/#/register-new-user';" class="btn btn-dark">Try it free</button>
             </div>
           </div>
           <div class="row hero-section">
-            <div class="col-md-6">
-              <h3>See your collaboration trends</h3>
-            </div>
-            <div class="col-md-6">
-            </div>
-          </div>          
-          <div class="row hero-section">
-            <div class="col-md-6">
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-6 my-auto">
               <h3>Book time to work deeply everyday</h3>
             </div>
-          </div>
-          <div class="row hero-section">
             <div class="col-md-6">
-              <h3>Estimate impact of code changes</h3>
-            </div>
-            <div class="col-md-6">
+               <img class="trends" src="../assets/cal.png" alt="Fulfilled.ai">
             </div>
           </div>          
           <div class="row hero-section">
             <div class="col-md-6">
+              <img class="trends" src="../assets/trends.png" alt="Fulfilled.ai">
+            </div>
+            <div class="col-md-6 my-auto">
+              <h3>Reflect on your work patterns</h3>
+            </div>
+          </div>       
+          <div class="row hero-section">
+            <div class="col-md-6 my-auto">
+              <h3>Get tips to focus better and disconnect after work</h3>
             </div>
             <div class="col-md-6">
-              <h3>Reflect weekly on your work patterns</h3>
+              <img class="trends" src="../assets/tips.png" alt="Fulfilled.ai">
             </div>
           </div>
         </div>
@@ -92,5 +88,16 @@ li {
 a {
   color: #42b983;
 }
+
+img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block; /* remove extra space below image */
+  }
+
+button {
+  font-family: 'Roboto', sans-serif;
+}
+
 </style>
 

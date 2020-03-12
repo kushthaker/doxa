@@ -29,13 +29,28 @@
           description="Usual time that your workday starts (e.g. 9:30am)"
           row
         >
-          <vue-timepicker class="custom-timepick" :hour-range="[[5, 14]]" :minute-interval="30" hide-disabled-hours format="HH:mm" v-model="workdayStart"></vue-timepicker>
-        <!-- <b-form-select v-model="selected" :options="options">
+<!--           <vue-timepicker class="custom-timepick" :hour-range="[[5, 14]]" :minute-interval="30" hide-disabled-hours format="HH:mm" v-model="workdayStart"></vue-timepicker> -->
+        <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
-            <option>min 6 am</option>
-            <option>list(numpy.arange(6,15,0.5))</option>
-            <option>max 3 pm</option>
-        </b-form-select> -->
+            <option>6:00 am</option>
+            <option>6:30 am</option>
+            <option>7:00 am</option>
+            <option>7:30 am</option>
+            <option>8:00 am</option>
+            <option>8:30 am</option>
+            <option>9:00 am</option>
+            <option>9:30 am</option>
+            <option>10:00 am</option>
+            <option>10:30 am</option>
+            <option>11:00 am</option>
+            <option>11:30 am</option>
+            <option>12:00 pm</option>
+            <option>12:30 pm</option>
+            <option>1:00 pm</option>
+            <option>1:30 pm</option>
+            <option>2:00 pm</option>
+            <option>2:30 pm</option>
+        </b-form-select>
         </b-form-group>
 
         <!-- Workday end -->
@@ -46,12 +61,26 @@
           description="Usual time that your workday ends. (e.g. 5:30pm)"
           row
         >
-        <!-- <b-form-select v-model="selected" :options="options">
+        <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
-            <option>min 3 pm</option>
-            <option>list(numpy.arange(15,23,0.5))</option>
-            <option>max 11 pm</option>
-        </b-form-select> -->
+            <option>3:00 pm</option>
+            <option>3:30 pm</option>
+            <option>4:00 pm</option>
+            <option>4:30 pm</option>
+            <option>5:00 pm</option>
+            <option>5:30 pm</option>
+            <option>6:00 pm</option>
+            <option>6:30 pm</option>
+            <option>7:00 pm</option>
+            <option>7:30 pm</option>
+            <option>8:00 pm</option>
+            <option>8:30 pm</option>
+            <option>9:00 pm</option>
+            <option>9:30 pm</option>
+            <option>10:00 pm</option>
+            <option>10:30 pm</option>
+            <option>11:00 pm</option>
+        </b-form-select>
         </b-form-group>
 
         <!-- Focus length -->
@@ -59,15 +88,17 @@
         <b-form-group
           label="Focus Time Length"
           label-for="input-3"
-          description="How long you want to focus per day (e.g. 2 hours)"
+          description="How long you want to focus daily (e.g. 120 mins)"
           row
         >
-        <!-- <b-form-select v-model="selected" :options="options">
+        <b-form-select v-model="selected" :options="options">
             <option disabled value="">Please select one</option>
-            <option>min 0.5</option>
-            <option>list(numpy.arange(0.5,3,0.5))</option>
-            <option>max 3</option>
-        </b-form-select> -->
+            <option>30 min</option>
+            <option>60 min</option>
+            <option>90 min</option>
+            <option>120 min</option>
+            <option>180 min</option>
+        </b-form-select>
         </b-form-group>
     
         <b-button type="submit" variant="primary">Submit</b-button>
@@ -82,6 +113,7 @@
       <b-col cols="10">
         <h4>Your integrations</h4>
       </b-col>
+        <p>We use your Slack and Calendar events to book time to focus in the upcoming period, offer personal suggestions and display aggregated historical data spent in collaboration and focus. Github history is used to estimate of your contribution for a given period. Your data is never shared with others and available exclusively to you (for now...)</p>
       <b-col cols="1"></b-col>
      </b-row>
       <b-row><br></b-row>
