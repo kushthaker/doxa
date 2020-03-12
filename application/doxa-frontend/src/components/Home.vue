@@ -18,11 +18,11 @@
             </div>
           </div>          
           <div class="row hero-section">
-            <div class="col-md-6">
-              <img class="trends" src="../assets/trends.png" alt="Fulfilled.ai">
-            </div>
-            <div class="col-md-6 my-auto">
+            <div class="col-md-6 order-sm-12 my-auto">
               <h3>Reflect on your work patterns</h3>
+            </div>
+            <div class="col-md-6 order-sm-1">
+              <img class="trends" src="../assets/trends.png" alt="Fulfilled.ai">
             </div>
           </div>       
           <div class="row hero-section">
