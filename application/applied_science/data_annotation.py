@@ -10,7 +10,7 @@ def labelled_focus_time_df(user, start_datetime=None, end_datetime=None, week_of
   hour_timezone_offset = user.timezone_offset_hours
   activity_df = get_activity_report_df(user, start_datetime=None, end_datetime=None, week_offset=week_offset)
   activity_df.index = activity_df.datetime_utc
-  activity_df['datetime_local'] = activity_df.datetime_utc + dt.timedelta(hour_timezone_offset)
+  activity_df['datetime_local'] = activity_df.datetime_utc + dt.timedelta(hours=hour_timezone_offset)
   return activity_df
 
 def label_focus_time(df):
