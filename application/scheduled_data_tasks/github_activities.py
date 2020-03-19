@@ -2,12 +2,74 @@ from application.models import GitHubUser, GitHubRepo, \
   GitHubCommit, GitHubPullRequest, GitHubIssue, GitHubComment
 from application.initialize.db_init import db
 from datetime import datetime, timedelta
-
 from github import Github, GithubException
-from datetime import datetime, timedelta
+import math
 
 #Used to control API request speed and avoid rate limiting problems
 from time import sleep
+
+
+#Impact score calculations
+def calculate_commit_impact_score(commit):
+  # #method 1: crude count
+  # return 1.0
+
+
+  # #method 2: weighted insertions/deletions (edits or deletions counted half as much as additions)
+  # additions = commit.stats.additions
+  # deletions = commit.stats.deletions
+  # lines_changed_diff = additions - deletions
+  # total_weighted_lines = None
+  # if(lines_changed_diff > 0):
+  #   #Raw additions + some edits/deletions
+  #   total_weighted_lines = lines_changed_diff + (0.5 * deletions)
+  # else:
+  #   #Assumed mostly moves/edits or deletions
+  #   total_weighted_lines = 0.5 * deletions
+  # return total_weighted_lines
+
+
+  # #method 3: weighted insersions/deletions times number of files changed
+  # additions = commit.stats.additions
+  # deletions = commit.stats.deletions
+  # lines_changed_diff = additions - deletions
+  # total_weighted_lines = None
+  # if(lines_changed_diff > 0):
+  #   #Raw additions + some edits/deletions
+  #   total_weighted_lines = lines_changed_diff + (0.5 * deletions)
+  # else:
+  #   #Assumed mostly moves/edits or deletions
+  #   total_weighted_lines = 0.5 * deletions
+  # total_files_changed = len(commit.files)
+  # weighted_score = total_weighted_lines * total_files_changed
+  # return weighted_score
+
+  #method 4: sum of square root of (weighted) lines changed in each file
+  total_weighted_lines = 0.0
+  total_weighted_score = 0.0
+  total_files_changed = len(commit.files)
+  for file in commit.files:
+    additions = file.additions
+    deletions = file.deletions
+    lines_changed_diff = additions - deletions
+    weighted_lines = None
+    if(lines_changed_diff > 0):
+      #Raw additions + some edits/deletions
+      weighted_lines = lines_changed_diff + (0.5 * deletions)
+    else:
+      #Assumed mostly moves/edits or deletions
+      weighted_lines = 0.5 * deletions
+    total_weighted_lines = total_weighted_lines + weighted_lines
+    file_weighted_score = math.sqrt(weighted_lines)
+    total_weighted_score = total_weighted_score + file_weighted_score
+
+  # return total_weighted_score
+
+  #method 5: method 4 but multiplied by mean weighted lines changed per file
+  mean_weighted_lines_per_file = float(total_weighted_lines) / total_files_changed 
+
+  return total_weighted_score * mean_weighted_lines_per_file
+
 
 def capture_github_repos(user_id=None):
   #For each user, or a given user, get and store all repos a user contributes to
@@ -80,8 +142,8 @@ def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow
           print(repo.name)
           for commit in userCommits:
             try:
+              commit_impact_score = calculate_commit_impact_score(commit)
               gitCommit = GitHubCommit.query.filter_by(sha=commit.sha).first()
-              #TODO: calculate impact score as well
               if(gitCommit is None):
                 gitCommit = GitHubCommit(
                   created_at=datetime.utcnow(), \
@@ -93,7 +155,8 @@ def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow
                   github_api_committed_at = commit.commit.author.date, \
                   insertions=commit.stats.additions, \
                   deletions = commit.stats.deletions, \
-                  files_changed = len(commit.files)
+                  files_changed = len(commit.files), \
+                  impact_score = commit_impact_score
                 )
                 new_commits += 1
               else:
@@ -102,6 +165,7 @@ def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow
                 gitCommit.github_api_committed_at = commit.commit.author.date
                 gitCommit.insersions = commit.stats.additions
                 gitCommit.deletions = commit.stats.deletions
+                gitCommit.impact_score = commit_impact_score
                 gitCommit.updated_at = datetime.utcnow()
                 updated_commits += 1
               #TODO: calculate edit points and impact score here      
@@ -117,14 +181,15 @@ def capture_github_commits(startDate=datetime(2008,1,1), endDate=datetime.utcnow
 
   try:
     db.session.commit()
-    if(user_id is None):
-      print('Added %s new github_commits to DB and updated %s github_commits for %s github_users' % (new_commits, updated_commits, len(github_users)))
-    else:
-      print('Added %s new github_commits to DB and updated %s github_commits for github user %s' % (new_commits, updated_commits, user_id))
   except Exception as e:
     print("Failed to commit database.\nMessage: ")
     print(e)
     db.session.rollback()
+  else:
+    if(user_id is None):
+      print('Added %s new github_commits to DB and updated %s github_commits for %s github_users' % (new_commits, updated_commits, len(github_users)))
+    else:
+      print('Added %s new github_commits to DB and updated %s github_commits for github user %s' % (new_commits, updated_commits, user_id))
 
   return
 
