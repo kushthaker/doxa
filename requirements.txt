@@ -32,7 +32,7 @@ docutils==0.15.2
 entrypoints==0.3
 Flask==1.0.2
 Flask-Bcrypt==0.7.1
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-Login==0.4.1
 Flask-Mail==0.9.1
 Flask-Migrate==2.5.2
